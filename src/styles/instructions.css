@@ -1,0 +1,518 @@
+/* =========================================================
+   INSTRUCTIONS / CONSIGNES
+   ========================================================= */
+
+.instruction-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  margin-bottom: 18px;
+}
+
+.instruction-filters button {
+  min-height: 34px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dce2de;
+  border-radius: 999px;
+
+  background: #fafbf9;
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease;
+}
+
+.instruction-filters button:hover {
+  background: #eef3f0;
+  border-color: #cbd6d0;
+  color: var(--green);
+}
+
+.instruction-filters button.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+
+.instructions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+
+/* Card */
+
+.instruction-card {
+  background: white;
+
+  border: 1px solid #dde3de;
+  border-radius: 15px;
+
+  padding: 15px;
+
+  display: grid;
+  gap: 12px;
+
+  box-shadow:
+    0 3px 12px rgba(20, 48, 39, 0.035);
+
+  transition:
+    transform .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease;
+}
+
+.instruction-card:hover {
+  transform: translateY(-1px);
+
+  border-color: #cad5cf;
+
+  box-shadow:
+    0 8px 22px rgba(20, 48, 39, 0.06);
+}
+
+.instruction-card-read {
+  opacity: .74;
+}
+
+
+.instruction-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.instruction-card-tags {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+
+.instruction-priority,
+.instruction-shift,
+.instruction-pinned,
+.instruction-read-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  min-height: 22px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+
+.instruction-priority.normal {
+  background: #edf3ef;
+  color: #657b72;
+}
+
+.instruction-priority.high {
+  background: #f6eedf;
+  color: #8a692e;
+}
+
+.instruction-priority.urgent {
+  background: #f9e8e5;
+  color: #ad5148;
+}
+
+
+.instruction-shift {
+  background: #f2f3ef;
+  color: #7d8984;
+}
+
+.instruction-pinned {
+  background: #f3ecdb;
+  color: #8b6a32;
+}
+
+.instruction-read-state {
+  background: #edf4ef;
+  color: var(--green);
+
+  flex: 0 0 auto;
+}
+
+
+.instruction-card-content h3 {
+  margin: 0;
+
+  color: var(--ink);
+
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.instruction-card-content p {
+  margin: 6px 0 0;
+
+  color: var(--muted);
+
+  font-size: 11px;
+  line-height: 1.5;
+
+  white-space: pre-wrap;
+}
+
+
+.instruction-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 6px;
+
+  padding-top: 9px;
+
+  border-top: 1px solid #edf0ed;
+}
+
+.instruction-action-button {
+  min-height: 30px;
+
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  border: 1px solid #d8e0db;
+  border-radius: 8px;
+
+  background: #f5f8f6;
+  color: var(--green);
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.instruction-action-button:hover {
+  background: #eaf2ed;
+}
+
+
+.instruction-icon-button {
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border: 1px solid #dce2de;
+  border-radius: 8px;
+
+  background: #fafbf9;
+  color: #586a62;
+}
+
+.instruction-icon-button:hover {
+  background: #eef3f0;
+  color: var(--green);
+}
+
+.instruction-icon-button.danger {
+  color: #b25950;
+
+  background: #fff9f8;
+
+  border-color: #ead5d1;
+}
+
+.instruction-icon-button.danger:hover {
+  background: #f9ebe8;
+}
+
+
+.instruction-empty {
+  padding: 28px;
+
+  border: 1px dashed #d7ded9;
+  border-radius: 14px;
+
+  background: #fafbf9;
+
+  color: var(--muted);
+
+  font-size: 11px;
+
+  text-align: center;
+}
+
+.instruction-error {
+  margin-bottom: 14px;
+
+  color: #a84d46;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   INSTRUCTION MODAL
+   ========================================================= */
+
+.instruction-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 28px;
+
+  background: rgba(15, 34, 29, .48);
+
+  backdrop-filter: blur(6px);
+}
+
+.instruction-modal {
+  width: min(620px, 100%);
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background: var(--paper);
+
+  box-shadow:
+    0 30px 80px rgba(10, 29, 24, .24);
+}
+
+
+.instruction-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 25px 27px 20px;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.instruction-modal-header h2 {
+  margin: 7px 0 5px;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  color: var(--ink);
+
+  font-size: 27px;
+  font-weight: 500;
+}
+
+.instruction-modal-header p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 10px;
+}
+
+
+.instruction-modal-close {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  border: 1px solid var(--line);
+  border-radius: 50%;
+
+  background: white;
+  color: var(--green);
+}
+
+
+.instruction-modal-body {
+  display: grid;
+
+  gap: 17px;
+
+  padding: 23px 27px;
+}
+
+
+.instruction-form-field {
+  display: grid;
+
+  gap: 7px;
+}
+
+.instruction-form-field > span {
+  color: #64756e;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.instruction-form-field input,
+.instruction-form-field textarea,
+.instruction-form-field select {
+  width: 100%;
+
+  padding: 12px 13px;
+
+  border: 1px solid var(--line);
+  border-radius: 10px;
+
+  background: white;
+  color: var(--ink);
+
+  outline: none;
+
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.instruction-form-field textarea {
+  resize: vertical;
+
+  min-height: 115px;
+
+  line-height: 1.5;
+}
+
+.instruction-form-field input:focus,
+.instruction-form-field textarea:focus,
+.instruction-form-field select:focus {
+  border-color: #9eb0a8;
+
+  box-shadow:
+    0 0 0 3px rgba(21, 58, 51, .06);
+}
+
+
+.instruction-form-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 13px;
+}
+
+
+.instruction-pin-toggle {
+  min-height: 36px;
+
+  width: fit-content;
+
+  padding: 0 12px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  border: 1px solid #dce2de;
+  border-radius: 9px;
+
+  background: #fafbf9;
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.instruction-pin-toggle.active {
+  background: #f3ecdb;
+
+  border-color: #e4d7b9;
+
+  color: #8b6a32;
+}
+
+
+.instruction-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  padding: 15px 27px;
+
+  border-top: 1px solid var(--line);
+
+  background: white;
+}
+
+
+/* Mobile */
+
+@media (max-width: 760px) {
+  .instructions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .instruction-modal-backdrop {
+    padding: 0;
+
+    align-items: flex-end;
+  }
+
+  .instruction-modal {
+    width: 100%;
+
+    max-height: 92vh;
+
+    overflow-y: auto;
+
+    border-radius: 20px 20px 0 0;
+  }
+
+  .instruction-modal-header {
+    padding: 21px 20px 18px;
+  }
+
+  .instruction-modal-body {
+    padding: 20px;
+  }
+
+  .instruction-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .instruction-modal-footer {
+    padding:
+      14px
+      20px
+      calc(14px + env(safe-area-inset-bottom));
+  }
+}
+
+

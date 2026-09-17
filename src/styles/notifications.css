@@ -1,0 +1,36 @@
+.instruction,
+.notification {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.instruction:first-child,
+.notification:first-child { padding-top: 0; }
+
+.instruction:last-child,
+.notification:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.instruction b { color: var(--gold); font-size: 10px; }
+
+.instruction h3 {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.instruction p,
+.notification p {
+  color: #52635d;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.instruction small,
+.notification small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+

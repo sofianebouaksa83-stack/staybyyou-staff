@@ -1,0 +1,10 @@
+{
+  "name": "StayByYou Staff",
+  "short_name": "SBY Staff",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#153a33",
+  "lang": "fr",
+  "icons": []
+}

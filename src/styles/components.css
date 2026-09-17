@@ -1,0 +1,109 @@
+.simple-line {
+  margin: 0;
+  padding: 9px 0;
+  border-top: 1px solid #edf0eb;
+  font-size: 12px;
+}
+
+.muted { color: var(--muted); font-size: 12px; }
+
+.primary-button {
+  border: 0;
+  background: var(--green);
+  color: white;
+  border-radius: 11px;
+  padding: 12px 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.small-button { padding: 10px 13px; }
+
+.more-list {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.more-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.more-list a:last-child { border-bottom: 0; }
+
+.more-list a > span {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+
+.search-results {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.search-result {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+}
+
+.search-result:first-of-type { border-top: 0; }
+.search-result small { color: var(--muted); }
+
+.empty {
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+  margin-top: 60px;
+}
+
+.empty-state {
+  padding: 26px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  text-align: center;
+  font-size: 11px;
+}
+
+.profile-page-card {
+  max-width: 480px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  font-size: 18px;
+  background: var(--green);
+  color: var(--cream);
+}
+
+.profile-page-card h2 { margin: 0 0 5px; }
+.profile-page-card p { margin: 0; color: var(--muted); font-size: 12px; }
+.profile-page-card span, .profile-page-card small { display: block; margin-top: 8px; font-size: 10px; }
+
+.center { text-align: center; padding: 100px 20px; }
+
+
