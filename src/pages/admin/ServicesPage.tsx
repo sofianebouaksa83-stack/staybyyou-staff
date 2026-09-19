@@ -1,11 +1,23 @@
-import { PageHeader } from "../../components/ui/PageHeader";
+import { SettingsShell } from "../SettingsShell";
 
-const services = ["Réception","Cuisine","Housekeeping","Maintenance","Restaurant","Room Service","Spa","Direction"];
+const services = [
+  "Réception",
+  "Cuisine",
+  "Housekeeping",
+  "Maintenance",
+  "Restaurant",
+  "Room Service",
+  "Spa",
+  "Direction",
+];
 
 export default function ServicesPage() {
   return (
-    <>
-      <PageHeader title="Services" subtitle="Organisation des équipes de l’établissement." />
+    <SettingsShell
+      sectionLabel="Administration"
+      sectionTitle="Services"
+      sectionSubtitle="Organisation des équipes de l’établissement."
+    >
       <div className="service-grid">
         {services.map((service, index) => (
           <article className="service-card" key={service}>
@@ -15,6 +27,6 @@ export default function ServicesPage() {
           </article>
         ))}
       </div>
-    </>
+    </SettingsShell>
   );
 }

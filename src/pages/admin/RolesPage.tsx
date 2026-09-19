@@ -1,16 +1,19 @@
-import { PageHeader } from "../../components/ui/PageHeader";
+import { SettingsShell } from "../SettingsShell";
 
 const roles = [
-  ["Employé","Lecture des informations utiles, messages et tâches assignées."],
-  ["Responsable","Gestion opérationnelle de son service."],
-  ["Direction","Accès transversal et reporting."],
-  ["Admin","Configuration complète de l’établissement."],
+  ["Employé", "Lecture des informations utiles, messages et tâches assignées."],
+  ["Responsable", "Gestion opérationnelle de son service."],
+  ["Direction", "Accès transversal et reporting."],
+  ["Admin", "Configuration complète de l’établissement."],
 ];
 
 export default function RolesPage() {
   return (
-    <>
-      <PageHeader title="Rôles & permissions" subtitle="Les droits seront appliqués côté interface puis côté Supabase/RLS." />
+    <SettingsShell
+      sectionLabel="Administration"
+      sectionTitle="Rôles & permissions"
+      sectionSubtitle="Les droits seront appliqués côté interface puis côté Supabase/RLS."
+    >
       <div className="role-grid">
         {roles.map(([role, desc]) => (
           <article className="role-card" key={role}>
@@ -20,6 +23,6 @@ export default function RolesPage() {
           </article>
         ))}
       </div>
-    </>
+    </SettingsShell>
   );
 }
