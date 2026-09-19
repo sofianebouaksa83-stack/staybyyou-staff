@@ -280,51 +280,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
     pendingHydrationRef.current = null;
   }, []);
 
-  const hydrateUser = useCallback((authUser: SupabaseUser) => {
-    const pending = pendingHydrationRef.current;
+  const hydrateUser = useCallback(
+    (
+      authUser: SupabaseUser,
+      options?: {
+        showLoader?: boolean;
+      }
+    ) => {
+      const pending = pendingHydrationRef.current;
 
-    if (pending?.userId === authUser.id) {
-      return pending.promise;
-    }
+      if (pending?.userId === authUser.id) {
+        return pending.promise;
+      }
 
-    setAuthLoading(true);
-    setAuthError(null);
+      const showLoader = options?.showLoader ?? false;
 
-    const promise = loadStaffAccount(authUser)
-      .then((account) => {
-        if (!mountedRef.current) return;
+      if (showLoader) {
+        setAuthLoading(true);
+      }
 
-        setProfile(account.profile);
-        setMembership(account.membership);
-        setStaffUser(account.user);
-      })
-      .catch((error: unknown) => {
-        if (mountedRef.current) {
-          setProfile(null);
-          setMembership(null);
-          setStaffUser(null);
-          setAuthError(errorMessage(error));
-        }
+      setAuthError(null);
 
-        throw error;
-      })
-      .finally(() => {
-        if (mountedRef.current) {
-          setAuthLoading(false);
-        }
+      const promise = loadStaffAccount(authUser)
+        .then((account) => {
+          if (!mountedRef.current) return;
 
-        if (pendingHydrationRef.current?.promise === promise) {
-          pendingHydrationRef.current = null;
-        }
-      });
+          setProfile(account.profile);
+          setMembership(account.membership);
+          setStaffUser(account.user);
+        })
+        .catch((error: unknown) => {
+          if (mountedRef.current) {
+            setProfile(null);
+            setMembership(null);
+            setStaffUser(null);
+            setAuthError(errorMessage(error));
+          }
 
-    pendingHydrationRef.current = {
-      userId: authUser.id,
-      promise,
-    };
+          throw error;
+        })
+        .finally(() => {
+          if (mountedRef.current && showLoader) {
+            setAuthLoading(false);
+          }
 
-    return promise;
-  }, []);
+          if (pendingHydrationRef.current?.promise === promise) {
+            pendingHydrationRef.current = null;
+          }
+        });
+
+      pendingHydrationRef.current = {
+        userId: authUser.id,
+        promise,
+      };
+
+      return promise;
+    },
+    []
+  );
 
   useEffect(() => {
     mountedRef.current = true;
@@ -341,7 +354,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
 
       if (data.session) {
-        void hydrateUser(data.session.user).catch(() => undefined);
+        void hydrateUser(data.session.user, {
+          showLoader: true,
+        }).catch(() => undefined);
       } else {
         setAuthLoading(false);
       }
@@ -361,12 +376,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       if (
         event === "SIGNED_IN" ||
-        event === "USER_UPDATED" ||
-        event === "INITIAL_SESSION"
+        event === "USER_UPDATED"
       ) {
         window.setTimeout(() => {
           if (mountedRef.current) {
-            void hydrateUser(nextSession.user).catch(() => undefined);
+            void hydrateUser(nextSession.user, {
+              showLoader: false,
+            }).catch(() => undefined);
           }
         }, 0);
       }

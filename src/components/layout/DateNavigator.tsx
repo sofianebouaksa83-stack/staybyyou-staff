@@ -4,13 +4,27 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+import { useLocation } from "react-router-dom";
+
 import { useApp } from "../../app/AppContext";
 
 export function DateNavigator() {
+  const location = useLocation();
+
   const {
     selectedDate,
     setSelectedDate,
   } = useApp();
+
+  const isMessagesPage =
+    location.pathname === "/messages" ||
+    location.pathname.startsWith(
+      "/messages/"
+    );
+
+  if (isMessagesPage) {
+    return null;
+  }
 
   function changeDay(offset: number) {
     const nextDate =
@@ -25,7 +39,7 @@ export function DateNavigator() {
 
   function goToday() {
     setSelectedDate(
-      new Date(2026, 8, 17)
+      new Date()
     );
   }
 
@@ -43,7 +57,10 @@ export function DateNavigator() {
   return (
     <div className="date-navigator">
       <button
-        onClick={() => changeDay(-1)}
+        type="button"
+        onClick={() =>
+          changeDay(-1)
+        }
         aria-label="Jour précédent"
       >
         <ChevronLeft size={17} />
@@ -58,13 +75,17 @@ export function DateNavigator() {
       </div>
 
       <button
-        onClick={() => changeDay(1)}
+        type="button"
+        onClick={() =>
+          changeDay(1)
+        }
         aria-label="Jour suivant"
       >
         <ChevronRight size={17} />
       </button>
 
       <button
+        type="button"
         className="date-today-button"
         onClick={goToday}
       >

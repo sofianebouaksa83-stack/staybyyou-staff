@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import {
   Bell,
   Building2,
@@ -16,14 +22,37 @@ import type { Role } from "../../types";
 import { DateNavigator } from "./DateNavigator";
 
 const navItems = [
-  { to: "/", label: "Aujourd’hui", icon: Home },
-  { to: "/hotel", label: "Hôtel", icon: Building2 },
-  { to: "/messages", label: "Messages", icon: MessageCircle },
-  { to: "/tasks", label: "Tâches", icon: CheckSquare },
-  { to: "/more", label: "Plus", icon: Menu },
+  {
+    to: "/",
+    label: "Aujourd’hui",
+    icon: Home,
+  },
+  {
+    to: "/hotel",
+    label: "Hôtel",
+    icon: Building2,
+  },
+  {
+    to: "/messages",
+    label: "Messages",
+    icon: MessageCircle,
+  },
+  {
+    to: "/tasks",
+    label: "Tâches",
+    icon: CheckSquare,
+  },
+  {
+    to: "/more",
+    label: "Plus",
+    icon: Menu,
+  },
 ];
 
-const roleLabels: Record<Role, string> = {
+const roleLabels: Record<
+  Role,
+  string
+> = {
   employee: "Employé",
   manager: "Responsable",
   direction: "Direction",
@@ -31,9 +60,28 @@ const roleLabels: Record<Role, string> = {
 };
 
 export function AppLayout() {
-  const { user, signOut } = useApp();
-  const navigate = useNavigate();
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const {
+    user,
+    signOut,
+  } = useApp();
+
+  const navigate =
+    useNavigate();
+
+  const location =
+    useLocation();
+
+  const [
+    isSigningOut,
+    setIsSigningOut,
+  ] = useState(false);
+
+  const isMessagesPage =
+    location.pathname ===
+      "/messages" ||
+    location.pathname.startsWith(
+      "/messages/"
+    );
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -45,16 +93,25 @@ export function AppLayout() {
     }
   }
 
-  const initials = `${user.firstName?.[0] ?? ""}${
-    user.lastName?.[0] ?? ""
-  }`.toUpperCase();
+  const initials =
+    `${user.firstName?.[0] ?? ""}${
+      user.lastName?.[0] ?? ""
+    }`.toUpperCase();
 
   return (
-    <div className="app-shell">
+    <div
+      className={
+        isMessagesPage
+          ? "app-shell app-shell-messages"
+          : "app-shell"
+      }
+    >
       <aside className="sidebar">
         <button
           className="brand"
-          onClick={() => navigate("/")}
+          onClick={() =>
+            navigate("/")
+          }
         >
           <img
             src="/logo_StayByYou/staybyyou_blanc_slogan_sansfond.png"
@@ -64,78 +121,152 @@ export function AppLayout() {
         </button>
 
         <nav className="side-nav">
-          {navItems.map(({ to, label, icon: Icon }) => (
-            <NavLink key={to} to={to} end={to === "/"}>
-              <Icon size={19} />
-              <span>{label}</span>
-            </NavLink>
-          ))}
+          {navItems.map(
+            ({
+              to,
+              label,
+              icon: Icon,
+            }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === "/"}
+              >
+                <Icon size={19} />
+
+                <span>
+                  {label}
+                </span>
+              </NavLink>
+            )
+          )}
         </nav>
 
         <div className="profile-card">
-          <div className="avatar">{initials || "S"}</div>
+          <div className="avatar">
+            {initials || "S"}
+          </div>
+
           <div>
-            <strong>{user.firstName}</strong>
+            <strong>
+              {user.firstName}
+            </strong>
+
             <small>
-              {user.departments[0] ?? "Équipe"} · {roleLabels[user.role]}
+              {user.departments[0] ??
+                "Équipe"}{" "}
+              ·{" "}
+              {
+                roleLabels[
+                  user.role
+                ]
+              }
             </small>
           </div>
         </div>
       </aside>
 
-      <main className="main">
+      <main
+        className={
+          isMessagesPage
+            ? "main main-messages"
+            : "main"
+        }
+      >
         <header className="topbar">
           <div>
-            <span className="eyebrow">{user.hotelName}</span>
+            <span className="eyebrow">
+              {user.hotelName}
+            </span>
           </div>
 
           <div className="topbar-actions">
             <button
               className="icon-button"
-              onClick={() => navigate("/search")}
+              onClick={() =>
+                navigate(
+                  "/search"
+                )
+              }
               aria-label="Rechercher"
             >
-              <Search size={18} />
+              <Search
+                size={18}
+              />
             </button>
 
             <button
               className="icon-button notification-button"
-              onClick={() => navigate("/notifications")}
+              onClick={() =>
+                navigate(
+                  "/notifications"
+                )
+              }
               aria-label="Notifications"
             >
-              <Bell size={18} />
+              <Bell
+                size={18}
+              />
+
               <i />
             </button>
 
             <button
               className="icon-button"
               type="button"
-              onClick={() => void handleSignOut()}
+              onClick={() =>
+                void handleSignOut()
+              }
               aria-label="Se déconnecter"
               title="Se déconnecter"
-              disabled={isSigningOut}
+              disabled={
+                isSigningOut
+              }
             >
-              <LogOut size={18} />
+              <LogOut
+                size={18}
+              />
             </button>
           </div>
         </header>
 
-        <div className="global-date-bar">
-          <DateNavigator />
-        </div>
+        {!isMessagesPage && (
+          <div className="global-date-bar">
+            <DateNavigator />
+          </div>
+        )}
 
-        <div className="content">
+        <div
+          className={
+            isMessagesPage
+              ? "content content-messages"
+              : "content"
+          }
+        >
           <Outlet />
         </div>
       </main>
 
       <nav className="mobile-nav">
-        {navItems.map(({ to, label, icon: Icon }) => (
-          <NavLink key={to} to={to} end={to === "/"}>
-            <Icon size={20} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
+        {navItems.map(
+          ({
+            to,
+            label,
+            icon: Icon,
+          }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === "/"}
+            >
+              <Icon size={20} />
+
+              <span>
+                {label}
+              </span>
+            </NavLink>
+          )
+        )}
       </nav>
     </div>
   );

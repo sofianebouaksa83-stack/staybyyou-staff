@@ -31,23 +31,10 @@ import ServicesPage from "../pages/admin/ServicesPage";
 import RolesPage from "../pages/admin/RolesPage";
 import LoginPage from "../pages/LoginPage";
 import NotFoundPage from "../pages/NotFoundPage";
+import  StayByYouLoader  from "../components/StayByYouLoader/StayByYouLoader";
 
 function AuthLoadingScreen() {
-  return (
-    <main className="login-page" aria-busy="true">
-      <section className="login-brand">
-        <div className="login-logo">S</div>
-        <p>STAYBYYOU</p>
-        <span>STAFF</span>
-      </section>
-
-      <section className="login-card">
-        <span className="eyebrow">ESPACE ÉQUIPE</span>
-        <h1>Chargement…</h1>
-        <p>Nous restaurons votre session.</p>
-      </section>
-    </main>
-  );
+  return <StayByYouLoader fullscreen />;
 }
 
 function ProtectedRoute() {
