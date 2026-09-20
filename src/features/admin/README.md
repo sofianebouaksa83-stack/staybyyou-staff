@@ -1,3 +1,0 @@
-# Admin
-
-Administration feature placeholder.

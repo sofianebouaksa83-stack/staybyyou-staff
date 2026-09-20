@@ -20,6 +20,7 @@ import {
 import { useApp } from "../../app/AppContext";
 import type { Role } from "../../types";
 import { DateNavigator } from "./DateNavigator";
+import { useNotifications } from "../../features/admin/notifications/hooks/useNotifications";
 
 const navItems = [
   { to: "/", label: "Aujourd’hui", icon: Home },
@@ -37,11 +38,12 @@ const roleLabels: Record<Role, string> = {
 };
 
 export function AppLayout() {
-  const { user, signOut } = useApp();
+  const { user, signOut, hotelId, session, } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSigningOut, setIsSigningOut] = useState(false);
-
+  const { unreadCount, } = useNotifications( hotelId, session?.user.id );
+  
   const isMessagesPage =
     location.pathname === "/messages" ||
     location.pathname.startsWith("/messages/");
@@ -196,15 +198,31 @@ export function AppLayout() {
             border-radius: 13px;
           }
 
-          .staybyyou-staff-shell .staff-navbar-icon.notification-button i {
+          .staybyyou-staff-shell .notification-button {
+            position: relative;
+          }
+
+          .staybyyou-staff-shell .notification-badge {
             position: absolute;
-            top: 9px;
-            right: 9px;
-            width: 6px;
-            height: 6px;
-            border: 1.5px solid #f3f0e8;
+            top: 4px;
+            right: 3px;
+
+            display: grid;
+            min-width: 18px;
+            height: 18px;
+            place-items: center;
+
+            padding: 0 4px;
+
+            border: 2px solid #f3f0e8;
             border-radius: 999px;
+
             background: #c7a45d;
+            color: #173e31;
+
+            font-size: 9px;
+            font-weight: 800;
+            line-height: 1;
           }
 
           .staybyyou-staff-shell .staff-navbar-profile {
@@ -319,10 +337,22 @@ export function AppLayout() {
             className="staff-navbar-icon notification-button"
             type="button"
             onClick={() => navigate("/notifications")}
-            aria-label="Notifications"
+            aria-label={
+              unreadCount > 0
+                ? `Notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
+                : "Notifications"
+            }
             title="Notifications"
           >
             <Bell size={18} />
+
+            {unreadCount > 0 && (
+              <span className="notification-badge">
+                {unreadCount > 99
+                  ? "99+"
+                  : unreadCount}
+              </span>
+            )}
             <i />
           </button>
 
@@ -396,9 +426,21 @@ export function AppLayout() {
             <button
               className="icon-button notification-button"
               onClick={() => navigate("/notifications")}
-              aria-label="Notifications"
+              aria-label={
+                unreadCount > 0
+                  ? `Notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
+                  : "Notifications"
+              }
             >
               <Bell size={18} />
+
+{unreadCount > 0 && (
+  <span className="notification-badge">
+    {unreadCount > 99
+      ? "99+"
+      : unreadCount}
+  </span>
+)}
               <i />
             </button>
 

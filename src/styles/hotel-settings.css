@@ -1,0 +1,423 @@
+.hotel-settings-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+
+  color: #71817b;
+  font-size: 0.82rem;
+}
+
+.hotel-settings-refresh-button {
+  display: grid;
+
+  width: 38px;
+  height: 38px;
+
+  place-items: center;
+
+  padding: 0;
+
+  border: 1px solid rgba(21, 67, 53, 0.16);
+  border-radius: 10px;
+
+  background: #fffdf8;
+  color: #174f3e;
+
+  cursor: pointer;
+}
+
+.hotel-settings-refresh-button:hover:not(:disabled) {
+  background: #f4f7f4;
+}
+
+.hotel-settings-refresh-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hotel-settings-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.45fr)
+    minmax(260px, 0.75fr);
+
+  gap: 14px;
+
+  align-items: start;
+}
+
+.hotel-settings-card {
+  padding: 20px;
+
+  border: 1px solid rgba(21, 67, 53, 0.14);
+  border-radius: 17px;
+
+  background: #fffdf8;
+}
+
+.hotel-settings-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+
+  margin-bottom: 22px;
+}
+
+.hotel-settings-card-icon {
+  display: grid;
+
+  width: 36px;
+  height: 36px;
+
+  flex: 0 0 auto;
+
+  place-items: center;
+
+  border-radius: 11px;
+
+  background: #e7efeb;
+  color: #17523e;
+}
+
+.hotel-settings-card-header h3 {
+  margin: 1px 0 4px;
+
+  color: #174637;
+
+  font-size: 1rem;
+}
+
+.hotel-settings-card-header p {
+  margin: 0;
+
+  color: #7c8984;
+
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.hotel-settings-fields {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 13px;
+}
+
+.hotel-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.hotel-settings-field > span {
+  color: #274e41;
+
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.hotel-settings-input-wrap {
+  display: flex;
+  min-height: 44px;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 0 12px;
+
+  border: 1px solid rgba(21, 67, 53, 0.16);
+  border-radius: 11px;
+
+  background: #fbfaf6;
+
+  color: #708079;
+
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.hotel-settings-input-wrap:focus-within {
+  border-color: rgba(17, 74, 57, 0.52);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(17, 74, 57, 0.07);
+}
+
+.hotel-settings-input-wrap input,
+.hotel-settings-input-wrap select {
+  width: 100%;
+  min-width: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #21483b;
+
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.hotel-settings-languages {
+  margin-top: 20px;
+
+  padding-top: 18px;
+
+  border-top:
+    1px solid rgba(21, 67, 53, 0.09);
+}
+
+.hotel-settings-languages-title {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  margin-bottom: 12px;
+
+  color: #315b4d;
+}
+
+.hotel-settings-languages-title div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hotel-settings-languages-title strong {
+  font-size: 0.78rem;
+}
+
+.hotel-settings-languages-title span {
+  color: #84918c;
+
+  font-size: 0.68rem;
+}
+
+.hotel-settings-language-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hotel-settings-language {
+  display: inline-flex;
+
+  min-height: 34px;
+
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 0 11px;
+
+  border: 1px solid rgba(21, 67, 53, 0.14);
+  border-radius: 999px;
+
+  background: #faf8f2;
+  color: #64746e;
+
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.hotel-settings-language--active {
+  border-color: rgba(31, 103, 76, 0.2);
+
+  background: #e8f1ec;
+  color: #2f7156;
+}
+
+.hotel-settings-language:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hotel-settings-form-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 22px;
+}
+
+.hotel-settings-primary-button {
+  display: inline-flex;
+
+  min-height: 40px;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 15px;
+
+  border: 1px solid #114a39;
+  border-radius: 10px;
+
+  background: #114a39;
+  color: #ffffff;
+
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.hotel-settings-primary-button:hover:not(:disabled) {
+  background: #0d3e30;
+}
+
+.hotel-settings-primary-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hotel-settings-status-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.hotel-settings-status-row {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 14px 0;
+
+  border-bottom:
+    1px solid rgba(21, 67, 53, 0.08);
+}
+
+.hotel-settings-status-row:first-child {
+  padding-top: 0;
+}
+
+.hotel-settings-status-row div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hotel-settings-status-row strong {
+  color: #244d40;
+
+  font-size: 0.77rem;
+}
+
+.hotel-settings-status-row div span {
+  color: #89958f;
+
+  font-size: 0.67rem;
+}
+
+.hotel-settings-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 5px 8px;
+
+  border-radius: 999px;
+
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.hotel-settings-status--active {
+  background: #e8f1ec;
+  color: #317156;
+}
+
+.hotel-settings-status--inactive {
+  background: #f1ece9;
+  color: #8d6458;
+}
+
+.hotel-settings-note {
+  margin: 16px 0 0;
+
+  padding: 11px 12px;
+
+  border-radius: 10px;
+
+  background: rgba(17, 74, 57, 0.045);
+
+  color: #71817a;
+
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+
+.hotel-settings-feedback {
+  margin-bottom: 14px;
+
+  padding: 11px 13px;
+
+  border-radius: 11px;
+
+  font-size: 0.8rem;
+}
+
+.hotel-settings-feedback--error {
+  background: rgba(170, 58, 58, 0.07);
+  color: #873838;
+}
+
+.hotel-settings-feedback--success {
+  background: rgba(26, 110, 72, 0.07);
+  color: #23694d;
+}
+
+.hotel-settings-state {
+  padding: 40px 20px;
+
+  border: 1px solid rgba(21, 67, 53, 0.12);
+  border-radius: 16px;
+
+  background: #fffdf8;
+  color: #73827c;
+
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .hotel-settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .hotel-settings-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .hotel-settings-card {
+    padding: 17px;
+  }
+
+  .hotel-settings-form-actions {
+    display: block;
+  }
+
+  .hotel-settings-primary-button {
+    width: 100%;
+  }
+}
