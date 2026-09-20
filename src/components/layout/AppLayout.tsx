@@ -30,11 +30,18 @@ const navItems = [
   { to: "/more", label: "Plus", icon: Menu },
 ];
 
-const roleLabels: Record<Role, string> = {
-  employee: "Employé",
-  manager: "Responsable",
-  direction: "Direction",
-  admin: "Admin",
+const roleLabels: Record<
+  Role,
+  string
+> = {
+  owner: "Propriétaire",
+  admin: "Administrateur",
+  manager: "Manager",
+  kitchen: "Cuisine",
+  reception: "Réception",
+  delivery: "Livraison",
+  bedroom: "Hébergement",
+  read_only: "Lecture seule",
 };
 
 export function AppLayout() {

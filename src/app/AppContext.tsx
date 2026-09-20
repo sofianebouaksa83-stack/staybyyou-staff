@@ -93,11 +93,11 @@ const EMPTY_USER = {
   id: "",
   firstName: "",
   lastName: "",
-  role: "employee",
+  role: "read_only",
   departments: [],
   hotelId: "",
   hotelName: "",
-} as unknown as User;
+} satisfies User;
 
 const AppContext =
   createContext<AppContextValue | null>(
@@ -122,19 +122,29 @@ function readString(
 function roleFromMembership(
   role: string
 ): Role {
-  switch (
-    role.toLowerCase()
+  const normalized =
+    role.toLowerCase();
+
+  const validRoles: Role[] = [
+    "owner",
+    "admin",
+    "manager",
+    "kitchen",
+    "reception",
+    "delivery",
+    "bedroom",
+    "read_only",
+  ];
+
+  if (
+    validRoles.includes(
+      normalized as Role
+    )
   ) {
-    case "owner":
-    case "admin":
-      return "admin";
-
-    case "manager":
-      return "manager";
-
-    default:
-      return "employee";
+    return normalized as Role;
   }
+
+  return "read_only";
 }
 
 function departmentFromMembership(
@@ -144,14 +154,14 @@ function departmentFromMembership(
     string,
     string
   > = {
-    reception: "Réception",
+    owner: "Direction",
+    admin: "Administration",
+    manager: "Management",
     kitchen: "Cuisine",
+    reception: "Réception",
     delivery: "Livraison",
     bedroom: "Hébergement",
-    manager: "Management",
-    admin: "Administration",
-    owner: "Direction",
-    read_only: "Lecture seule",
+    read_only: "Équipe",
   };
 
   return (
@@ -382,20 +392,19 @@ async function loadStaffAccount(
     );
   }
 
-  const user = {
+  const user: User = {
     id: authUser.id,
 
     firstName,
-
     lastName,
 
-    email:
-      authUser.email ?? "",
+    email: readString(
+      authUser.email
+    ),
 
-    avatarUrl:
-      readString(
-        metadata.avatar_url
-      ),
+    avatarUrl: readString(
+      metadata.avatar_url
+    ),
 
     role:
       roleFromMembership(
@@ -409,7 +418,7 @@ async function loadStaffAccount(
 
     hotelName:
       hotel.name,
-  } as unknown as User;
+  };
 
   return {
     profile,
