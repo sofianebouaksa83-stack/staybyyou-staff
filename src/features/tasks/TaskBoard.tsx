@@ -19,6 +19,7 @@ export function TaskBoard() {
     error,
     canCreate,
     canEdit,
+    canDelete,
     addTask,
     changeStatus,
     removeTask,
@@ -30,6 +31,10 @@ export function TaskBoard() {
   async function handleDelete(
     taskId: string
   ) {
+    if (!canDelete) {
+      return;
+    }
+
     const confirmed =
       window.confirm(
         "Supprimer cette tâche ?"
@@ -128,6 +133,7 @@ export function TaskBoard() {
                         key={task.id}
                         task={task}
                         canEdit={canEdit}
+                        canDelete={canDelete}
                         onStatusChange={
                           changeStatus
                         }

@@ -13,12 +13,6 @@ export type Role =
  * Conservé temporairement uniquement
  * pour l'ancien permissions.ts.
  */
-export type LegacyRole =
-  | "employee"
-  | "manager"
-  | "direction"
-  | "admin";
-
 export type Department =
   | "Cuisine"
   | "Réception"

@@ -10,7 +10,7 @@ import {
 import { NavLink } from "react-router-dom";
 import { PageHeader } from "../components/ui/PageHeader";
 import { useApp } from "../app/AppContext";
-import { can } from "../features/permissions/permissions";
+import { useHotelPermission } from "../features/permissions/hooks/useHotelPermission";
 import "./SettingsShell.css";
 
 type SettingsShellProps = {
@@ -25,11 +25,30 @@ const personalItems = [
   { to: "/notifications", label: "Notifications", icon: Bell },
 ];
 
-const adminItems = [
-  { to: "/admin/hotel", label: "Établissement", icon: Building2 },
-  { to: "/admin/users", label: "Utilisateurs", icon: Users },
-  { to: "/admin/services", label: "Services", icon: SlidersHorizontal },
-  { to: "/admin/roles", label: "Rôles & permissions", icon: ShieldCheck },
+const settingsAdminItems = [
+  {
+    to: "/admin/hotel",
+    label: "Établissement",
+    icon: Building2,
+  },
+];
+
+const teamAdminItems = [
+  {
+    to: "/admin/users",
+    label: "Utilisateurs",
+    icon: Users,
+  },
+  {
+    to: "/admin/services",
+    label: "Services",
+    icon: SlidersHorizontal,
+  },
+  {
+    to: "/admin/roles",
+    label: "Rôles & permissions",
+    icon: ShieldCheck,
+  },
 ];
 
 export function SettingsShell({
@@ -38,12 +57,36 @@ export function SettingsShell({
   sectionTitle,
   sectionSubtitle,
 }: SettingsShellProps) {
-  const { user } = useApp();
-  const showAdmin = can(user.role, "admin.read");
+  const {
+    user,
+    hotelId,
+  } = useApp();
 
-  const items = showAdmin
-    ? [...personalItems, ...adminItems]
-    : personalItems;
+  const {
+    allowed: canViewSettings,
+  } = useHotelPermission(
+    hotelId,
+    "settings.view"
+  );
+
+  const {
+    allowed: canViewTeam,
+  } = useHotelPermission(
+    hotelId,
+    "team.view"
+  );
+
+  const items = [
+    ...personalItems,
+
+    ...(canViewSettings
+      ? settingsAdminItems
+      : []),
+
+    ...(canViewTeam
+      ? teamAdminItems
+      : []),
+  ];
 
   return (
     <>

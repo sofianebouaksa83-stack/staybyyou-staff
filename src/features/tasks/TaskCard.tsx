@@ -13,6 +13,7 @@ import type {
 type Props = {
   task: StaffTask;
   canEdit: boolean;
+  canDelete: boolean;
 
   onStatusChange: (
     task: StaffTask,
@@ -23,7 +24,7 @@ type Props = {
     taskId: string
   ) => void;
 };
-
+                                         
 function priorityLabel(
   priority: TaskPriority
 ) {
@@ -59,6 +60,7 @@ function formatTime(
 export function TaskCard({
   task,
   canEdit,
+  canDelete,
   onStatusChange,
   onDelete,
 }: Props) {
@@ -106,57 +108,57 @@ export function TaskCard({
         </div>
       </div>
 
-      {canEdit && (
+      {(canEdit || canDelete) && (
         <div className="task-premium-actions">
-          {task.status !==
-            "in_progress" && (
+
+          {canEdit &&
+            task.status !== "in_progress" && (
+              <button
+                type="button"
+                className="task-action-button"
+                onClick={() =>
+                  onStatusChange(
+                    task,
+                    "in_progress"
+                  )
+                }
+              >
+                <Clock3 size={13} />
+                En cours
+              </button>
+            )}
+
+          {canEdit &&
+            task.status !== "done" && (
+              <button
+                type="button"
+                className="task-action-button success"
+                onClick={() =>
+                  onStatusChange(
+                    task,
+                    "done"
+                  )
+                }
+              >
+                <CheckCircle2 size={13} />
+                Terminée
+              </button>
+            )}
+
+          {canDelete && (
             <button
               type="button"
-              className="task-action-button"
+              className="task-icon-button danger"
               onClick={() =>
-                onStatusChange(
-                  task,
-                  "in_progress"
-                )
+                onDelete(task.id)
               }
+              title="Supprimer"
+              aria-label="Supprimer"
             >
-              <Clock3 size={13} />
-
-              En cours
+              <Trash2 size={14} />
             </button>
           )}
 
-          {task.status !==
-            "done" && (
-            <button
-              type="button"
-              className="task-action-button success"
-              onClick={() =>
-                onStatusChange(
-                  task,
-                  "done"
-                )
-              }
-            >
-              <CheckCircle2
-                size={13}
-              />
-
-              Terminée
-            </button>
-          )}
-
-          <button
-            type="button"
-            className="task-icon-button danger"
-            onClick={() =>
-              onDelete(task.id)
-            }
-            title="Supprimer"
-            aria-label="Supprimer"
-          >
-            <Trash2 size={14} />
-          </button>
         </div>
       )}
     </article>

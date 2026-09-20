@@ -5,7 +5,7 @@ import {
 } from "react";
 
 import { useApp } from "../../app/AppContext";
-import { can } from "../permissions/permissions";
+import { useHotelPermission } from "../permissions/hooks/useHotelPermission";
 
 import {
   createInstruction,
@@ -35,7 +35,6 @@ function formatDateKey(date: Date) {
 
 export function useInstructions() {
   const {
-    user,
     hotelId,
     selectedDate,
   } = useApp();
@@ -60,9 +59,11 @@ export function useInstructions() {
     setError,
   ] = useState<string | null>(null);
 
-  const canManage = can(
-    user.role,
-    "instructions.create"
+  const {
+    allowed: canManage,
+  } = useHotelPermission(
+    hotelId,
+    "instructions.manage"
   );
 
   const dateKey =
@@ -127,7 +128,7 @@ export function useInstructions() {
     departmentId?: string | null;
     pinned?: boolean;
   }) {
-    if (!hotelId) {
+    if (!hotelId || !canManage) {
       return;
     }
 
@@ -183,6 +184,10 @@ export function useInstructions() {
       department_id: string | null;
     }>
   ) {
+    if (!canManage) {
+      return;
+    }
+    
     try {
       setError(null);
 
@@ -220,6 +225,10 @@ export function useInstructions() {
   async function removeInstruction(
     id: string
   ) {
+    if (!canManage) {
+      return;
+    }
+    
     try {
       setError(null);
 

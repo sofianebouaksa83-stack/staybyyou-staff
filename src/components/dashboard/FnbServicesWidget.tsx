@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 import { useApp } from "../../app/AppContext";
-import { can } from "../../features/permissions/permissions";
+import { useHotelPermission } from "../../features/permissions/hooks/useHotelPermission";
 import {
   createFnbService,
   disableFnbService,
@@ -60,8 +60,12 @@ function cleanTime(value: string | null | undefined) {
 }
 
 export function FnbServicesWidget() {
-  const { user, hotelId, selectedDate } = useApp();
-  const canEdit = can(user.role, "dashboard.widgets.manage");
+  const { hotelId, selectedDate } = useApp();
+
+  const { allowed: canEdit } = useHotelPermission(
+    hotelId,
+    "fnb.manage"
+  );
   const [services, setServices] = useState<DisplayService[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

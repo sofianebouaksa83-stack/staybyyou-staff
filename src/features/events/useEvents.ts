@@ -6,7 +6,7 @@ import {
 } from "react";
 
 import { useApp } from "../../app/AppContext";
-import { can } from "../permissions/permissions";
+import { useHotelPermission } from "../permissions/hooks/useHotelPermission";
 
 import {
   createEvent,
@@ -35,7 +35,6 @@ function startOfNextMonth(date: Date) {
 
 export function useEvents() {
   const {
-    user,
     hotelId,
     selectedDate,
   } = useApp();
@@ -62,9 +61,11 @@ export function useEvents() {
     setError,
   ] = useState<string | null>(null);
 
-  const canManage = can(
-    user.role,
-    "events.create"
+  const {
+    allowed: canManage,
+  } = useHotelPermission(
+    hotelId,
+    "events.manage"
   );
 
   const range = useMemo(() => {
@@ -168,7 +169,9 @@ export function useEvents() {
 
     departmentId?: string | null;
   }) {
-    if (!hotelId) return;
+    if (!hotelId || !canManage) {
+      return;
+    }
 
     try {
       setError(null);
@@ -213,6 +216,10 @@ export function useEvents() {
       typeof updateEvent
     >[1]
   ) {
+    if (!canManage) {
+      return;
+    }
+
     try {
       setError(null);
 
@@ -250,6 +257,10 @@ export function useEvents() {
   async function removeEvent(
     id: string
   ) {
+    if (!canManage) {
+      return;
+    }
+
     try {
       setError(null);
 

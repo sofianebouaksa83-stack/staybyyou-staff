@@ -5,7 +5,7 @@ import {
 } from "react";
 
 import { useApp } from "../../app/AppContext";
-import { can } from "../permissions/permissions";
+import { useHotelPermission } from "../permissions/hooks/useHotelPermission";
 
 import {
   createTask,
@@ -55,24 +55,30 @@ export function formatTaskDateKey(
 
 export function useTasks() {
   const {
-    user,
     hotelId,
     selectedDate,
   } = useApp();
 
-  const canCreate = can(
-    user.role,
+  const {
+    allowed: canCreate,
+  } = useHotelPermission(
+    hotelId,
     "tasks.create"
   );
 
-  const canEdit =
-    [
-      "owner",
-      "admin",
-      "manager",
-    ].includes(
-      String(user.role)
-    );
+  const {
+    allowed: canUpdate,
+  } = useHotelPermission(
+    hotelId,
+    "tasks.update"
+  );
+
+  const {
+    allowed: canDelete,
+  } = useHotelPermission(
+    hotelId,
+    "tasks.delete"
+  );
 
   const [
     tasks,
@@ -272,9 +278,9 @@ export function useTasks() {
     task: StaffTask,
     status: TaskStatus
   ) {
-    if (!canEdit) {
-      return;
-    }
+    if (!canUpdate) {
+        return;
+      }
 
     const oldStatus =
       task.status;
@@ -328,7 +334,7 @@ export function useTasks() {
   async function removeTask(
     taskId: string
   ) {
-    if (!canEdit) {
+    if (!canDelete) {
       return;
     }
 
@@ -372,7 +378,8 @@ export function useTasks() {
     error,
 
     canCreate,
-    canEdit,
+    canEdit: canUpdate,
+    canDelete,
 
     addTask,
     changeStatus,

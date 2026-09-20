@@ -133,6 +133,10 @@ export function InstructionsBoard() {
                   )
                 }
                 onDelete={() => {
+                  if (!canManage) {
+                    return;
+                  }
+
                   if (
                     window.confirm(
                       "Supprimer cette consigne ?"
