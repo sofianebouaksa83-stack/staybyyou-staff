@@ -60,6 +60,7 @@ type Tab =
 export function HotelBoard() {
   const {
     hotelId,
+    setSelectedDate,
   } = useApp();
 
 
@@ -426,6 +427,16 @@ export function HotelBoard() {
 
       await refresh();
 
+
+      setSelectedDate(
+        new Date(
+          values.startsAt
+        )
+      );
+
+      setTab(
+        "arrivals"
+      );
 
       setStayModalOpen(
         false
