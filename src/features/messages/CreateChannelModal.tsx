@@ -1,5 +1,11 @@
-import { useMemo, useState } from "react";
-import { X } from "lucide-react";
+import {
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  X,
+} from "lucide-react";
 
 import type {
   ChannelVisibility,
@@ -7,22 +13,49 @@ import type {
   MessageHotelMember,
 } from "../../services/messagesService";
 
+
+type ChannelKind =
+  | "team"
+  | "group";
+
+
 type Props = {
   open: boolean;
-  members: MessageHotelMember[];
-  departments: MessageDepartment[];
-  creating: boolean;
 
-  onClose: () => void;
+  members:
+    MessageHotelMember[];
 
-  onCreate: (payload: {
-    name: string;
-    description?: string;
-    visibilityMode: ChannelVisibility;
-    memberUserIds: string[];
-    departmentIds: string[];
-  }) => Promise<unknown>;
+  departments:
+    MessageDepartment[];
+
+  creating:
+    boolean;
+
+  onClose:
+    () => void;
+
+  onCreate: (
+    payload: {
+      name: string;
+
+      description?:
+        string;
+
+      channelType:
+        ChannelKind;
+
+      visibilityMode:
+        ChannelVisibility;
+
+      memberUserIds:
+        string[];
+
+      departmentIds:
+        string[];
+    }
+  ) => Promise<unknown>;
 };
+
 
 export function CreateChannelModal({
   open,
@@ -32,56 +65,108 @@ export function CreateChannelModal({
   onClose,
   onCreate,
 }: Props) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-
-  const [visibilityMode, setVisibilityMode] =
-    useState<ChannelVisibility>("hotel");
-
-  const [memberUserIds, setMemberUserIds] =
-    useState<string[]>([]);
-
-  const [departmentIds, setDepartmentIds] =
-    useState<string[]>([]);
-
-  const canSubmit = useMemo(() => {
-    if (!name.trim()) {
-      return false;
-    }
-
-    if (
-      visibilityMode === "members" &&
-      memberUserIds.length === 0
-    ) {
-      return false;
-    }
-
-    if (
-      visibilityMode === "departments" &&
-      departmentIds.length === 0
-    ) {
-      return false;
-    }
-
-    return true;
-  }, [
+  const [
     name,
+    setName,
+  ] = useState("");
+
+  const [
+    description,
+    setDescription,
+  ] = useState("");
+
+  const [
+    channelType,
+    setChannelType,
+  ] =
+    useState<ChannelKind>(
+      "team"
+    );
+
+  const [
     visibilityMode,
+    setVisibilityMode,
+  ] =
+    useState<ChannelVisibility>(
+      "hotel"
+    );
+
+  const [
     memberUserIds,
+    setMemberUserIds,
+  ] =
+    useState<string[]>(
+      []
+    );
+
+  const [
     departmentIds,
-  ]);
+    setDepartmentIds,
+  ] =
+    useState<string[]>(
+      []
+    );
+
+
+  const canSubmit =
+    useMemo(() => {
+      if (!name.trim()) {
+        return false;
+      }
+
+      if (
+        visibilityMode ===
+          "members" &&
+        memberUserIds.length ===
+          0
+      ) {
+        return false;
+      }
+
+      if (
+        visibilityMode ===
+          "departments" &&
+        departmentIds.length ===
+          0
+      ) {
+        return false;
+      }
+
+      return true;
+    }, [
+      name,
+      visibilityMode,
+      memberUserIds,
+      departmentIds,
+    ]);
+
 
   if (!open) {
     return null;
   }
 
+
   function reset() {
     setName("");
     setDescription("");
-    setVisibilityMode("hotel");
-    setMemberUserIds([]);
-    setDepartmentIds([]);
+
+    setChannelType(
+      "team"
+    );
+
+    setVisibilityMode(
+      "hotel"
+    );
+
+    setMemberUserIds(
+      []
+    );
+
+    setDepartmentIds(
+      []
+    );
   }
+
 
   function close() {
     if (creating) {
@@ -92,16 +177,26 @@ export function CreateChannelModal({
     onClose();
   }
 
+
   function toggleMember(
-    userId: string
+    userId:
+      string
   ) {
     setMemberUserIds(
-      (previous) => {
+      (
+        previous
+      ) => {
         if (
-          previous.includes(userId)
+          previous.includes(
+            userId
+          )
         ) {
           return previous.filter(
-            (id) => id !== userId
+            (
+              id
+            ) =>
+              id !==
+              userId
           );
         }
 
@@ -113,19 +208,26 @@ export function CreateChannelModal({
     );
   }
 
+
   function toggleDepartment(
-    departmentId: string
+    departmentId:
+      string
   ) {
     setDepartmentIds(
-      (previous) => {
+      (
+        previous
+      ) => {
         if (
           previous.includes(
             departmentId
           )
         ) {
           return previous.filter(
-            (id) =>
-              id !== departmentId
+            (
+              id
+            ) =>
+              id !==
+              departmentId
           );
         }
 
@@ -137,6 +239,7 @@ export function CreateChannelModal({
     );
   }
 
+
   async function handleSubmit() {
     if (
       !canSubmit ||
@@ -146,11 +249,14 @@ export function CreateChannelModal({
     }
 
     await onCreate({
-      name: name.trim(),
+      name:
+        name.trim(),
 
       description:
         description.trim() ||
         undefined,
+
+      channelType,
 
       visibilityMode,
 
@@ -163,80 +269,188 @@ export function CreateChannelModal({
     onClose();
   }
 
+
   return (
     <div
       className="message-modal-backdrop"
-      onMouseDown={close}
+
+      onMouseDown={
+        close
+      }
     >
       <div
         className="message-modal"
-        onMouseDown={(event) =>
+
+        onMouseDown={(
+          event
+        ) =>
           event.stopPropagation()
         }
       >
         <div className="message-modal-header">
           <div>
             <h2>
-              Nouveau groupe
+              Nouvelle conversation
             </h2>
 
             <p>
-              Crée une conversation
-              pour une équipe ou des
-              utilisateurs précis.
+              Crée un salon d’équipe
+              ou un groupe dédié.
             </p>
           </div>
 
           <button
             type="button"
             className="message-modal-close"
-            onClick={close}
-            disabled={creating}
+
+            onClick={
+              close
+            }
+
+            disabled={
+              creating
+            }
+
             aria-label="Fermer"
           >
-            <X size={20} />
+            <X
+              size={20}
+            />
           </button>
         </div>
 
+
         <div className="message-modal-body">
+          <div className="message-field">
+            <span>
+              Type
+            </span>
+
+            <div className="message-visibility-options">
+              <button
+                type="button"
+
+                className={
+                  channelType ===
+                  "team"
+                    ? "active"
+                    : undefined
+                }
+
+                onClick={() =>
+                  setChannelType(
+                    "team"
+                  )
+                }
+              >
+                <strong>
+                  Salon équipe
+                </strong>
+
+                <small>
+                  Pour les échanges
+                  réguliers d’un service.
+                </small>
+              </button>
+
+
+              <button
+                type="button"
+
+                className={
+                  channelType ===
+                  "group"
+                    ? "active"
+                    : undefined
+                }
+
+                onClick={() =>
+                  setChannelType(
+                    "group"
+                  )
+                }
+              >
+                <strong>
+                  Groupe
+                </strong>
+
+                <small>
+                  Pour une conversation
+                  ponctuelle ou ciblée.
+                </small>
+              </button>
+            </div>
+          </div>
+
+
           <label className="message-field">
             <span>
-              Nom du groupe
+              Nom
             </span>
 
             <input
-              value={name}
-              onChange={(event) =>
+              value={
+                name
+              }
+
+              onChange={(
+                event
+              ) =>
                 setName(
                   event.target.value
                 )
               }
-              placeholder="Ex. Séminaire 18 septembre"
-              maxLength={80}
+
+              placeholder={
+                channelType ===
+                "team"
+                  ? "Ex. Housekeeping"
+                  : "Ex. Séminaire 18 septembre"
+              }
+
+              maxLength={
+                80
+              }
+
               autoFocus
             />
           </label>
 
+
           <label className="message-field">
             <span>
               Description
+
               <small>
                 Facultatif
               </small>
             </span>
 
             <textarea
-              value={description}
-              onChange={(event) =>
+              value={
+                description
+              }
+
+              onChange={(
+                event
+              ) =>
                 setDescription(
                   event.target.value
                 )
               }
-              placeholder="À quoi sert ce groupe ?"
-              rows={3}
-              maxLength={240}
+
+              placeholder="À quoi sert cette conversation ?"
+
+              rows={
+                3
+              }
+
+              maxLength={
+                240
+              }
             />
           </label>
+
 
           <div className="message-field">
             <span>
@@ -246,12 +460,14 @@ export function CreateChannelModal({
             <div className="message-visibility-options">
               <button
                 type="button"
+
                 className={
                   visibilityMode ===
                   "hotel"
                     ? "active"
                     : undefined
                 }
+
                 onClick={() => {
                   setVisibilityMode(
                     "hotel"
@@ -273,18 +489,21 @@ export function CreateChannelModal({
                 <small>
                   Tous les membres
                   actifs peuvent voir
-                  le groupe.
+                  la conversation.
                 </small>
               </button>
 
+
               <button
                 type="button"
+
                 className={
                   visibilityMode ===
                   "departments"
                     ? "active"
                     : undefined
                 }
+
                 onClick={() => {
                   setVisibilityMode(
                     "departments"
@@ -305,14 +524,17 @@ export function CreateChannelModal({
                 </small>
               </button>
 
+
               <button
                 type="button"
+
                 className={
                   visibilityMode ===
                   "members"
                     ? "active"
                     : undefined
                 }
+
                 onClick={() => {
                   setVisibilityMode(
                     "members"
@@ -335,6 +557,7 @@ export function CreateChannelModal({
             </div>
           </div>
 
+
           {visibilityMode ===
             "departments" && (
             <div className="message-access-picker">
@@ -344,7 +567,9 @@ export function CreateChannelModal({
 
               <div className="message-access-list">
                 {departments.map(
-                  (department) => {
+                  (
+                    department
+                  ) => {
                     const selected =
                       departmentIds.includes(
                         department.id
@@ -353,14 +578,17 @@ export function CreateChannelModal({
                     return (
                       <button
                         type="button"
+
                         key={
                           department.id
                         }
+
                         className={
                           selected
                             ? "selected"
                             : undefined
                         }
+
                         onClick={() =>
                           toggleDepartment(
                             department.id
@@ -375,9 +603,11 @@ export function CreateChannelModal({
 
                         <input
                           type="checkbox"
+
                           checked={
                             selected
                           }
+
                           readOnly
                         />
                       </button>
@@ -388,6 +618,7 @@ export function CreateChannelModal({
             </div>
           )}
 
+
           {visibilityMode ===
             "members" && (
             <div className="message-access-picker">
@@ -397,7 +628,9 @@ export function CreateChannelModal({
 
               <div className="message-access-list">
                 {members.map(
-                  (member) => {
+                  (
+                    member
+                  ) => {
                     const selected =
                       memberUserIds.includes(
                         member.user_id
@@ -406,14 +639,17 @@ export function CreateChannelModal({
                     return (
                       <button
                         type="button"
+
                         key={
                           member.id
                         }
+
                         className={
                           selected
                             ? "selected"
                             : undefined
                         }
+
                         onClick={() =>
                           toggleMember(
                             member.user_id
@@ -436,9 +672,11 @@ export function CreateChannelModal({
 
                         <input
                           type="checkbox"
+
                           checked={
                             selected
                           }
+
                           readOnly
                         />
                       </button>
@@ -450,12 +688,19 @@ export function CreateChannelModal({
           )}
         </div>
 
+
         <div className="message-modal-footer">
           <button
             type="button"
             className="message-modal-secondary"
-            onClick={close}
-            disabled={creating}
+
+            onClick={
+              close
+            }
+
+            disabled={
+              creating
+            }
           >
             Annuler
           </button>
@@ -463,17 +708,19 @@ export function CreateChannelModal({
           <button
             type="button"
             className="message-modal-primary"
+
             disabled={
               !canSubmit ||
               creating
             }
+
             onClick={() =>
               void handleSubmit()
             }
           >
             {creating
               ? "Création…"
-              : "Créer le groupe"}
+              : "Créer"}
           </button>
         </div>
       </div>

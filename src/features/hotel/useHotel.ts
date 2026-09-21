@@ -5,14 +5,23 @@ import {
   useState,
 } from "react";
 
-import { useApp } from "../../app/AppContext";
+import {
+  useApp,
+} from "../../app/AppContext";
+
+import {
+  useHotelPermission,
+} from "../permissions/hooks/useHotelPermission";
 
 import {
   getHotelStays,
   type HotelStay,
 } from "../../services/hotelService";
 
-function startOfDay(date: Date) {
+
+function startOfDay(
+  date: Date
+) {
   return new Date(
     date.getFullYear(),
     date.getMonth(),
@@ -20,13 +29,17 @@ function startOfDay(date: Date) {
   );
 }
 
-function endOfDay(date: Date) {
+
+function endOfDay(
+  date: Date
+) {
   return new Date(
     date.getFullYear(),
     date.getMonth(),
     date.getDate() + 1
   );
 }
+
 
 function sameDay(
   a: Date,
@@ -42,83 +55,176 @@ function sameDay(
   );
 }
 
+
 export function useHotel() {
   const {
     hotelId,
     selectedDate,
   } = useApp();
 
+
+  const {
+    allowed:
+      canViewHotel,
+
+    loading:
+      loadingViewPermission,
+  } = useHotelPermission(
+    hotelId,
+    "hotel.view"
+  );
+
+
+  const {
+    allowed:
+      canManageStays,
+
+    loading:
+      loadingStayPermission,
+  } = useHotelPermission(
+    hotelId,
+    "hotel.stays.manage"
+  );
+
+
+  const {
+    allowed:
+      canManageFollowups,
+
+    loading:
+      loadingFollowupPermission,
+  } = useHotelPermission(
+    hotelId,
+    "hotel.followups.manage"
+  );
+
+
   const [
     stays,
     setStays,
-  ] = useState<HotelStay[]>([]);
+  ] =
+    useState<
+      HotelStay[]
+    >([]);
+
 
   const [
     loading,
     setLoading,
   ] = useState(true);
 
+
   const [
     error,
     setError,
-  ] = useState<string | null>(null);
+  ] =
+    useState<
+      string | null
+    >(null);
+
 
   const refresh =
-    useCallback(async () => {
-      if (!hotelId) {
-        setStays([]);
-        setLoading(false);
-        return;
-      }
+    useCallback(
+      async () => {
+        if (
+          loadingViewPermission
+        ) {
+          return;
+        }
 
-      try {
-        setLoading(true);
-        setError(null);
 
-        const start =
-          startOfDay(
-            selectedDate
+        if (
+          !hotelId ||
+          !canViewHotel
+        ) {
+          setStays(
+            []
           );
 
-        const end =
-          endOfDay(
-            selectedDate
+          setLoading(
+            false
           );
 
-        const rows =
-          await getHotelStays(
-            hotelId,
-            start.toISOString(),
-            end.toISOString()
+          setError(
+            null
           );
 
-        setStays(rows);
-      } catch (err) {
-        console.error(
-          "Erreur séjours :",
+          return;
+        }
+
+
+        try {
+          setLoading(
+            true
+          );
+
+          setError(
+            null
+          );
+
+
+          const start =
+            startOfDay(
+              selectedDate
+            );
+
+          const end =
+            endOfDay(
+              selectedDate
+            );
+
+
+          const rows =
+            await getHotelStays(
+              hotelId,
+              start.toISOString(),
+              end.toISOString()
+            );
+
+
+          setStays(
+            rows
+          );
+        } catch (
           err
-        );
+        ) {
+          console.error(
+            "Erreur séjours :",
+            err
+          );
 
-        setError(
-          "Impossible de charger les séjours."
-        );
-      } finally {
-        setLoading(false);
-      }
-    }, [
-      hotelId,
-      selectedDate,
-    ]);
+          setError(
+            "Impossible de charger les séjours."
+          );
+        } finally {
+          setLoading(
+            false
+          );
+        }
+      },
+      [
+        hotelId,
+        selectedDate,
+        canViewHotel,
+        loadingViewPermission,
+      ]
+    );
+
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    void refresh();
+  }, [
+    refresh,
+  ]);
+
 
   const arrivals =
     useMemo(
       () =>
         stays.filter(
-          (stay) =>
+          (
+            stay
+          ) =>
             sameDay(
               new Date(
                 stay.starts_at
@@ -132,11 +238,14 @@ export function useHotel() {
       ]
     );
 
+
   const departures =
     useMemo(
       () =>
         stays.filter(
-          (stay) =>
+          (
+            stay
+          ) =>
             sameDay(
               new Date(
                 stay.ends_at
@@ -150,11 +259,21 @@ export function useHotel() {
       ]
     );
 
+
   const inHouse =
     useMemo(
       () =>
         stays.filter(
-          (stay) => {
+          (
+            stay
+          ) => {
+            if (
+              !stay.active
+            ) {
+              return false;
+            }
+
+
             const start =
               new Date(
                 stay.starts_at
@@ -164,6 +283,7 @@ export function useHotel() {
               new Date(
                 stay.ends_at
               );
+
 
             return (
               start <
@@ -183,12 +303,22 @@ export function useHotel() {
       ]
     );
 
+
   return {
     stays,
 
     arrivals,
     inHouse,
     departures,
+
+    canViewHotel,
+    canManageStays,
+    canManageFollowups,
+
+    loadingPermissions:
+      loadingViewPermission ||
+      loadingStayPermission ||
+      loadingFollowupPermission,
 
     loading,
     error,

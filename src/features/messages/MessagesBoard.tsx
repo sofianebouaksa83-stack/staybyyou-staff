@@ -74,12 +74,12 @@ export function MessagesBoard() {
     loadingDirectory,
     creatingGroup,
 
-    createGroup,
-    updateGroup,
+    createConversation,
+    updateConversation,
 
     managingChannelId,
-    archiveGroup,
-    deleteGroup,
+    archiveConversation,
+    deleteConversation,
 
     sendMessage,
     createTaskFromMessage,
@@ -180,18 +180,18 @@ export function MessagesBoard() {
               handleMobileBack
             }
 
-            onEditGroup={() =>
+            onEdit={() =>
               setEditModalOpen(
                 true
               )
             }
 
-            onArchiveGroup={
-              archiveGroup
+            onArchive={
+              archiveConversation
             }
 
-            onDeleteGroup={
-              deleteGroup
+            onDelete={
+              deleteConversation
             }
           />
 
@@ -267,7 +267,7 @@ export function MessagesBoard() {
             }
 
             onCreate={
-              createGroup
+              createConversation
             }
           />
 
@@ -300,7 +300,7 @@ export function MessagesBoard() {
             }
 
             onSave={
-              updateGroup
+              updateConversation
             }
           />
         </>

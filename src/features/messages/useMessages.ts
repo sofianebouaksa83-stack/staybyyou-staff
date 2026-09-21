@@ -10,10 +10,10 @@ import {
 } from "../../app/AppContext";
 
 import {
-  archiveGroupChannel,
-  createGroupChannel,
-  updateGroupChannel,
-  deleteGroupChannel,
+  archiveChannel,
+  createChannel,
+  updateChannel,
+  deleteChannel,
   getChannels,
   getMessageDepartments,
   getMessageHotelMembers,
@@ -675,115 +675,114 @@ export function useMessages() {
     );
 
 
-  const createGroup =
-    useCallback(
-      async ({
-        name,
-        description,
-        visibilityMode,
-        memberUserIds,
-        departmentIds,
-      }: {
-        name:
-          string;
+const createConversation =
+  useCallback(
+    async ({
+      name,
+      description,
+      channelType,
+      visibilityMode,
+      memberUserIds,
+      departmentIds,
+    }: {
+      name:
+        string;
 
-        description?:
-          string;
+      description?:
+        string;
 
-        visibilityMode:
-          ChannelVisibility;
+      channelType:
+        "team" |
+        "group";
 
-        memberUserIds:
-          string[];
+      visibilityMode:
+        ChannelVisibility;
 
-        departmentIds:
-          string[];
-      }) => {
-        if (
-          !hotelId ||
-          !canManageChannels
-        ) {
-          return;
-        }
+      memberUserIds:
+        string[];
 
-        const currentHotelId =
-          hotelId;
+      departmentIds:
+        string[];
+    }) => {
+      if (
+        !hotelId ||
+        !canManageChannels
+      ) {
+        return;
+      }
 
+      try {
+        setCreatingGroup(
+          true
+        );
 
-        try {
-          setCreatingGroup(
-            true
+        setError(
+          null
+        );
+
+        const channel =
+          await createChannel({
+            hotelId,
+
+            name,
+
+            description:
+              description ||
+              null,
+
+            channelType,
+
+            visibilityMode,
+
+            memberUserIds,
+
+            departmentIds,
+          });
+
+        const rows =
+          await getChannels(
+            hotelId
           );
 
-          setError(
-            null
-          );
+        setChannels(
+          rows
+        );
 
+        setActiveChannelId(
+          channel.id
+        );
 
-          const channel =
-            await createGroupChannel(
-              {
-                hotelId:
-                  currentHotelId,
-
-                name,
-
-                description:
-                  description ||
-                  null,
-
-                visibilityMode,
-
-                memberUserIds,
-
-                departmentIds,
-              }
-            );
-
-
-          const rows =
-            await getChannels(
-              currentHotelId
-            );
-
-          setChannels(
-            rows
-          );
-
-          setActiveChannelId(
-            channel.id
-          );
-
-          return channel;
-        } catch (
+        return channel;
+      } catch (
+        err
+      ) {
+        console.error(
+          "Erreur création salon :",
           err
-        ) {
-          console.error(
-            "Erreur création groupe :",
-            err
-          );
+        );
 
-          setError(
-            err instanceof
-              Error
-              ? err.message
-              : "Impossible de créer le groupe."
-          );
+        setError(
+          err instanceof
+            Error
+            ? err.message
+            : "Impossible de créer le salon."
+        );
 
-          throw err;
-        } finally {
-          setCreatingGroup(
-            false
-          );
-        }
-      },
-      [
-        hotelId,
-        canManageChannels,
-      ]
-    );
+        throw err;
+      } finally {
+        setCreatingGroup(
+          false
+        );
+      }
+    },
+    [
+      hotelId,
+      canManageChannels,
+    ]
+  );
 
-  const updateGroup =
+
+const updateConversation =
   useCallback(
     async ({
       channelId,
@@ -828,7 +827,7 @@ export function useMessages() {
         );
 
         const updated =
-          await updateGroupChannel({
+          await updateChannel({
             channelId,
 
             name,
@@ -858,7 +857,7 @@ export function useMessages() {
         err
       ) {
         console.error(
-          "Erreur modification groupe :",
+          "Erreur modification salon :",
           err
         );
 
@@ -866,7 +865,7 @@ export function useMessages() {
           err instanceof
             Error
             ? err.message
-            : "Impossible de modifier le groupe."
+            : "Impossible de modifier le salon."
         );
 
         throw err;
@@ -880,155 +879,191 @@ export function useMessages() {
       hotelId,
       canManageChannels,
     ]
-  ); 
+  );
 
 
-  const archiveGroup =
-    useCallback(
-      async (
-        channelId:
-          string
-      ) => {
+const archiveConversation =
+  useCallback(
+    async (
+      channelId:
+        string
+    ) => {
+      if (
+        !hotelId ||
+        !canManageChannels
+      ) {
+        return;
+      }
+
+      const channel =
+        channels.find(
+          (
+            item
+          ) =>
+            item.id ===
+            channelId
+        );
+
+      if (
+        channel?.is_system
+      ) {
+        throw new Error(
+          "Le salon Général ne peut pas être archivé."
+        );
+      }
+
+      try {
+        setManagingChannelId(
+          channelId
+        );
+
+        setError(
+          null
+        );
+
+        await archiveChannel(
+          channelId
+        );
+
+        const rows =
+          await getChannels(
+            hotelId
+          );
+
+        setChannels(
+          rows
+        );
+
         if (
-          !hotelId ||
-          !canManageChannels
+          activeChannelId ===
+          channelId
         ) {
-          return;
-        }
-
-        try {
-          setManagingChannelId(
-            channelId
-          );
-
-          setError(
-            null
-          );
-
-
-          await archiveGroupChannel(
-            channelId
-          );
-
-
-          const rows =
-            await getChannels(
-              hotelId
-            );
-
-          setChannels(
-            rows
-          );
-
-
-          if (
-            activeChannelId ===
-            channelId
-          ) {
-            setActiveChannelId(
-              rows[0]?.id ??
+          setActiveChannelId(
+            rows[0]?.id ??
               null
-            );
-          }
-        } catch (
-          err
-        ) {
-          console.error(
-            "Erreur archivage groupe :",
-            err
-          );
-
-          setError(
-            "Impossible d'archiver le groupe."
-          );
-
-          throw err;
-        } finally {
-          setManagingChannelId(
-            null
           );
         }
-      },
-      [
-        hotelId,
-        canManageChannels,
-        activeChannelId,
-      ]
-    );
+      } catch (
+        err
+      ) {
+        console.error(
+          "Erreur archivage salon :",
+          err
+        );
+
+        setError(
+          err instanceof
+            Error
+            ? err.message
+            : "Impossible d'archiver le salon."
+        );
+
+        throw err;
+      } finally {
+        setManagingChannelId(
+          null
+        );
+      }
+    },
+    [
+      hotelId,
+      canManageChannels,
+      activeChannelId,
+      channels,
+    ]
+  );
 
 
-  const deleteGroup =
-    useCallback(
-      async (
-        channelId:
-          string
-      ) => {
+const deleteConversation =
+  useCallback(
+    async (
+      channelId:
+        string
+    ) => {
+      if (
+        !hotelId ||
+        !canManageChannels
+      ) {
+        return;
+      }
+
+      const channel =
+        channels.find(
+          (
+            item
+          ) =>
+            item.id ===
+            channelId
+        );
+
+      if (
+        channel?.is_system
+      ) {
+        throw new Error(
+          "Le salon Général ne peut pas être supprimé."
+        );
+      }
+
+      try {
+        setManagingChannelId(
+          channelId
+        );
+
+        setError(
+          null
+        );
+
+        await deleteChannel(
+          channelId
+        );
+
+        const rows =
+          await getChannels(
+            hotelId
+          );
+
+        setChannels(
+          rows
+        );
+
         if (
-          !hotelId ||
-          !canManageChannels
+          activeChannelId ===
+          channelId
         ) {
-          return;
-        }
-
-        try {
-          setManagingChannelId(
-            channelId
-          );
-
-          setError(
-            null
-          );
-
-
-          await deleteGroupChannel(
-            channelId
-          );
-
-
-          const rows =
-            await getChannels(
-              hotelId
-            );
-
-          setChannels(
-            rows
-          );
-
-
-          if (
-            activeChannelId ===
-            channelId
-          ) {
-            setActiveChannelId(
-              rows[0]?.id ??
+          setActiveChannelId(
+            rows[0]?.id ??
               null
-            );
-          }
-        } catch (
-          err
-        ) {
-          console.error(
-            "Erreur suppression groupe :",
-            err
-          );
-
-          setError(
-            "Impossible de supprimer le groupe."
-          );
-
-          throw err;
-        } finally {
-          setManagingChannelId(
-            null
           );
         }
-      },
-      [
-        hotelId,
-        canManageChannels,
-        activeChannelId,
-      ]
-    );
+      } catch (
+        err
+      ) {
+        console.error(
+          "Erreur suppression salon :",
+          err
+        );
+
+        setError(
+          err instanceof
+            Error
+            ? err.message
+            : "Impossible de supprimer le salon."
+        );
+
+        throw err;
+      } finally {
+        setManagingChannelId(
+          null
+        );
+      }
+    },
+    [
+      hotelId,
+      canManageChannels,
+      activeChannelId,
+      channels,
+    ]
+  );
 
 
   const createTaskFromMessage =
@@ -1168,12 +1203,12 @@ export function useMessages() {
     loadingDirectory,
     creatingGroup,
 
-    createGroup,
-    updateGroup,
+    createConversation,
+    updateConversation,
 
     managingChannelId,
-    archiveGroup,
-    deleteGroup,
+    archiveConversation,
+    deleteConversation,
 
     convertingMessageId,
     convertedMessageIds,

@@ -31,15 +31,15 @@ type Props = {
   onMobileBack?:
     () => void;
 
-  onEditGroup:
+  onEdit:
     () => void;
 
-  onArchiveGroup: (
+  onArchive: (
     channelId:
       string
   ) => Promise<void>;
 
-  onDeleteGroup: (
+  onDelete: (
     channelId:
       string
   ) => Promise<void>;
@@ -51,9 +51,9 @@ export function ChatHeader({
   canManageChannels,
   busy,
   onMobileBack,
-  onEditGroup,
-  onArchiveGroup,
-  onDeleteGroup,
+  onEdit,
+  onArchive,
+  onDelete,
 }: Props) {
   const [
     menuOpen,
@@ -64,10 +64,6 @@ export function ChatHeader({
     useRef<
       HTMLDivElement | null
     >(null);
-
-  const isGroup =
-    channel?.channel_type ===
-    "group";
 
 
   useEffect(() => {
@@ -114,14 +110,21 @@ export function ChatHeader({
   async function handleArchive() {
     if (
       !channel ||
-      busy
+      busy ||
+      channel.is_system
     ) {
       return;
     }
 
+    const label =
+      channel.channel_type ===
+      "group"
+        ? "groupe"
+        : "salon";
+
     const confirmed =
       window.confirm(
-        `Archiver le groupe "${channel.name}" ?`
+        `Archiver le ${label} "${channel.name}" ?`
       );
 
     if (
@@ -134,7 +137,7 @@ export function ChatHeader({
       false
     );
 
-    await onArchiveGroup(
+    await onArchive(
       channel.id
     );
   }
@@ -143,14 +146,21 @@ export function ChatHeader({
   async function handleDelete() {
     if (
       !channel ||
-      busy
+      busy ||
+      channel.is_system
     ) {
       return;
     }
 
+    const label =
+      channel.channel_type ===
+      "group"
+        ? "groupe"
+        : "salon";
+
     const confirmed =
       window.confirm(
-        `Supprimer définitivement le groupe "${channel.name}" ?`
+        `Supprimer définitivement le ${label} "${channel.name}" ?`
       );
 
     if (
@@ -163,7 +173,7 @@ export function ChatHeader({
       false
     );
 
-    await onDeleteGroup(
+    await onDelete(
       channel.id
     );
   }
@@ -174,7 +184,7 @@ export function ChatHeader({
       false
     );
 
-    onEditGroup();
+    onEdit();
   }
 
 
@@ -184,9 +194,11 @@ export function ChatHeader({
         <button
           type="button"
           className="chat-mobile-back"
+
           onClick={
             onMobileBack
           }
+
           aria-label="Retour aux conversations"
         >
           <ArrowLeft
@@ -216,10 +228,10 @@ export function ChatHeader({
 
 
       {canManageChannels &&
-        isGroup &&
         channel && (
           <div
             className="chat-channel-actions"
+
             ref={
               menuRef
             }
@@ -241,8 +253,8 @@ export function ChatHeader({
                 busy
               }
 
-              aria-label="Actions du groupe"
-              title="Actions du groupe"
+              aria-label="Actions du salon"
+              title="Actions du salon"
             >
               <MoreHorizontal
                 size={18}
@@ -267,35 +279,39 @@ export function ChatHeader({
                 </button>
 
 
-                <button
-                  type="button"
+                {!channel.is_system && (
+                  <>
+                    <button
+                      type="button"
 
-                  onClick={() =>
-                    void handleArchive()
-                  }
-                >
-                  <Archive
-                    size={15}
-                  />
+                      onClick={() =>
+                        void handleArchive()
+                      }
+                    >
+                      <Archive
+                        size={15}
+                      />
 
-                  Archiver
-                </button>
+                      Archiver
+                    </button>
 
 
-                <button
-                  type="button"
-                  className="danger"
+                    <button
+                      type="button"
+                      className="danger"
 
-                  onClick={() =>
-                    void handleDelete()
-                  }
-                >
-                  <Trash2
-                    size={15}
-                  />
+                      onClick={() =>
+                        void handleDelete()
+                      }
+                    >
+                      <Trash2
+                        size={15}
+                      />
 
-                  Supprimer
-                </button>
+                      Supprimer
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -905,3 +905,148 @@
   }
 }
 
+/* =========================================================
+   STAY MANAGEMENT
+   ========================================================= */
+
+.stay-detail-source-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stay-source-badge {
+  min-height: 21px;
+
+  display: inline-flex;
+  align-items: center;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  background: #e9f0eb;
+  color: var(--green);
+
+  font-size: 8px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.stay-source-badge.external {
+  background: #f3ecdb;
+  color: #87682f;
+}
+
+.stay-ended-banner,
+.stay-external-banner {
+  margin-bottom: 14px;
+  padding: 11px 13px;
+
+  border-radius: 10px;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.stay-ended-banner {
+  border: 1px solid #dce2de;
+
+  background: #f2f4f1;
+  color: #68766f;
+}
+
+.stay-external-banner {
+  border: 1px solid #eadfca;
+
+  background: #fbf7ec;
+  color: #80683b;
+}
+
+.stay-management-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.stay-management-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.stay-end-button {
+  min-height: 36px;
+
+  padding: 0 13px;
+
+  border: 1px solid #ead5d1;
+  border-radius: 9px;
+
+  background: #fff8f7;
+  color: #a84d46;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.stay-end-button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+
+/* Inputs utilisés aussi par StayModal */
+
+.followup-form-field input {
+  width: 100%;
+
+  padding: 12px 13px;
+
+  border: 1px solid var(--line);
+  border-radius: 10px;
+
+  background: white;
+  color: var(--ink);
+
+  outline: none;
+
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.followup-form-field input:focus,
+.followup-form-field select:focus,
+.followup-form-field textarea:focus {
+  border-color: #aabbb4;
+}
+
+.followup-form-field input:disabled,
+.followup-form-field select:disabled,
+.followup-form-field textarea:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+
+/* Mobile */
+
+@media (max-width: 760px) {
+  .stay-management-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .stay-management-actions button {
+    width: 100%;
+  }
+}

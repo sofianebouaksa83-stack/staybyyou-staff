@@ -74,8 +74,8 @@ export function ChannelList({
               onCreateGroup
             }
 
-            aria-label="Créer un groupe"
-            title="Créer un groupe"
+            aria-label="Créer un conversation"
+            title="Créer un conversation"
           >
             <Plus
               size={18}

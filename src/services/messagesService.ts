@@ -33,6 +33,8 @@ export type StaffChannel = {
 
   archived_at: string | null;
 
+  is_system: boolean;
+
   created_at: string;
   updated_at: string;
 };
@@ -76,10 +78,14 @@ export type ChannelAccess = {
   departmentIds: string[];
 };
 
-export type CreateGroupInput = {
+export type CreateChannelInput = {
   hotelId: string;
   name: string;
   description?: string | null;
+
+  channelType:
+    | "team"
+    | "group";
 
   visibilityMode: ChannelVisibility;
 
@@ -87,7 +93,7 @@ export type CreateGroupInput = {
   departmentIds?: string[];
 };
 
-export type UpdateGroupInput = {
+export type UpdateChannelInput = {
   channelId: string;
 
   name: string;
@@ -250,23 +256,24 @@ export async function getChannelAccess(
 }
 
 /* =========================================================
-   CREATE GROUP
+   CREATE CHANNEL
    ========================================================= */
 
-export async function createGroupChannel({
+export async function createChannel({
   hotelId,
   name,
   description = null,
+  channelType,
   visibilityMode,
   memberUserIds = [],
   departmentIds = [],
-}: CreateGroupInput) {
+}: CreateChannelInput) {
   const cleanName =
     name.trim();
 
   if (!cleanName) {
     throw new Error(
-      "Le nom du groupe est obligatoire."
+      "Le nom du salon est obligatoire."
     );
   }
 
@@ -286,16 +293,6 @@ export async function createGroupChannel({
     );
   }
 
-  /*
-   * IMPORTANT :
-   * On ne fait PAS .select() directement
-   * après l'insert.
-   *
-   * La policy SELECT de staff_channels
-   * passe par can_access_staff_channel()
-   * et peut refuser le RETURNING
-   * pendant l'insertion.
-   */
   const {
     error: channelError,
   } =
@@ -313,7 +310,7 @@ export async function createGroupChannel({
           null,
 
         channel_type:
-          "group",
+          channelType,
 
         visibility_mode:
           visibilityMode,
@@ -321,13 +318,16 @@ export async function createGroupChannel({
         active:
           true,
 
+        is_system:
+          false,
+
         created_by:
           authData.user.id,
       });
 
   if (channelError) {
     console.error(
-      "Supabase create group error:",
+      "Supabase create channel error:",
       channelError
     );
 
@@ -336,24 +336,19 @@ export async function createGroupChannel({
       "23505"
     ) {
       throw new Error(
-        "Un groupe ou salon porte déjà ce nom."
+        "Un salon porte déjà ce nom."
       );
     }
 
     throw new Error(
       channelError.message ||
-        "Impossible de créer le groupe."
+        "Impossible de créer le salon."
     );
   }
 
-  /*
-   * Nouvelle requête séparée :
-   * le groupe existe maintenant réellement
-   * et la policy SELECT peut le lire.
-   */
   const {
     data: channel,
-    error: channelReadError,
+    error: readError,
   } =
     await supabase
       .from("staff_channels")
@@ -368,15 +363,10 @@ export async function createGroupChannel({
       )
       .single();
 
-  if (channelReadError) {
-    console.error(
-      "Supabase read created group error:",
-      channelReadError
-    );
-
+  if (readError) {
     throw new Error(
-      channelReadError.message ||
-        "Le groupe a été créé mais ne peut pas être chargé."
+      readError.message ||
+        "Le salon a été créé mais ne peut pas être chargé."
     );
   }
 
@@ -413,15 +403,7 @@ export async function createGroupChannel({
           );
 
       if (error) {
-        console.error(
-          "Supabase group members error:",
-          error
-        );
-
-        throw new Error(
-          error.message ||
-            "Impossible d'ajouter les utilisateurs au groupe."
-        );
+        throw error;
       }
     }
 
@@ -457,22 +439,10 @@ export async function createGroupChannel({
           );
 
       if (error) {
-        console.error(
-          "Supabase group departments error:",
-          error
-        );
-
-        throw new Error(
-          error.message ||
-            "Impossible d'ajouter les départements au groupe."
-        );
+        throw error;
       }
     }
   } catch (error) {
-    /*
-     * Nettoyage si la création
-     * des accès échoue.
-     */
     await supabase
       .from("staff_channels")
       .delete()
@@ -488,23 +458,23 @@ export async function createGroupChannel({
 }
 
 /* =========================================================
-   UPDATE GROUP
+   UPDATE CHANNEL
    ========================================================= */
 
-export async function updateGroupChannel({
+export async function updateChannel({
   channelId,
   name,
   description = null,
   visibilityMode,
   memberUserIds = [],
   departmentIds = [],
-}: UpdateGroupInput) {
+}: UpdateChannelInput) {
   const cleanName =
     name.trim();
 
   if (!cleanName) {
     throw new Error(
-      "Le nom du groupe est obligatoire."
+      "Le nom du salon est obligatoire."
     );
   }
 
@@ -534,10 +504,6 @@ export async function updateGroupChannel({
   if (channelError) {
     throw channelError;
   }
-
-  /*
-   * On remet les accès à plat.
-   */
 
   const [
     deleteMembers,
@@ -621,7 +587,9 @@ export async function updateGroupChannel({
               departmentIds
             ),
           ].map(
-            (departmentId) => ({
+            (
+              departmentId
+            ) => ({
               channel_id:
                 channelId,
 
@@ -640,10 +608,10 @@ export async function updateGroupChannel({
 }
 
 /* =========================================================
-   ARCHIVE GROUP
+   ARCHIVE CHANNEL
    ========================================================= */
 
-export async function archiveGroupChannel(
+export async function archiveChannel(
   channelId: string
 ) {
   const { error } =
@@ -666,10 +634,10 @@ export async function archiveGroupChannel(
 }
 
 /* =========================================================
-   DELETE GROUP
+   DELETE CHANNEL
    ========================================================= */
 
-export async function deleteGroupChannel(
+export async function deleteChannel(
   channelId: string
 ) {
   const { error } =

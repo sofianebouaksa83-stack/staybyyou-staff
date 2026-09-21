@@ -8,14 +8,25 @@ import type {
   GuestFollowup,
 } from "../../services/hotelService";
 
+
 type Props = {
-  followup: GuestFollowup;
-  onUpdate: () => void;
-  onDelete: () => void;
+  followup:
+    GuestFollowup;
+
+  canManage:
+    boolean;
+
+  onUpdate:
+    () => void;
+
+  onDelete:
+    () => void;
 };
 
+
 function typeLabel(
-  type: GuestFollowup["followup_type"]
+  type:
+    GuestFollowup["followup_type"]
 ) {
   switch (type) {
     case "request":
@@ -38,8 +49,10 @@ function typeLabel(
   }
 }
 
+
 function statusLabel(
-  status: GuestFollowup["status"]
+  status:
+    GuestFollowup["status"]
 ) {
   switch (status) {
     case "in_progress":
@@ -53,22 +66,37 @@ function statusLabel(
   }
 }
 
+
 function formatDate(
-  value: string
+  value:
+    string
 ) {
   return new Intl.DateTimeFormat(
     "fr-FR",
     {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
+      day:
+        "2-digit",
+
+      month:
+        "short",
+
+      hour:
+        "2-digit",
+
+      minute:
+        "2-digit",
     }
-  ).format(new Date(value));
+  ).format(
+    new Date(
+      value
+    )
+  );
 }
+
 
 export function FollowupCard({
   followup,
+  canManage,
   onUpdate,
   onDelete,
 }: Props) {
@@ -77,15 +105,20 @@ export function FollowupCard({
       <div className="followup-card-top">
         <div className="followup-card-tags">
           <span
-            className={`followup-type ${followup.followup_type}`}
+            className={
+              `followup-type ${followup.followup_type}`
+            }
           >
             {typeLabel(
               followup.followup_type
             )}
           </span>
 
+
           <span
-            className={`followup-priority ${followup.priority}`}
+            className={
+              `followup-priority ${followup.priority}`
+            }
           >
             {followup.priority ===
             "urgent"
@@ -97,15 +130,23 @@ export function FollowupCard({
           </span>
         </div>
 
+
         <span
-          className={`followup-status ${followup.status}`}
+          className={
+            `followup-status ${followup.status}`
+          }
         >
           {followup.status ===
           "resolved" ? (
-            <CheckCircle2 size={12} />
+            <CheckCircle2
+              size={12}
+            />
           ) : (
-            <Clock3 size={12} />
+            <Clock3
+              size={12}
+            />
           )}
+
 
           {statusLabel(
             followup.status
@@ -113,9 +154,11 @@ export function FollowupCard({
         </span>
       </div>
 
+
       <p className="followup-content">
         {followup.content}
       </p>
+
 
       <footer className="followup-card-footer">
         <small>
@@ -124,24 +167,37 @@ export function FollowupCard({
           )}
         </small>
 
-        <div className="followup-card-actions">
-          <button
-            type="button"
-            className="followup-action-button"
-            onClick={onUpdate}
-          >
-            Modifier
-          </button>
 
-          <button
-            type="button"
-            className="followup-icon-button danger"
-            onClick={onDelete}
-            title="Supprimer"
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
+        {canManage && (
+          <div className="followup-card-actions">
+            <button
+              type="button"
+              className="followup-action-button"
+
+              onClick={
+                onUpdate
+              }
+            >
+              Modifier
+            </button>
+
+
+            <button
+              type="button"
+              className="followup-icon-button danger"
+
+              onClick={
+                onDelete
+              }
+
+              title="Supprimer"
+            >
+              <Trash2
+                size={14}
+              />
+            </button>
+          </div>
+        )}
       </footer>
     </article>
   );

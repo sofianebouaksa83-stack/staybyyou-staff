@@ -423,14 +423,13 @@ export function EditChannelModal({
         <div className="message-modal-header">
           <div>
             <h2>
-              Modifier le groupe
+             {channel.channel_type === "group"
+              ? "Modifier le groupe"
+              : "Modifier le salon"}
             </h2>
 
             <p>
-              Modifie le nom,
-              la description et
-              les personnes ayant
-              accès à cette conversation.
+              Modifie le nom, la description et les accès à cette conversation.
             </p>
           </div>
 
@@ -462,7 +461,9 @@ export function EditChannelModal({
 
           <label className="message-field">
             <span>
-              Nom du groupe
+              {channel.channel_type === "group"
+                ? "Nom du groupe"
+                : "Nom du salon"}
             </span>
 
             <input
