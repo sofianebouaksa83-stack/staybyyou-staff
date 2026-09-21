@@ -1,5 +1,10 @@
-import { useState } from "react";
-import { Mail } from "lucide-react";
+import {
+  useState,
+} from "react";
+
+import {
+  Mail,
+} from "lucide-react";
 
 import type {
   StaffInvitation,
@@ -10,58 +15,93 @@ import {
   getRoleLabel,
 } from "../utils/users.utils";
 
+
 type PendingInvitationRowProps = {
-  invitation: StaffInvitation;
+  invitation:
+    StaffInvitation;
+
+  canCancel:
+    boolean;
 
   onCancel: (
-    invitationId: string
+    invitationId:
+      string
   ) => Promise<void>;
 };
 
+
 export function PendingInvitationRow({
   invitation,
+  canCancel,
   onCancel,
 }: PendingInvitationRowProps) {
   const [
     cancelling,
     setCancelling,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
+
 
   async function handleCancel() {
+    if (
+      !canCancel
+    ) {
+      return;
+    }
+
+
     const confirmed =
       window.confirm(
         `Annuler l'invitation envoyée à ${invitation.email} ?`
       );
 
-    if (!confirmed) {
+
+    if (
+      !confirmed
+    ) {
       return;
     }
 
-    setCancelling(true);
+
+    setCancelling(
+      true
+    );
+
 
     try {
       await onCancel(
         invitation.id
       );
     } finally {
-      setCancelling(false);
+      setCancelling(
+        false
+      );
     }
   }
+
 
   return (
     <tr>
       <td>
         <div className="users-user-cell">
           <strong className="users-user-name">
-            {invitation.email}
+            {
+              invitation.email
+            }
           </strong>
 
           <span className="users-invitation-meta">
-            <Mail size={12} />
+            <Mail
+              size={12}
+            />
+
             Invitation en attente
           </span>
         </div>
       </td>
+
 
       <td>
         {getFallbackDepartment(
@@ -69,11 +109,13 @@ export function PendingInvitationRow({
         )}
       </td>
 
+
       <td>
         {getRoleLabel(
           invitation.role
         )}
       </td>
+
 
       <td>
         <span className="users-status users-status--pending">
@@ -81,19 +123,27 @@ export function PendingInvitationRow({
         </span>
       </td>
 
+
       <td>
-        <button
-          type="button"
-          className="users-secondary-button"
-          onClick={() =>
-            void handleCancel()
-          }
-          disabled={cancelling}
-        >
-          {cancelling
-            ? "Annulation…"
-            : "Annuler"}
-        </button>
+        {canCancel && (
+          <button
+            type="button"
+
+            className="users-secondary-button"
+
+            onClick={() =>
+              void handleCancel()
+            }
+
+            disabled={
+              cancelling
+            }
+          >
+            {cancelling
+              ? "Annulation…"
+              : "Annuler"}
+          </button>
+        )}
       </td>
     </tr>
   );

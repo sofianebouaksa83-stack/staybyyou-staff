@@ -1,4 +1,5 @@
 import {
+  useMemo,
   useState,
   type FormEvent,
 } from "react";
@@ -12,83 +13,168 @@ import type {
   InviteRole,
 } from "../types/users.types";
 
+
 type InviteUserModalProps = {
-  open: boolean;
-  onClose: () => void;
+  open:
+    boolean;
+
+  canInvitePrivilegedRoles:
+    boolean;
+
+  onClose:
+    () => void;
 
   onSubmit: (
-    email: string,
-    role: InviteRole
+    email:
+      string,
+
+    role:
+      InviteRole
   ) => Promise<void>;
 };
 
-const ROLE_OPTIONS: Array<{
-  value: InviteRole;
-  label: string;
+
+const ALL_ROLE_OPTIONS: Array<{
+  value:
+    InviteRole;
+
+  label:
+    string;
+
+  privileged?:
+    boolean;
 }> = [
   {
-    value: "admin",
-    label: "Administrateur",
+    value:
+      "admin",
+
+    label:
+      "Administrateur",
+
+    privileged:
+      true,
   },
+
   {
-    value: "manager",
-    label: "Manager",
+    value:
+      "manager",
+
+    label:
+      "Manager",
+
+    privileged:
+      true,
   },
+
   {
-    value: "kitchen",
-    label: "Cuisine",
+    value:
+      "kitchen",
+
+    label:
+      "Cuisine",
   },
+
   {
-    value: "reception",
-    label: "Réception",
+    value:
+      "reception",
+
+    label:
+      "Réception",
   },
+
   {
-    value: "delivery",
-    label: "Livraison",
+    value:
+      "delivery",
+
+    label:
+      "Livraison",
   },
+
   {
-    value: "bedroom",
-    label: "Hébergement",
+    value:
+      "bedroom",
+
+    label:
+      "Hébergement",
   },
 ];
 
+
 export function InviteUserModal({
   open,
+  canInvitePrivilegedRoles,
   onClose,
   onSubmit,
 }: InviteUserModalProps) {
   const [
     email,
     setEmail,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     role,
     setRole,
   ] =
-    useState<InviteRole>("reception");
+    useState<InviteRole>(
+      "reception"
+    );
+
 
   const [
     loading,
     setLoading,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
+
 
   const [
     localError,
     setLocalError,
-  ] = useState<string | null>(null);
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  if (!open) {
+
+  const roleOptions =
+    useMemo(
+      () =>
+        ALL_ROLE_OPTIONS.filter(
+          (
+            option
+          ) =>
+            canInvitePrivilegedRoles ||
+            !option.privileged
+        ),
+      [
+        canInvitePrivilegedRoles,
+      ]
+    );
+
+
+  if (
+    !open
+  ) {
     return null;
   }
 
+
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
+    event:
+      FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
 
+
     const normalizedEmail =
-      email.trim().toLowerCase();
+      email
+        .trim()
+        .toLowerCase();
+
 
     if (
       !normalizedEmail ||
@@ -103,8 +189,15 @@ export function InviteUserModal({
       return;
     }
 
-    setLoading(true);
-    setLocalError(null);
+
+    setLoading(
+      true
+    );
+
+    setLocalError(
+      null
+    );
+
 
     try {
       await onSubmit(
@@ -112,34 +205,56 @@ export function InviteUserModal({
         role
       );
 
-      setEmail("");
-      setRole("reception");
+
+      setEmail(
+        ""
+      );
+
+      setRole(
+        "reception"
+      );
+
 
       onClose();
-    } catch (error) {
+    } catch (
+      error
+    ) {
       setLocalError(
         error instanceof Error
           ? error.message
           : "Impossible d'envoyer l'invitation."
       );
     } finally {
-      setLoading(false);
+      setLoading(
+        false
+      );
     }
   }
 
+
   function handleClose() {
-    if (loading) {
+    if (
+      loading
+    ) {
       return;
     }
 
-    setLocalError(null);
+
+    setLocalError(
+      null
+    );
+
     onClose();
   }
+
 
   return (
     <div
       className="users-modal-backdrop"
-      onMouseDown={(event) => {
+
+      onMouseDown={(
+        event
+      ) => {
         if (
           event.target ===
           event.currentTarget
@@ -149,18 +264,32 @@ export function InviteUserModal({
       }}
     >
       <form
-        onSubmit={handleSubmit}
+        onSubmit={
+          handleSubmit
+        }
+
         className="users-modal"
       >
         <button
           type="button"
+
           className="users-modal-close"
-          onClick={handleClose}
-          disabled={loading}
+
+          onClick={
+            handleClose
+          }
+
+          disabled={
+            loading
+          }
+
           aria-label="Fermer"
         >
-          <X size={17} />
+          <X
+            size={17}
+          />
         </button>
+
 
         <div className="users-modal-header">
           <h3 className="users-modal-title">
@@ -168,10 +297,10 @@ export function InviteUserModal({
           </h3>
 
           <p className="users-modal-subtitle">
-            La personne recevra un e-mail
-            StayByYou pour créer son accès.
+            La personne recevra un e-mail StayByYou pour créer son accès.
           </p>
         </div>
+
 
         <label className="users-field">
           <span className="users-field-label">
@@ -180,19 +309,32 @@ export function InviteUserModal({
 
           <input
             className="users-input"
+
             type="email"
-            value={email}
-            onChange={(event) =>
+
+            value={
+              email
+            }
+
+            onChange={(
+              event
+            ) =>
               setEmail(
                 event.target.value
               )
             }
+
             placeholder="prenom@hotel.com"
+
             autoFocus
             required
-            disabled={loading}
+
+            disabled={
+              loading
+            }
           />
         </label>
+
 
         <label className="users-field">
           <span className="users-field-label">
@@ -201,56 +343,90 @@ export function InviteUserModal({
 
           <select
             className="users-select"
-            value={role}
-            onChange={(event) =>
+
+            value={
+              role
+            }
+
+            onChange={(
+              event
+            ) =>
               setRole(
                 event.target
-                  .value as InviteRole
+                  .value as
+                  InviteRole
               )
             }
-            disabled={loading}
+
+            disabled={
+              loading
+            }
           >
-            {ROLE_OPTIONS.map(
-              (option) => (
+            {roleOptions.map(
+              (
+                option
+              ) => (
                 <option
-                  key={option.value}
-                  value={option.value}
+                  key={
+                    option.value
+                  }
+
+                  value={
+                    option.value
+                  }
                 >
-                  {option.label}
+                  {
+                    option.label
+                  }
                 </option>
               )
             )}
           </select>
         </label>
 
+
         {localError && (
           <div
             className="users-feedback users-feedback--error"
+
             role="alert"
           >
             {localError}
           </div>
         )}
 
+
         <div className="users-modal-actions">
           <button
             type="button"
+
             className="users-secondary-button"
-            onClick={handleClose}
-            disabled={loading}
+
+            onClick={
+              handleClose
+            }
+
+            disabled={
+              loading
+            }
           >
             Annuler
           </button>
 
+
           <button
             type="submit"
+
             className="users-primary-button"
+
             disabled={
               loading ||
               !email.trim()
             }
           >
-            <Mail size={16} />
+            <Mail
+              size={16}
+            />
 
             {loading
               ? "Envoi…"

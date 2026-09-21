@@ -17,10 +17,14 @@ import { SettingsShell } from "../SettingsShell";
 import { useApp } from "../../app/AppContext";
 
 const ROLE_LABELS: Record<string, string> = {
+  owner: "Propriétaire",
   admin: "Administrateur",
-  direction: "Direction",
   manager: "Manager",
-  employee: "Employé",
+  kitchen: "Cuisine",
+  reception: "Réception",
+  delivery: "Livraison",
+  bedroom: "Hébergement",
+  read_only: "Lecture seule",
 };
 
 export default function ProfilePage() {

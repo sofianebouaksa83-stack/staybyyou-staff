@@ -15,61 +15,116 @@ import type {
   StaffInvitation,
 } from "../types/users.types";
 
+
 export function useInvitations(
-  hotelId: string | null
+  hotelId: string | null,
+  enabled = true
 ) {
   const [
     invitations,
     setInvitations,
-  ] = useState<StaffInvitation[]>([]);
+  ] =
+    useState<
+      StaffInvitation[]
+    >([]);
+
 
   const [
     loading,
     setLoading,
-  ] = useState(true);
+  ] =
+    useState(
+      true
+    );
+
 
   const [
     error,
     setError,
-  ] = useState<string | null>(null);
+  ] =
+    useState<
+      string | null
+    >(null);
+
 
   const [
     success,
     setSuccess,
-  ] = useState<string | null>(null);
+  ] =
+    useState<
+      string | null
+    >(null);
+
 
   const refresh =
-    useCallback(async () => {
-      if (!hotelId) {
-        setInvitations([]);
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const data =
-          await getPendingInvitations(
-            hotelId
+    useCallback(
+      async () => {
+        if (
+          !hotelId ||
+          !enabled
+        ) {
+          setInvitations(
+            []
           );
 
-        setInvitations(data);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Impossible de charger les invitations."
+          setLoading(
+            false
+          );
+
+          setError(
+            null
+          );
+
+          return;
+        }
+
+
+        setLoading(
+          true
         );
-      } finally {
-        setLoading(false);
-      }
-    }, [hotelId]);
+
+        setError(
+          null
+        );
+
+
+        try {
+          const data =
+            await getPendingInvitations(
+              hotelId
+            );
+
+
+          setInvitations(
+            data
+          );
+        } catch (
+          err
+        ) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Impossible de charger les invitations."
+          );
+        } finally {
+          setLoading(
+            false
+          );
+        }
+      },
+      [
+        hotelId,
+        enabled,
+      ]
+    );
+
 
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+  }, [
+    refresh,
+  ]);
+
 
   const sendInvitation =
     useCallback(
@@ -77,14 +132,32 @@ export function useInvitations(
         email: string,
         role: InviteRole
       ) => {
-        if (!hotelId) {
+        if (
+          !hotelId
+        ) {
           throw new Error(
             "Aucun établissement sélectionné."
           );
         }
 
-        setError(null);
-        setSuccess(null);
+
+        if (
+          !enabled
+        ) {
+          throw new Error(
+            "Vous n’avez pas l’autorisation d’inviter des membres."
+          );
+        }
+
+
+        setError(
+          null
+        );
+
+        setSuccess(
+          null
+        );
+
 
         try {
           const result =
@@ -94,66 +167,106 @@ export function useInvitations(
               role,
             });
 
+
           setSuccess(
             result.message ??
               `Invitation envoyée à ${email}.`
           );
 
+
           await refresh();
 
+
           return result;
-        } catch (err) {
+        } catch (
+          err
+        ) {
           const message =
             err instanceof Error
               ? err.message
               : "Impossible d'envoyer l'invitation.";
 
-          setError(message);
+
+          setError(
+            message
+          );
+
           throw err;
         }
       },
       [
         hotelId,
+        enabled,
         refresh,
       ]
     );
 
+
   const removeInvitation =
     useCallback(
       async (
-        invitationId: string
+        invitationId:
+          string
       ) => {
-        setError(null);
-        setSuccess(null);
+        if (
+          !enabled
+        ) {
+          throw new Error(
+            "Vous n’avez pas l’autorisation d’annuler une invitation."
+          );
+        }
+
+
+        setError(
+          null
+        );
+
+        setSuccess(
+          null
+        );
+
 
         try {
           await cancelInvitation(
             invitationId
           );
 
+
           setSuccess(
             "Invitation annulée."
           );
 
+
           await refresh();
-        } catch (err) {
+        } catch (
+          err
+        ) {
           const message =
             err instanceof Error
               ? err.message
               : "Impossible d'annuler l'invitation.";
 
-          setError(message);
+
+          setError(
+            message
+          );
+
           throw err;
         }
       },
-      [refresh]
+      [
+        enabled,
+        refresh,
+      ]
     );
+
 
   return {
     invitations,
     loading,
     error,
     success,
+
     refresh,
     sendInvitation,
     removeInvitation,

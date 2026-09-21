@@ -21,47 +21,68 @@ import {
   TIMEZONE_OPTIONS,
 } from "../utils/hotel-settings.utils";
 
-type HotelGeneralFormProps = {
-  settings: HotelSettings;
 
-  saving: boolean;
+type HotelGeneralFormProps = {
+  settings:
+    HotelSettings;
+
+  saving:
+    boolean;
+
+  canEdit:
+    boolean;
 
   onSave: (
-    input: UpdateHotelSettingsInput
+    input:
+      UpdateHotelSettingsInput
   ) => Promise<void>;
 };
+
 
 export function HotelGeneralForm({
   settings,
   saving,
+  canEdit,
   onSave,
 }: HotelGeneralFormProps) {
   const [
     name,
     setName,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     timezone,
     setTimezone,
-  ] = useState(
-    "Europe/Paris"
-  );
+  ] =
+    useState(
+      "Europe/Paris"
+    );
+
 
   const [
     languages,
     setLanguages,
-  ] = useState<string[]>([]);
+  ] =
+    useState<
+      string[]
+    >([]);
+
 
   const [
     localError,
     setLocalError,
-  ] = useState<string | null>(
-    null
-  );
+  ] =
+    useState<
+      string | null
+    >(null);
+
 
   useEffect(() => {
-    setName(settings.name);
+    setName(
+      settings.name
+    );
 
     setTimezone(
       settings.timezone
@@ -71,8 +92,13 @@ export function HotelGeneralForm({
       settings.supportedLanguages
     );
 
-    setLocalError(null);
-  }, [settings]);
+    setLocalError(
+      null
+    );
+  }, [
+    settings,
+  ]);
+
 
   const hasChanges =
     name.trim() !==
@@ -80,7 +106,9 @@ export function HotelGeneralForm({
     timezone !==
       settings.timezone ||
     JSON.stringify(
-      [...languages].sort()
+      [
+        ...languages,
+      ].sort()
     ) !==
       JSON.stringify(
         [
@@ -88,22 +116,36 @@ export function HotelGeneralForm({
         ].sort()
       );
 
+
   function toggleLanguage(
-    language: string
+    language:
+      string
   ) {
+    if (
+      !canEdit
+    ) {
+      return;
+    }
+
+
     setLanguages(
-      (current) => {
+      (
+        current
+      ) => {
         if (
           current.includes(
             language
           )
         ) {
           return current.filter(
-            (item) =>
+            (
+              item
+            ) =>
               item !==
               language
           );
         }
+
 
         return [
           ...current,
@@ -113,12 +155,24 @@ export function HotelGeneralForm({
     );
   }
 
+
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
+    event:
+      FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
 
-    if (!name.trim()) {
+
+    if (
+      !canEdit
+    ) {
+      return;
+    }
+
+
+    if (
+      !name.trim()
+    ) {
       setLocalError(
         "Le nom de l'établissement est obligatoire."
       );
@@ -126,8 +180,10 @@ export function HotelGeneralForm({
       return;
     }
 
+
     if (
-      languages.length === 0
+      languages.length ===
+      0
     ) {
       setLocalError(
         "Sélectionne au moins une langue."
@@ -136,19 +192,27 @@ export function HotelGeneralForm({
       return;
     }
 
-    setLocalError(null);
+
+    setLocalError(
+      null
+    );
+
 
     await onSave({
       name,
+
       timezone,
+
       supportedLanguages:
         languages,
     });
   }
 
+
   return (
     <form
       className="hotel-settings-card"
+
       onSubmit={
         handleSubmit
       }
@@ -162,23 +226,20 @@ export function HotelGeneralForm({
 
         <div>
           <h3>
-            Informations
-            générales
+            Informations générales
           </h3>
 
           <p>
-            Informations
-            principales de
-            l'établissement.
+            Informations principales de l'établissement.
           </p>
         </div>
       </div>
 
+
       <div className="hotel-settings-fields">
         <label className="hotel-settings-field">
           <span>
-            Nom de
-            l'établissement
+            Nom de l'établissement
           </span>
 
           <div className="hotel-settings-input-wrap">
@@ -188,21 +249,27 @@ export function HotelGeneralForm({
 
             <input
               type="text"
-              value={name}
+
+              value={
+                name
+              }
+
               onChange={(
                 event
               ) =>
                 setName(
-                  event.target
-                    .value
+                  event.target.value
                 )
               }
+
               disabled={
-                saving
+                saving ||
+                !canEdit
               }
             />
           </div>
         </label>
+
 
         <label className="hotel-settings-field">
           <span>
@@ -218,16 +285,18 @@ export function HotelGeneralForm({
               value={
                 timezone
               }
+
               onChange={(
                 event
               ) =>
                 setTimezone(
-                  event.target
-                    .value
+                  event.target.value
                 )
               }
+
               disabled={
-                saving
+                saving ||
+                !canEdit
               }
             >
               {TIMEZONE_OPTIONS.map(
@@ -238,6 +307,7 @@ export function HotelGeneralForm({
                     key={
                       option.value
                     }
+
                     value={
                       option.value
                     }
@@ -253,6 +323,7 @@ export function HotelGeneralForm({
         </label>
       </div>
 
+
       <div className="hotel-settings-languages">
         <div className="hotel-settings-languages-title">
           <Languages
@@ -261,17 +332,15 @@ export function HotelGeneralForm({
 
           <div>
             <strong>
-              Langues
-              disponibles
+              Langues disponibles
             </strong>
 
             <span>
-              Langues proposées
-              aux clients de
-              l'établissement.
+              Langues proposées aux clients de l'établissement.
             </span>
           </div>
         </div>
+
 
         <div className="hotel-settings-language-grid">
           {LANGUAGE_OPTIONS.map(
@@ -283,31 +352,35 @@ export function HotelGeneralForm({
                   language.value
                 );
 
+
               return (
                 <button
                   key={
                     language.value
                   }
+
                   type="button"
+
                   className={
                     selected
                       ? "hotel-settings-language hotel-settings-language--active"
                       : "hotel-settings-language"
                   }
+
                   onClick={() =>
                     toggleLanguage(
                       language.value
                     )
                   }
+
                   disabled={
-                    saving
+                    saving ||
+                    !canEdit
                   }
                 >
                   {selected && (
                     <Check
-                      size={
-                        14
-                      }
+                      size={14}
                     />
                   )}
 
@@ -321,26 +394,39 @@ export function HotelGeneralForm({
         </div>
       </div>
 
+
       {localError && (
         <div className="hotel-settings-feedback hotel-settings-feedback--error">
           {localError}
         </div>
       )}
 
-      <div className="hotel-settings-form-actions">
-        <button
-          type="submit"
-          className="hotel-settings-primary-button"
-          disabled={
-            saving ||
-            !hasChanges
-          }
-        >
-          {saving
-            ? "Enregistrement…"
-            : "Enregistrer les modifications"}
-        </button>
-      </div>
+
+      {!canEdit && (
+        <div className="hotel-settings-note">
+          Vous pouvez consulter ces réglages, mais vous n’avez pas l’autorisation de les modifier.
+        </div>
+      )}
+
+
+      {canEdit && (
+        <div className="hotel-settings-form-actions">
+          <button
+            type="submit"
+
+            className="hotel-settings-primary-button"
+
+            disabled={
+              saving ||
+              !hasChanges
+            }
+          >
+            {saving
+              ? "Enregistrement…"
+              : "Enregistrer les modifications"}
+          </button>
+        </div>
+      )}
     </form>
   );
 }

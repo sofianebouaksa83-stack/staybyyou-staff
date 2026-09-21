@@ -7,6 +7,10 @@ import {
 } from "../../../app/AppContext";
 
 import {
+  useHotelPermission,
+} from "../../permissions/hooks/useHotelPermission";
+
+import {
   SettingsShell,
 } from "../../../pages/SettingsShell";
 
@@ -22,12 +26,38 @@ import {
   useHotelSettings,
 } from "./hooks/useHotelSettings";
 
+
 export default function HotelSettingsPage() {
   const {
     hotelId,
     session,
     reloadAuth,
   } = useApp();
+
+
+  const {
+    allowed:
+      canViewSettings,
+
+    loading:
+      loadingViewPermission,
+  } = useHotelPermission(
+    hotelId,
+    "settings.view"
+  );
+
+
+  const {
+    allowed:
+      canEditSettings,
+
+    loading:
+      loadingEditPermission,
+  } = useHotelPermission(
+    hotelId,
+    "settings.edit"
+  );
+
 
   const {
     settings,
@@ -42,95 +72,137 @@ export default function HotelSettingsPage() {
     session?.user.id
   );
 
+
   async function handleSave(
     input: Parameters<
       typeof save
     >[0]
   ) {
-    await save(input);
+    if (
+      !canEditSettings
+    ) {
+      return;
+    }
 
-    // Le nom de l'hôtel est aussi
-    // affiché dans la navbar/profil.
+
+    await save(
+      input
+    );
+
+
     await reloadAuth();
   }
+
+
+  const loadingPermissions =
+    loadingViewPermission ||
+    loadingEditPermission;
+
 
   return (
     <SettingsShell
       sectionLabel="Administration"
+
       sectionTitle="Établissement"
+
       sectionSubtitle="Informations générales et configuration de l’établissement."
     >
-      <div className="hotel-settings-toolbar">
-        <span>
-          Configuration
-          générale
-        </span>
-
-        <button
-          type="button"
-          className="hotel-settings-refresh-button"
-          onClick={() =>
-            void refresh()
-          }
-          disabled={
-            loading ||
-            saving
-          }
-          title="Actualiser"
-        >
-          <RefreshCw
-            size={16}
-          />
-        </button>
-      </div>
-
-      {error && (
-        <div
-          className="hotel-settings-feedback hotel-settings-feedback--error"
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div
-          className="hotel-settings-feedback hotel-settings-feedback--success"
-          role="status"
-        >
-          {success}
-        </div>
-      )}
-
-      {loading ? (
+      {loadingPermissions ? (
         <div className="hotel-settings-state">
-          Chargement…
+          Vérification des permissions…
         </div>
-      ) : settings ? (
-        <div className="hotel-settings-grid">
-          <HotelGeneralForm
-            settings={
-              settings
-            }
-            saving={
-              saving
-            }
-            onSave={
-              handleSave
-            }
-          />
-
-          <HotelStatusCard
-            settings={
-              settings
-            }
-          />
+      ) : !canViewSettings ? (
+        <div className="hotel-settings-state">
+          Vous n’avez pas accès aux paramètres de l’établissement.
         </div>
       ) : (
-        <div className="hotel-settings-state">
-          Impossible de charger
-          l'établissement.
-        </div>
+        <>
+          <div className="hotel-settings-toolbar">
+            <span>
+              Configuration générale
+            </span>
+
+            <button
+              type="button"
+
+              className="hotel-settings-refresh-button"
+
+              onClick={() =>
+                void refresh()
+              }
+
+              disabled={
+                loading ||
+                saving
+              }
+
+              title="Actualiser"
+            >
+              <RefreshCw
+                size={16}
+              />
+            </button>
+          </div>
+
+
+          {error && (
+            <div
+              className="hotel-settings-feedback hotel-settings-feedback--error"
+
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
+
+
+          {success && (
+            <div
+              className="hotel-settings-feedback hotel-settings-feedback--success"
+
+              role="status"
+            >
+              {success}
+            </div>
+          )}
+
+
+          {loading ? (
+            <div className="hotel-settings-state">
+              Chargement…
+            </div>
+          ) : settings ? (
+            <div className="hotel-settings-grid">
+              <HotelGeneralForm
+                settings={
+                  settings
+                }
+
+                saving={
+                  saving
+                }
+
+                canEdit={
+                  canEditSettings
+                }
+
+                onSave={
+                  handleSave
+                }
+              />
+
+              <HotelStatusCard
+                settings={
+                  settings
+                }
+              />
+            </div>
+          ) : (
+            <div className="hotel-settings-state">
+              Impossible de charger l'établissement.
+            </div>
+          )}
+        </>
       )}
     </SettingsShell>
   );

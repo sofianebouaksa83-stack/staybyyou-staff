@@ -1,4 +1,6 @@
-import { Pencil } from "lucide-react";
+import {
+  Pencil,
+} from "lucide-react";
 
 import type {
   StaffMember,
@@ -10,36 +12,54 @@ import {
   getRoleLabel,
 } from "../utils/users.utils";
 
+
 type UserRowProps = {
-  user: StaffMember;
-  currentUserId?: string;
+  user:
+    StaffMember;
+
+  currentUserId?:
+    string;
+
+  canEdit:
+    boolean;
 
   onEdit: (
-    user: StaffMember
+    user:
+      StaffMember
   ) => void;
 };
+
 
 export function UserRow({
   user,
   currentUserId,
+  canEdit,
   onEdit,
 }: UserRowProps) {
   const isCurrentUser =
-    user.user_id === currentUserId;
+    user.user_id ===
+    currentUserId;
+
 
   return (
     <tr>
       <td>
         <div className="users-user-cell">
           <strong className="users-user-name">
-            {getMemberDisplayName(user)}
+            {getMemberDisplayName(
+              user
+            )}
           </strong>
+
 
           {user.email && (
             <span className="users-user-email">
-              {user.email}
+              {
+                user.email
+              }
             </span>
           )}
+
 
           {isCurrentUser && (
             <span className="users-user-you">
@@ -49,13 +69,20 @@ export function UserRow({
         </div>
       </td>
 
-      <td>
-        {getMemberDepartments(user)}
-      </td>
 
       <td>
-        {getRoleLabel(user.role)}
+        {getMemberDepartments(
+          user
+        )}
       </td>
+
+
+      <td>
+        {getRoleLabel(
+          user.role
+        )}
+      </td>
+
 
       <td>
         <span
@@ -71,17 +98,27 @@ export function UserRow({
         </span>
       </td>
 
+
       <td>
-        <button
-          type="button"
-          className="users-row-action"
-          onClick={() =>
-            onEdit(user)
-          }
-        >
-          <Pencil size={14} />
-          Modifier
-        </button>
+        {canEdit && (
+          <button
+            type="button"
+
+            className="users-row-action"
+
+            onClick={() =>
+              onEdit(
+                user
+              )
+            }
+          >
+            <Pencil
+              size={14}
+            />
+
+            Modifier
+          </button>
+        )}
       </td>
     </tr>
   );

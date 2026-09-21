@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useState,
   type FormEvent,
 } from "react";
@@ -21,50 +22,117 @@ import {
   getRoleLabel,
 } from "../utils/users.utils";
 
+
 type EditUserModalProps = {
-  open: boolean;
+  open:
+    boolean;
 
   user:
-    | StaffMember
-    | null;
+    StaffMember | null;
 
   departments:
     StaffDepartment[];
 
-  currentUserId?: string;
+  currentUserId?:
+    string;
 
-  onClose: () => void;
+  canChangeRole:
+    boolean;
+
+  canChangeDepartment:
+    boolean;
+
+  canRemoveUser:
+    boolean;
+
+  canManagePrivilegedRoles:
+    boolean;
+
+  onClose:
+    () => void;
 
   onChangeRole: (
-    userId: string,
-    role: StaffRole
+    userId:
+      string,
+
+    role:
+      StaffRole
   ) => Promise<void>;
 
   onChangeDepartment: (
-    userId: string,
-    departmentId: string
+    userId:
+      string,
+
+    departmentId:
+      string
   ) => Promise<void>;
 
   onRemove: (
-    userId: string
+    userId:
+      string
   ) => Promise<void>;
 };
 
-const ROLE_OPTIONS: StaffRole[] = [
-  "admin",
-  "manager",
-  "kitchen",
-  "reception",
-  "delivery",
-  "bedroom",
-  "read_only",
+
+const ALL_ROLE_OPTIONS: Array<{
+  value:
+    StaffRole;
+
+  privileged?:
+    boolean;
+}> = [
+  {
+    value:
+      "admin",
+
+    privileged:
+      true,
+  },
+
+  {
+    value:
+      "manager",
+
+    privileged:
+      true,
+  },
+
+  {
+    value:
+      "kitchen",
+  },
+
+  {
+    value:
+      "reception",
+  },
+
+  {
+    value:
+      "delivery",
+  },
+
+  {
+    value:
+      "bedroom",
+  },
+
+  {
+    value:
+      "read_only",
+  },
 ];
+
 
 export function EditUserModal({
   open,
   user,
   departments,
   currentUserId,
+  canChangeRole,
+  canChangeDepartment,
+  canRemoveUser,
+  canManagePrivilegedRoles,
   onClose,
   onChangeRole,
   onChangeDepartment,
@@ -74,31 +142,53 @@ export function EditUserModal({
     role,
     setRole,
   ] =
-    useState<StaffRole>("read_only");
+    useState<StaffRole>(
+      "read_only"
+    );
+
 
   const [
     departmentId,
     setDepartmentId,
-  ] = useState("");
+  ] =
+    useState("");
+
 
   const [
     saving,
     setSaving,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
+
 
   const [
     removing,
     setRemoving,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
+
 
   const [
     error,
     setError,
-  ] = useState<string | null>(null);
+  ] =
+    useState<
+      string | null
+    >(null);
+
 
   useEffect(() => {
-    if (user) {
-      setRole(user.role);
+    if (
+      user
+    ) {
+      setRole(
+        user.role
+      );
+
 
       setDepartmentId(
         getPrimaryDepartmentId(
@@ -106,42 +196,96 @@ export function EditUserModal({
         )
       );
 
-      setError(null);
-    }
-  }, [user]);
 
-  if (!open || !user) {
+      setError(
+        null
+      );
+    }
+  }, [
+    user,
+  ]);
+
+
+  const roleOptions =
+    useMemo(
+      () =>
+        ALL_ROLE_OPTIONS.filter(
+          (
+            option
+          ) =>
+            canManagePrivilegedRoles ||
+            !option.privileged
+        ),
+      [
+        canManagePrivilegedRoles,
+      ]
+    );
+
+
+  if (
+    !open ||
+    !user
+  ) {
     return null;
   }
 
-  const member = user;
+
+  const member =
+    user;
+
 
   const isCurrentUser =
     member.user_id ===
     currentUserId;
 
+
   const isOwner =
     member.role ===
     "owner";
 
+
+  const targetIsPrivileged =
+    member.role ===
+      "admin" ||
+    member.role ===
+      "manager";
+
+
   const canEditRole =
+    canChangeRole &&
     !isCurrentUser &&
-    !isOwner;
+    !isOwner &&
+    (
+      canManagePrivilegedRoles ||
+      !targetIsPrivileged
+    );
+
 
   const canEditDepartment =
+    canChangeDepartment &&
     !isOwner;
 
+
   const canRemove =
+    canRemoveUser &&
     !isCurrentUser &&
-    !isOwner;
+    !isOwner &&
+    (
+      canManagePrivilegedRoles ||
+      !targetIsPrivileged
+    );
+
 
   const currentDepartmentId =
     getPrimaryDepartmentId(
       member
     );
 
+
   const hasRoleChanged =
-    role !== member.role;
+    role !==
+    member.role;
+
 
   const hasDepartmentChanged =
     Boolean(
@@ -149,6 +293,7 @@ export function EditUserModal({
     ) &&
     departmentId !==
       currentDepartmentId;
+
 
   const hasChanges =
     (
@@ -160,10 +305,13 @@ export function EditUserModal({
       hasDepartmentChanged
     );
 
+
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
+    event:
+      FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
+
 
     if (
       !hasChanges ||
@@ -172,8 +320,15 @@ export function EditUserModal({
       return;
     }
 
-    setSaving(true);
-    setError(null);
+
+    setSaving(
+      true
+    );
+
+    setError(
+      null
+    );
+
 
     try {
       if (
@@ -186,6 +341,7 @@ export function EditUserModal({
         );
       }
 
+
       if (
         canEditDepartment &&
         hasDepartmentChanged
@@ -196,17 +352,23 @@ export function EditUserModal({
         );
       }
 
+
       onClose();
-    } catch (err) {
+    } catch (
+      err
+    ) {
       setError(
         err instanceof Error
           ? err.message
           : "Impossible d'enregistrer les modifications."
       );
     } finally {
-      setSaving(false);
+      setSaving(
+        false
+      );
     }
   }
+
 
   async function handleRemove() {
     if (
@@ -216,6 +378,7 @@ export function EditUserModal({
       return;
     }
 
+
     const confirmed =
       window.confirm(
         `Retirer ${getMemberDisplayName(
@@ -223,29 +386,45 @@ export function EditUserModal({
         )} de l'établissement ?`
       );
 
-    if (!confirmed) {
+
+    if (
+      !confirmed
+    ) {
       return;
     }
 
-    setRemoving(true);
-    setError(null);
+
+    setRemoving(
+      true
+    );
+
+    setError(
+      null
+    );
+
 
     try {
       await onRemove(
         member.user_id
       );
 
+
       onClose();
-    } catch (err) {
+    } catch (
+      err
+    ) {
       setError(
         err instanceof Error
           ? err.message
           : "Impossible de retirer l'utilisateur."
       );
     } finally {
-      setRemoving(false);
+      setRemoving(
+        false
+      );
     }
   }
+
 
   function handleClose() {
     if (
@@ -255,15 +434,22 @@ export function EditUserModal({
       return;
     }
 
-    setError(null);
+
+    setError(
+      null
+    );
 
     onClose();
   }
 
+
   return (
     <div
       className="users-modal-backdrop"
-      onMouseDown={(event) => {
+
+      onMouseDown={(
+        event
+      ) => {
         if (
           event.target ===
           event.currentTarget
@@ -276,27 +462,34 @@ export function EditUserModal({
         onSubmit={
           handleSubmit
         }
+
         className="users-modal"
       >
         <button
           type="button"
+
           className="users-modal-close"
+
           onClick={
             handleClose
           }
+
           disabled={
             saving ||
             removing
           }
+
           aria-label="Fermer"
         >
-          <X size={17} />
+          <X
+            size={17}
+          />
         </button>
+
 
         <div className="users-modal-header">
           <h3 className="users-modal-title">
-            Modifier
-            l'utilisateur
+            Modifier l'utilisateur
           </h3>
 
           <p className="users-modal-subtitle">
@@ -307,10 +500,13 @@ export function EditUserModal({
 
           {member.email && (
             <p className="users-modal-email">
-              {member.email}
+              {
+                member.email
+              }
             </p>
           )}
         </div>
+
 
         <label className="users-field">
           <span className="users-field-label">
@@ -319,15 +515,21 @@ export function EditUserModal({
 
           <select
             className="users-select"
-            value={role}
+
+            value={
+              role
+            }
+
             onChange={(
               event
             ) =>
               setRole(
                 event.target
-                  .value as StaffRole
+                  .value as
+                  StaffRole
               )
             }
+
             disabled={
               !canEditRole ||
               saving ||
@@ -338,28 +540,40 @@ export function EditUserModal({
               <option value="owner">
                 Propriétaire
               </option>
-            ) : (
-              ROLE_OPTIONS.map(
+            ) : canEditRole ? (
+              roleOptions.map(
                 (
                   option
                 ) => (
                   <option
                     key={
-                      option
+                      option.value
                     }
+
                     value={
-                      option
+                      option.value
                     }
                   >
                     {getRoleLabel(
-                      option
+                      option.value
                     )}
                   </option>
                 )
               )
+            ) : (
+              <option
+                value={
+                  member.role
+                }
+              >
+                {getRoleLabel(
+                  member.role
+                )}
+              </option>
             )}
           </select>
         </label>
+
 
         <label className="users-field">
           <span className="users-field-label">
@@ -368,17 +582,19 @@ export function EditUserModal({
 
           <select
             className="users-select"
+
             value={
               departmentId
             }
+
             onChange={(
               event
             ) =>
               setDepartmentId(
-                event.target
-                  .value
+                event.target.value
               )
             }
+
             disabled={
               !canEditDepartment ||
               saving ||
@@ -390,12 +606,13 @@ export function EditUserModal({
             {!departmentId && (
               <option
                 value=""
+
                 disabled
               >
-                Sélectionner un
-                service
+                Sélectionner un service
               </option>
             )}
+
 
             {departments.map(
               (
@@ -405,6 +622,7 @@ export function EditUserModal({
                   key={
                     department.id
                   }
+
                   value={
                     department.id
                   }
@@ -417,94 +635,106 @@ export function EditUserModal({
           </select>
         </label>
 
-        {departments.length ===
-          0 && (
-          <p className="users-modal-note">
-            Aucun service n'est
-            encore configuré.
-            Crée d'abord un
-            service dans
-            Paramètres →
-            Services.
-          </p>
-        )}
 
-        {isCurrentUser && (
-          <p className="users-modal-note">
-            Tu ne peux pas
-            modifier ton propre
-            rôle, mais tu peux
-            modifier ton service.
-          </p>
-        )}
+        {isCurrentUser &&
+          canChangeRole && (
+            <p className="users-modal-note">
+              Vous ne pouvez pas modifier votre propre rôle.
+            </p>
+          )}
+
 
         {isOwner && (
           <p className="users-modal-note">
-            Le propriétaire ne
-            peut pas être modifié
-            ou retiré.
+            Le propriétaire ne peut pas être supprimé ni changer de rôle.
           </p>
         )}
+
+
+        {!canEditRole &&
+          !canEditDepartment &&
+          !canRemove && (
+            <p className="users-modal-note">
+              Vous pouvez consulter ce membre, mais vous n’avez aucune action autorisée sur son compte.
+            </p>
+          )}
+
 
         {error && (
           <div
             className="users-feedback users-feedback--error"
+
             role="alert"
           >
             {error}
           </div>
         )}
 
-        <div className="users-modal-actions users-modal-actions--split">
-          <button
-            type="button"
-            className="users-danger-button"
-            onClick={() =>
-              void handleRemove()
-            }
-            disabled={
-              !canRemove ||
-              saving ||
-              removing
-            }
-          >
-            <Trash2
-              size={15}
-            />
 
-            {removing
-              ? "Suppression…"
-              : "Retirer"}
-          </button>
+        <div className="users-modal-actions users-modal-actions--split">
+          {canRemove ? (
+            <button
+              type="button"
+
+              className="users-danger-button"
+
+              onClick={() =>
+                void handleRemove()
+              }
+
+              disabled={
+                saving ||
+                removing
+              }
+            >
+              <Trash2
+                size={15}
+              />
+
+              {removing
+                ? "Suppression…"
+                : "Retirer"}
+            </button>
+          ) : (
+            <span />
+          )}
+
 
           <div className="users-modal-actions-right">
             <button
               type="button"
+
               className="users-secondary-button"
+
               onClick={
                 handleClose
               }
+
               disabled={
                 saving ||
                 removing
               }
             >
-              Annuler
+              Fermer
             </button>
 
-            <button
-              type="submit"
-              className="users-primary-button"
-              disabled={
-                !hasChanges ||
-                saving ||
-                removing
-              }
-            >
-              {saving
-                ? "Enregistrement…"
-                : "Enregistrer"}
-            </button>
+
+            {hasChanges && (
+              <button
+                type="submit"
+
+                className="users-primary-button"
+
+                disabled={
+                  saving ||
+                  removing
+                }
+              >
+                {saving
+                  ? "Enregistrement…"
+                  : "Enregistrer"}
+              </button>
+            )}
           </div>
         </div>
       </form>

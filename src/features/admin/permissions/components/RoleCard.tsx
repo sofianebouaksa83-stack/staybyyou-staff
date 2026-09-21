@@ -1,5 +1,6 @@
 import {
   Eye,
+  Settings2,
   ShieldCheck,
 } from "lucide-react";
 
@@ -13,16 +14,24 @@ import {
   ROLE_LABELS,
 } from "../utils/permissions.utils";
 
+
 type RoleCardProps = {
-  group: RolePermissionsGroup;
+  group:
+    RolePermissionsGroup;
+
+  canManage:
+    boolean;
 
   onOpen: (
-    group: RolePermissionsGroup
+    group:
+      RolePermissionsGroup
   ) => void;
 };
 
+
 export function RoleCard({
   group,
+  canManage,
   onOpen,
 }: RoleCardProps) {
   const allowedCount =
@@ -30,44 +39,91 @@ export function RoleCard({
       group.permissions
     );
 
+
   const total =
     group.permissions.length;
+
+
+  const protectedRole =
+    group.role ===
+      "owner" ||
+    group.role ===
+      "admin";
+
+
+  const editable =
+    canManage &&
+    !protectedRole;
+
 
   return (
     <article className="permissions-role-card">
       <div className="permissions-role-card-header">
         <span className="permissions-role-icon">
-          <ShieldCheck size={18} />
+          <ShieldCheck
+            size={18}
+          />
         </span>
 
+
         <span className="permissions-role-count">
-          {allowedCount}/{total}
+          {allowedCount}/
+          {total}
         </span>
       </div>
 
+
       <h3 className="permissions-role-title">
-        {ROLE_LABELS[group.role]}
+        {
+          ROLE_LABELS[
+            group.role
+          ]
+        }
       </h3>
 
+
       <p className="permissions-role-description">
-        {ROLE_DESCRIPTIONS[group.role]}
+        {
+          ROLE_DESCRIPTIONS[
+            group.role
+          ]
+        }
       </p>
+
 
       <div className="permissions-role-footer">
         <span>
-          {allowedCount} permission
-          {allowedCount > 1 ? "s" : ""}
+          {protectedRole
+            ? "Rôle protégé"
+            : `${allowedCount} permission${allowedCount > 1 ? "s" : ""}`}
         </span>
+
 
         <button
           type="button"
+
           className="permissions-role-button"
+
           onClick={() =>
-            onOpen(group)
+            onOpen(
+              group
+            )
           }
         >
-          <Eye size={14} />
-          Voir les droits
+          {editable ? (
+            <Settings2
+              size={14}
+            />
+          ) : (
+            <Eye
+              size={14}
+            />
+          )}
+
+
+          {editable
+            ? "Configurer"
+            : "Voir les droits"}
         </button>
       </div>
     </article>
