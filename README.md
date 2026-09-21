@@ -17,7 +17,7 @@ npm run dev
 - React Router
 - Lucide React
 - CSS natif
-- Données mockées (pas de Supabase pour l'instant)
+- Données persistées dans Supabase
 
 ## Pages incluses
 
@@ -41,5 +41,5 @@ npm run dev
 
 ## Architecture
 
-Les pages assemblent des composants et consomment des données mockées structurées comme de futures données Supabase.
-Le branchement backend pourra être fait module par module sans réécrire l'interface.
+- Les fonctionnalités principales utilisent les données réelles de l'hôtel avec contrôle d'accès par permissions et RLS.
+- Le branchement backend pourra être fait module par module sans réécrire l'interface.
