@@ -1,28 +1,47 @@
 import {
   Check,
+  Pencil,
   Pin,
   Trash2,
 } from "lucide-react";
 
 import type {
-  StaffInstruction,
   InstructionShift,
+  StaffInstruction,
 } from "../../services/instructionsService";
 
-type Props = {
-  instruction: StaffInstruction;
-  read: boolean;
-  canManage: boolean;
 
-  onRead: () => void;
-  onDelete: () => void;
-  onTogglePin: () => void;
+type Props = {
+  instruction:
+    StaffInstruction;
+
+  read:
+    boolean;
+
+  canManage:
+    boolean;
+
+  onRead:
+    () => void;
+
+  onEdit:
+    () => void;
+
+  onDelete:
+    () => void;
+
+  onTogglePin:
+    () => void;
 };
 
+
 function shiftLabel(
-  shift: InstructionShift
+  shift:
+    InstructionShift
 ) {
-  switch (shift) {
+  switch (
+    shift
+  ) {
     case "morning":
       return "Matin";
 
@@ -40,26 +59,32 @@ function shiftLabel(
   }
 }
 
+
 export function InstructionCard({
   instruction,
   read,
   canManage,
   onRead,
+  onEdit,
   onDelete,
   onTogglePin,
 }: Props) {
   return (
     <article
-      className={`instruction-card ${
-        read
-          ? "instruction-card-read"
-          : ""
-      }`}
+      className={
+        `instruction-card ${
+          read
+            ? "instruction-card-read"
+            : ""
+        }`
+      }
     >
       <div className="instruction-card-top">
         <div className="instruction-card-tags">
           <span
-            className={`instruction-priority ${instruction.priority}`}
+            className={
+              `instruction-priority ${instruction.priority}`
+            }
           >
             {instruction.priority ===
             "urgent"
@@ -70,72 +95,132 @@ export function InstructionCard({
               : "Normal"}
           </span>
 
+
           <span className="instruction-shift">
             {shiftLabel(
               instruction.shift
             )}
           </span>
 
+
+          {instruction.department && (
+            <span className="instruction-target">
+              {
+                instruction.department.name
+              }
+            </span>
+          )}
+
+
           {instruction.pinned && (
             <span className="instruction-pinned">
-              <Pin size={11} />
+              <Pin
+                size={11}
+              />
+
               Épinglée
             </span>
           )}
         </div>
 
+
         {read && (
           <span className="instruction-read-state">
-            <Check size={12} />
+            <Check
+              size={12}
+            />
+
             Lu
           </span>
         )}
       </div>
 
+
       <div className="instruction-card-content">
         <h3>
-          {instruction.title}
+          {
+            instruction.title
+          }
         </h3>
 
         <p>
-          {instruction.content}
+          {
+            instruction.content
+          }
         </p>
       </div>
+
 
       <div className="instruction-card-actions">
         {!read && (
           <button
             type="button"
             className="instruction-action-button"
-            onClick={onRead}
+
+            onClick={
+              onRead
+            }
           >
-            <Check size={13} />
+            <Check
+              size={13}
+            />
+
             Marquer comme lu
           </button>
         )}
+
 
         {canManage && (
           <>
             <button
               type="button"
               className="instruction-icon-button"
-              onClick={onTogglePin}
+
+              onClick={
+                onEdit
+              }
+
+              title="Modifier"
+            >
+              <Pencil
+                size={14}
+              />
+            </button>
+
+
+            <button
+              type="button"
+              className="instruction-icon-button"
+
+              onClick={
+                onTogglePin
+              }
+
               title={
                 instruction.pinned
                   ? "Désépingler"
                   : "Épingler"
               }
             >
-              <Pin size={14} />
+              <Pin
+                size={14}
+              />
             </button>
+
 
             <button
               type="button"
               className="instruction-icon-button danger"
-              onClick={onDelete}
+
+              onClick={
+                onDelete
+              }
+
               title="Supprimer"
             >
-              <Trash2 size={14} />
+              <Trash2
+                size={14}
+              />
             </button>
           </>
         )}

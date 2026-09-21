@@ -2,13 +2,20 @@ import type {
   StaffEvent,
 } from "../../services/eventsService";
 
+
 type Props = {
-  currentMonth: Date;
-  events: StaffEvent[];
+  currentMonth:
+    Date;
+
+  events:
+    StaffEvent[];
+
   onEventClick?: (
-    event: StaffEvent
+    event:
+      StaffEvent
   ) => void;
 };
+
 
 const weekDays = [
   "Lun.",
@@ -20,14 +27,17 @@ const weekDays = [
   "Dim.",
 ];
 
+
 function getMonthGrid(
-  currentMonth: Date
+  currentMonth:
+    Date
 ) {
   const year =
     currentMonth.getFullYear();
 
   const month =
     currentMonth.getMonth();
+
 
   const firstDay =
     new Date(
@@ -36,24 +46,27 @@ function getMonthGrid(
       1
     );
 
-  const lastDay =
-    new Date(
-      year,
-      month + 1,
-      0
-    );
 
   const mondayIndex =
-    (firstDay.getDay() + 6) % 7;
+    (
+      firstDay.getDay() +
+      6
+    ) % 7;
+
 
   const start =
     new Date(
       year,
       month,
-      1 - mondayIndex
+      1 -
+        mondayIndex
     );
 
-  const days: Date[] = [];
+
+  const days:
+    Date[] =
+      [];
+
 
   for (
     let i = 0;
@@ -61,21 +74,27 @@ function getMonthGrid(
     i++
   ) {
     const date =
-      new Date(start);
+      new Date(
+        start
+      );
 
     date.setDate(
-      start.getDate() + i
+      start.getDate() +
+        i
     );
 
-    days.push(date);
+    days.push(
+      date
+    );
   }
+
 
   return {
     days,
     month,
-    lastDay,
   };
 }
+
 
 function sameDay(
   a: Date,
@@ -91,26 +110,88 @@ function sameDay(
   );
 }
 
+
+function eventOccursOnDay(
+  event:
+    StaffEvent,
+
+  date:
+    Date
+) {
+  const start =
+    new Date(
+      event.starts_at
+    );
+
+
+  if (
+    !event.ends_at
+  ) {
+    return sameDay(
+      start,
+      date
+    );
+  }
+
+
+  const end =
+    new Date(
+      event.ends_at
+    );
+
+
+  const dayStart =
+    new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+
+
+  const nextDay =
+    new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() +
+        1
+    );
+
+
+  return (
+    start <
+      nextDay &&
+    end >
+      dayStart
+  );
+}
+
+
 function eventsForDay(
-  events: StaffEvent[],
-  date: Date
+  events:
+    StaffEvent[],
+
+  date:
+    Date
 ) {
   return events.filter(
-    (event) =>
-      sameDay(
-        new Date(
-          event.starts_at
-        ),
+    (
+      event
+    ) =>
+      eventOccursOnDay(
+        event,
         date
       )
   );
 }
 
+
 function categoryLabel(
   category:
     StaffEvent["category"]
 ) {
-  switch (category) {
+  switch (
+    category
+  ) {
     case "guest":
       return "Client";
 
@@ -131,6 +212,7 @@ function categoryLabel(
   }
 }
 
+
 export function EventsCalendar({
   currentMonth,
   events,
@@ -144,33 +226,46 @@ export function EventsCalendar({
       currentMonth
     );
 
+
   const today =
     new Date();
+
 
   return (
     <div className="events-calendar">
       <div className="events-calendar-weekdays">
         {weekDays.map(
-          (day) => (
-            <div key={day}>
+          (
+            day
+          ) => (
+            <div
+              key={
+                day
+              }
+            >
               {day}
             </div>
           )
         )}
       </div>
 
+
       <div className="events-calendar-grid">
         {days.map(
-          (date) => {
+          (
+            date
+          ) => {
             const dayEvents =
               eventsForDay(
                 events,
                 date
               );
 
+
             const outsideMonth =
               date.getMonth() !==
               month;
+
 
             const isToday =
               sameDay(
@@ -178,16 +273,20 @@ export function EventsCalendar({
                 today
               );
 
+
             return (
               <div
                 key={
                   date.toISOString()
                 }
-                className={`events-calendar-day ${
-                  outsideMonth
-                    ? "outside"
-                    : ""
-                }`}
+
+                className={
+                  `events-calendar-day ${
+                    outsideMonth
+                      ? "outside"
+                      : ""
+                  }`
+                }
               >
                 <div className="events-calendar-day-number">
                   <span
@@ -197,21 +296,34 @@ export function EventsCalendar({
                         : ""
                     }
                   >
-                    {date.getDate()}
+                    {
+                      date.getDate()
+                    }
                   </span>
                 </div>
 
+
                 <div className="events-calendar-day-events">
                   {dayEvents
-                    .slice(0, 4)
+                    .slice(
+                      0,
+                      4
+                    )
                     .map(
-                      (event) => (
+                      (
+                        event
+                      ) => (
                         <button
                           key={
                             event.id
                           }
+
                           type="button"
-                          className={`calendar-event calendar-event-${event.category}`}
+
+                          className={
+                            `calendar-event calendar-event-${event.category}`
+                          }
+
                           onClick={() =>
                             onEventClick?.(
                               event
@@ -228,10 +340,15 @@ export function EventsCalendar({
                             {categoryLabel(
                               event.category
                             )}
+
+                            {event.department
+                              ? ` · ${event.department.name}`
+                              : ""}
                           </small>
                         </button>
                       )
                     )}
+
 
                   {dayEvents.length >
                     4 && (

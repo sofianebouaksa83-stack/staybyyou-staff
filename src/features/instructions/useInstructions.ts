@@ -4,34 +4,56 @@ import {
   useState,
 } from "react";
 
-import { useApp } from "../../app/AppContext";
-import { useHotelPermission } from "../permissions/hooks/useHotelPermission";
+import {
+  useApp,
+} from "../../app/AppContext";
+
+import {
+  useHotelPermission,
+} from "../permissions/hooks/useHotelPermission";
 
 import {
   createInstruction,
   deleteInstruction,
+  getInstructionDepartments,
   getInstructions,
   getReadInstructionIds,
   markInstructionAsRead,
   updateInstruction,
+
+  type InstructionDepartment,
   type InstructionPriority,
   type InstructionShift,
   type StaffInstruction,
 } from "../../services/instructionsService";
 
-function formatDateKey(date: Date) {
-  const year = date.getFullYear();
 
-  const month = String(
-    date.getMonth() + 1
-  ).padStart(2, "0");
+function formatDateKey(
+  date: Date
+) {
+  const year =
+    date.getFullYear();
 
-  const day = String(
-    date.getDate()
-  ).padStart(2, "0");
+  const month =
+    String(
+      date.getMonth() +
+        1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
 
   return `${year}-${month}-${day}`;
 }
+
 
 export function useInstructions() {
   const {
@@ -39,115 +61,304 @@ export function useInstructions() {
     selectedDate,
   } = useApp();
 
+
+  const {
+    allowed:
+      canView,
+
+    loading:
+      loadingViewPermission,
+  } =
+    useHotelPermission(
+      hotelId,
+      "instructions.view"
+    );
+
+
+  const {
+    allowed:
+      canManage,
+
+    loading:
+      loadingManagePermission,
+  } =
+    useHotelPermission(
+      hotelId,
+      "instructions.manage"
+    );
+
+
   const [
     instructions,
     setInstructions,
-  ] = useState<StaffInstruction[]>([]);
+  ] =
+    useState<
+      StaffInstruction[]
+    >([]);
+
+
+  const [
+    departments,
+    setDepartments,
+  ] =
+    useState<
+      InstructionDepartment[]
+    >([]);
+
 
   const [
     readIds,
     setReadIds,
-  ] = useState<string[]>([]);
+  ] =
+    useState<string[]>(
+      []
+    );
+
 
   const [
     loading,
     setLoading,
-  ] = useState(true);
+  ] =
+    useState(
+      true
+    );
+
 
   const [
     error,
     setError,
-  ] = useState<string | null>(null);
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  const {
-    allowed: canManage,
-  } = useHotelPermission(
-    hotelId,
-    "instructions.manage"
-  );
 
   const dateKey =
-    formatDateKey(selectedDate);
+    formatDateKey(
+      selectedDate
+    );
+
 
   const refresh =
-    useCallback(async () => {
-      if (!hotelId) {
-        setInstructions([]);
-        setReadIds([]);
-        setLoading(false);
-        return;
-      }
+    useCallback(
+      async () => {
+        if (
+          loadingViewPermission
+        ) {
+          return;
+        }
 
-      try {
-        setLoading(true);
-        setError(null);
 
-        const rows =
-          await getInstructions(
-            hotelId,
-            dateKey
+        if (
+          !hotelId ||
+          !canView
+        ) {
+          setInstructions(
+            []
           );
 
-        setInstructions(rows);
-
-        const ids =
-          await getReadInstructionIds(
-            rows.map(
-              (instruction) =>
-                instruction.id
-            )
+          setReadIds(
+            []
           );
 
-        setReadIds(ids);
-      } catch (err) {
-        console.error(
-          "Erreur consignes :",
+          setLoading(
+            false
+          );
+
+          return;
+        }
+
+
+        try {
+          setLoading(
+            true
+          );
+
+          setError(
+            null
+          );
+
+
+          const rows =
+            await getInstructions(
+              hotelId,
+              dateKey
+            );
+
+
+          setInstructions(
+            rows
+          );
+
+
+          const ids =
+            await getReadInstructionIds(
+              rows.map(
+                (
+                  instruction
+                ) =>
+                  instruction.id
+              )
+            );
+
+
+          setReadIds(
+            ids
+          );
+        } catch (
           err
-        );
+        ) {
+          console.error(
+            "Erreur consignes :",
+            err
+          );
 
-        setError(
-          "Impossible de charger les consignes."
-        );
-      } finally {
-        setLoading(false);
-      }
-    }, [
-      hotelId,
-      dateKey,
-    ]);
+          setError(
+            "Impossible de charger les consignes."
+          );
+        } finally {
+          setLoading(
+            false
+          );
+        }
+      },
+      [
+        hotelId,
+        dateKey,
+        canView,
+        loadingViewPermission,
+      ]
+    );
+
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    void refresh();
+  }, [
+    refresh,
+  ]);
 
-  async function addInstruction(values: {
-    title: string;
-    content: string;
-    shift: InstructionShift;
-    priority: InstructionPriority;
-    departmentId?: string | null;
-    pinned?: boolean;
-  }) {
-    if (!hotelId || !canManage) {
+
+  useEffect(() => {
+    if (
+      !hotelId ||
+      !canManage
+    ) {
+      setDepartments(
+        []
+      );
+
       return;
     }
 
+
+    const currentHotelId =
+      hotelId;
+
+
+    let cancelled =
+      false;
+
+
+    async function loadDepartments() {
+      try {
+        const rows =
+          await getInstructionDepartments(
+            currentHotelId
+          );
+
+
+        if (
+          !cancelled
+        ) {
+          setDepartments(
+            rows
+          );
+        }
+      } catch (
+        err
+      ) {
+        console.error(
+          "Erreur départements consignes :",
+          err
+        );
+      }
+    }
+
+
+    void loadDepartments();
+
+
+    return () => {
+      cancelled =
+        true;
+    };
+  }, [
+    hotelId,
+    canManage,
+  ]);
+
+
+  async function addInstruction(
+    values: {
+      title: string;
+      content: string;
+
+      shift:
+        InstructionShift;
+
+      priority:
+        InstructionPriority;
+
+      departmentId?:
+        string | null;
+
+      pinned?:
+        boolean;
+    }
+  ) {
+    if (
+      !hotelId ||
+      !canManage
+    ) {
+      return;
+    }
+
+
     try {
-      setError(null);
+      setError(
+        null
+      );
+
 
       const created =
         await createInstruction({
           hotelId,
-          date: dateKey,
+
+          date:
+            dateKey,
+
           ...values,
         });
 
+
       setInstructions(
-        (previous) =>
-          [...previous, created].sort(
-            (a, b) =>
-              Number(b.pinned) -
-                Number(a.pinned) ||
+        (
+          previous
+        ) =>
+          [
+            ...previous,
+            created,
+          ].sort(
+            (
+              a,
+              b
+            ) =>
+              Number(
+                b.pinned
+              ) -
+                Number(
+                  a.pinned
+                ) ||
               new Date(
                 a.created_at
               ).getTime() -
@@ -157,8 +368,11 @@ export function useInstructions() {
           )
       );
 
+
       return created;
-    } catch (err) {
+    } catch (
+      err
+    ) {
       console.error(
         "Erreur création consigne :",
         err
@@ -172,24 +386,38 @@ export function useInstructions() {
     }
   }
 
+
   async function editInstruction(
     id: string,
     values: Partial<{
       title: string;
       content: string;
-      shift: InstructionShift;
-      priority: InstructionPriority;
+
+      shift:
+        InstructionShift;
+
+      priority:
+        InstructionPriority;
+
       pinned: boolean;
       active: boolean;
-      department_id: string | null;
+
+      department_id:
+        string | null;
     }>
   ) {
-    if (!canManage) {
+    if (
+      !canManage
+    ) {
       return;
     }
-    
+
+
     try {
-      setError(null);
+      setError(
+        null
+      );
+
 
       const updated =
         await updateInstruction(
@@ -197,18 +425,46 @@ export function useInstructions() {
           values
         );
 
+
       setInstructions(
-        (previous) =>
-          previous.map(
-            (instruction) =>
-              instruction.id === id
-                ? updated
-                : instruction
-          )
+        (
+          previous
+        ) =>
+          previous
+            .map(
+              (
+                instruction
+              ) =>
+                instruction.id ===
+                id
+                  ? updated
+                  : instruction
+            )
+            .sort(
+              (
+                a,
+                b
+              ) =>
+                Number(
+                  b.pinned
+                ) -
+                  Number(
+                    a.pinned
+                  ) ||
+                new Date(
+                  a.created_at
+                ).getTime() -
+                  new Date(
+                    b.created_at
+                  ).getTime()
+            )
       );
 
+
       return updated;
-    } catch (err) {
+    } catch (
+      err
+    ) {
       console.error(
         "Erreur modification consigne :",
         err
@@ -222,26 +478,43 @@ export function useInstructions() {
     }
   }
 
+
   async function removeInstruction(
     id: string
   ) {
-    if (!canManage) {
+    if (
+      !canManage
+    ) {
       return;
     }
-    
-    try {
-      setError(null);
 
-      await deleteInstruction(id);
+
+    try {
+      setError(
+        null
+      );
+
+
+      await deleteInstruction(
+        id
+      );
+
 
       setInstructions(
-        (previous) =>
+        (
+          previous
+        ) =>
           previous.filter(
-            (instruction) =>
-              instruction.id !== id
+            (
+              instruction
+            ) =>
+              instruction.id !==
+              id
           )
       );
-    } catch (err) {
+    } catch (
+      err
+    ) {
       console.error(
         "Erreur suppression consigne :",
         err
@@ -255,25 +528,37 @@ export function useInstructions() {
     }
   }
 
+
   async function markAsRead(
     id: string
   ) {
-    if (readIds.includes(id)) {
+    if (
+      !canView ||
+      readIds.includes(
+        id
+      )
+    ) {
       return;
     }
+
 
     try {
       await markInstructionAsRead(
         id
       );
 
+
       setReadIds(
-        (previous) => [
+        (
+          previous
+        ) => [
           ...previous,
           id,
         ]
       );
-    } catch (err) {
+    } catch (
+      err
+    ) {
       console.error(
         "Erreur lecture consigne :",
         err
@@ -281,16 +566,29 @@ export function useInstructions() {
     }
   }
 
-  function isRead(id: string) {
-    return readIds.includes(id);
+
+  function isRead(
+    id: string
+  ) {
+    return readIds.includes(
+      id
+    );
   }
+
 
   return {
     instructions,
+    departments,
+
     loading,
     error,
 
+    canView,
     canManage,
+
+    loadingPermissions:
+      loadingViewPermission ||
+      loadingManagePermission,
 
     selectedDate,
     dateKey,

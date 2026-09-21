@@ -8,10 +8,21 @@ export type EventCategory =
   | "maintenance"
   | "other";
 
+export type EventDepartment = {
+  id: string;
+  hotel_id: string;
+  name: string;
+};
+
 export type StaffEvent = {
   id: string;
   hotel_id: string;
   department_id: string | null;
+
+  department: {
+    id: string;
+    name: string;
+  } | null;
 
   title: string;
   description: string | null;
@@ -33,125 +44,298 @@ export type StaffEvent = {
   updated_at: string;
 };
 
-export async function getEvents(
-  hotelId: string,
-  startDate: string,
-  endDate: string
+function normalizeEvent(
+  event: any
+): StaffEvent {
+  const rawDepartment =
+    event.department;
+
+  const department =
+    Array.isArray(
+      rawDepartment
+    )
+      ? rawDepartment[0] ??
+        null
+      : rawDepartment ??
+        null;
+
+  return {
+    ...event,
+    department,
+  } as StaffEvent;
+}
+
+
+/* =========================================================
+   DEPARTMENTS
+   ========================================================= */
+
+export async function getEventDepartments(
+  hotelId: string
 ) {
-  const { data, error } =
+  const {
+    data,
+    error,
+  } =
     await supabase
-      .from("staff_events")
-      .select("*")
-      .eq("hotel_id", hotelId)
-      .eq("active", true)
-      .gte("starts_at", startDate)
-      .lt("starts_at", endDate)
-      .order("starts_at", {
-        ascending: true,
-      });
+      .from(
+        "staff_departments"
+      )
+      .select(`
+        id,
+        hotel_id,
+        name
+      `)
+      .eq(
+        "hotel_id",
+        hotelId
+      )
+      .eq(
+        "active",
+        true
+      )
+      .order(
+        "sort_order",
+        {
+          ascending:
+            true,
+        }
+      )
+      .order(
+        "name",
+        {
+          ascending:
+            true,
+        }
+      );
 
   if (error) {
     throw error;
   }
 
-  return (data ?? []) as StaffEvent[];
+  return (
+    data ?? []
+  ) as EventDepartment[];
 }
 
-export async function createEvent(values: {
-  hotelId: string;
-  departmentId?: string | null;
 
-  title: string;
-  description?: string;
-  location?: string;
+/* =========================================================
+   EVENTS
+   ========================================================= */
 
-  category: EventCategory;
+export async function getEvents(
+  hotelId: string,
+  startDate: string,
+  endDate: string
+) {
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from(
+        "staff_events"
+      )
+      .select(`
+        *,
+        department:staff_departments (
+          id,
+          name
+        )
+      `)
+      .eq(
+        "hotel_id",
+        hotelId
+      )
+      .eq(
+        "active",
+        true
+      )
 
-  startsAt: string;
-  endsAt?: string | null;
+      // L'événement doit commencer
+      // avant la fin du mois.
+      .lt(
+        "starts_at",
+        endDate
+      )
 
-  allDay?: boolean;
-  pinned?: boolean;
-}) {
+      // Et soit commencer dans le mois,
+      // soit se terminer après son début.
+      // Cela permet les événements
+      // sur plusieurs jours/mois.
+      .or(
+        `starts_at.gte.${startDate},ends_at.gt.${startDate}`
+      )
+
+      .order(
+        "starts_at",
+        {
+          ascending:
+            true,
+        }
+      );
+
+  if (error) {
+    throw error;
+  }
+
+  return (
+    data ?? []
+  ).map(
+    normalizeEvent
+  );
+}
+
+
+export async function createEvent(
+  values: {
+    hotelId: string;
+
+    departmentId?:
+      string | null;
+
+    title: string;
+    description?: string;
+    location?: string;
+
+    category:
+      EventCategory;
+
+    startsAt: string;
+
+    endsAt?:
+      string | null;
+
+    allDay?:
+      boolean;
+
+    pinned?:
+      boolean;
+  }
+) {
   const {
     data: authData,
     error: authError,
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
   if (authError) {
     throw authError;
   }
 
-  if (!authData.user) {
+  if (
+    !authData.user
+  ) {
     throw new Error(
       "Utilisateur non connecté."
     );
   }
 
-  const { data, error } =
+
+  const {
+    data,
+    error,
+  } =
     await supabase
-      .from("staff_events")
+      .from(
+        "staff_events"
+      )
       .insert({
-        hotel_id: values.hotelId,
+        hotel_id:
+          values.hotelId,
 
         department_id:
-          values.departmentId ?? null,
+          values.departmentId ??
+          null,
 
-        title: values.title.trim(),
+        title:
+          values.title.trim(),
 
         description:
-          values.description?.trim() ||
+          values.description
+            ?.trim() ||
           null,
 
         location:
-          values.location?.trim() ||
+          values.location
+            ?.trim() ||
           null,
 
-        category: values.category,
+        category:
+          values.category,
 
-        starts_at: values.startsAt,
+        starts_at:
+          values.startsAt,
 
         ends_at:
-          values.endsAt ?? null,
+          values.endsAt ??
+          null,
 
         all_day:
-          values.allDay ?? false,
+          values.allDay ??
+          false,
 
         pinned:
-          values.pinned ?? false,
+          values.pinned ??
+          false,
 
-        active: true,
+        active:
+          true,
 
         created_by:
           authData.user.id,
       })
-      .select()
+      .select(`
+        *,
+        department:staff_departments (
+          id,
+          name
+        )
+      `)
       .single();
 
   if (error) {
     throw error;
   }
 
-  return data as StaffEvent;
+  return normalizeEvent(
+    data
+  );
 }
+
 
 export async function updateEvent(
   id: string,
+
   updates: Partial<{
-    department_id: string | null;
+    department_id:
+      string | null;
 
     title: string;
-    description: string | null;
-    location: string | null;
 
-    category: EventCategory;
+    description:
+      string | null;
 
-    starts_at: string;
-    ends_at: string | null;
+    location:
+      string | null;
 
-    all_day: boolean;
-    pinned: boolean;
-    active: boolean;
+    category:
+      EventCategory;
+
+    starts_at:
+      string;
+
+    ends_at:
+      string | null;
+
+    all_day:
+      boolean;
+
+    pinned:
+      boolean;
+
+    active:
+      boolean;
   }>
 ) {
   const {
@@ -159,9 +343,15 @@ export async function updateEvent(
   } =
     await supabase.auth.getUser();
 
-  const { data, error } =
+
+  const {
+    data,
+    error,
+  } =
     await supabase
-      .from("staff_events")
+      .from(
+        "staff_events"
+      )
       .update({
         ...updates,
 
@@ -170,27 +360,47 @@ export async function updateEvent(
           null,
 
         updated_at:
-          new Date().toISOString(),
+          new Date()
+            .toISOString(),
       })
-      .eq("id", id)
-      .select()
+      .eq(
+        "id",
+        id
+      )
+      .select(`
+        *,
+        department:staff_departments (
+          id,
+          name
+        )
+      `)
       .single();
 
   if (error) {
     throw error;
   }
 
-  return data as StaffEvent;
+  return normalizeEvent(
+    data
+  );
 }
+
 
 export async function deleteEvent(
   id: string
 ) {
-  const { error } =
+  const {
+    error,
+  } =
     await supabase
-      .from("staff_events")
+      .from(
+        "staff_events"
+      )
       .delete()
-      .eq("id", id);
+      .eq(
+        "id",
+        id
+      );
 
   if (error) {
     throw error;

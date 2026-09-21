@@ -792,4 +792,21 @@
   }
 }
 
+.event-form-error {
+  padding: 11px 13px;
+
+  border: 1px solid #edd8d4;
+  border-radius: 10px;
+
+  background: #fff8f7;
+  color: #a84d46;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.event-modal-close:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
 

@@ -6,66 +6,187 @@ import {
 import {
   Pin,
   Plus,
+  Save,
   X,
 } from "lucide-react";
 
 import type {
+  InstructionDepartment,
   InstructionPriority,
   InstructionShift,
+  StaffInstruction,
 } from "../../services/instructionsService";
 
+
 type Props = {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (values: {
-    title: string;
-    content: string;
-    shift: InstructionShift;
-    priority: InstructionPriority;
-    pinned: boolean;
-  }) => Promise<void>;
+  open:
+    boolean;
+
+  instruction?:
+    StaffInstruction | null;
+
+  departments:
+    InstructionDepartment[];
+
+  onClose:
+    () => void;
+
+  onSubmit: (
+    values: {
+      title: string;
+      content: string;
+
+      shift:
+        InstructionShift;
+
+      priority:
+        InstructionPriority;
+
+      departmentId:
+        string | null;
+
+      pinned:
+        boolean;
+    }
+  ) => Promise<void>;
 };
+
 
 export function InstructionModal({
   open,
+  instruction,
+  departments,
   onClose,
   onSubmit,
 }: Props) {
-  const [title, setTitle] =
+  const [
+    title,
+    setTitle,
+  ] =
     useState("");
 
-  const [content, setContent] =
+  const [
+    content,
+    setContent,
+  ] =
     useState("");
 
-  const [shift, setShift] =
+  const [
+    shift,
+    setShift,
+  ] =
     useState<InstructionShift>(
       "all"
     );
 
-  const [priority, setPriority] =
+  const [
+    priority,
+    setPriority,
+  ] =
     useState<InstructionPriority>(
       "normal"
     );
 
-  const [pinned, setPinned] =
-    useState(false);
+  const [
+    departmentId,
+    setDepartmentId,
+  ] =
+    useState("");
 
-  const [saving, setSaving] =
-    useState(false);
+  const [
+    pinned,
+    setPinned,
+  ] =
+    useState(
+      false
+    );
+
+  const [
+    saving,
+    setSaving,
+  ] =
+    useState(
+      false
+    );
+
+
+  const isEditing =
+    Boolean(
+      instruction
+    );
+
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
 
-    setTitle("");
-    setContent("");
-    setShift("all");
-    setPriority("normal");
-    setPinned(false);
-  }, [open]);
+
+    if (
+      instruction
+    ) {
+      setTitle(
+        instruction.title
+      );
+
+      setContent(
+        instruction.content
+      );
+
+      setShift(
+        instruction.shift
+      );
+
+      setPriority(
+        instruction.priority
+      );
+
+      setDepartmentId(
+        instruction.department_id ??
+          ""
+      );
+
+      setPinned(
+        instruction.pinned
+      );
+
+      return;
+    }
+
+
+    setTitle(
+      ""
+    );
+
+    setContent(
+      ""
+    );
+
+    setShift(
+      "all"
+    );
+
+    setPriority(
+      "normal"
+    );
+
+    setDepartmentId(
+      ""
+    );
+
+    setPinned(
+      false
+    );
+  }, [
+    open,
+    instruction,
+  ]);
+
 
   if (!open) {
     return null;
   }
+
 
   async function handleSubmit() {
     if (
@@ -75,103 +196,218 @@ export function InstructionModal({
       return;
     }
 
+
     try {
-      setSaving(true);
+      setSaving(
+        true
+      );
+
 
       await onSubmit({
         title:
           title.trim(),
+
         content:
           content.trim(),
+
         shift,
+
         priority,
+
+        departmentId:
+          departmentId ||
+          null,
+
         pinned,
       });
 
+
       onClose();
     } finally {
-      setSaving(false);
+      setSaving(
+        false
+      );
     }
   }
+
 
   return (
     <div
       className="instruction-modal-backdrop"
-      onClick={onClose}
+
+      onClick={() => {
+        if (
+          !saving
+        ) {
+          onClose();
+        }
+      }}
     >
       <div
         className="instruction-modal"
-        onClick={(event) =>
+
+        onClick={(
+          event
+        ) =>
           event.stopPropagation()
         }
       >
         <header className="instruction-modal-header">
           <div>
             <span className="eyebrow">
-              NOUVELLE CONSIGNE
+              {isEditing
+                ? "MODIFIER LA CONSIGNE"
+                : "NOUVELLE CONSIGNE"}
             </span>
 
             <h2>
-              Ajouter une consigne
+              {isEditing
+                ? "Modifier la consigne"
+                : "Ajouter une consigne"}
             </h2>
 
             <p>
               Une information importante
-              à transmettre entre les
-              équipes.
+              à transmettre entre les équipes.
             </p>
           </div>
+
 
           <button
             type="button"
             className="instruction-modal-close"
-            onClick={onClose}
+
+            onClick={
+              onClose
+            }
+
+            disabled={
+              saving
+            }
           >
-            <X size={18} />
+            <X
+              size={18}
+            />
           </button>
         </header>
 
+
         <div className="instruction-modal-body">
           <label className="instruction-form-field">
-            <span>Titre</span>
+            <span>
+              Titre
+            </span>
 
             <input
               autoFocus
-              value={title}
-              onChange={(event) =>
+
+              value={
+                title
+              }
+
+              onChange={(
+                event
+              ) =>
                 setTitle(
                   event.target.value
                 )
               }
+
               placeholder="Ex. Climatisation salle de sport"
             />
           </label>
 
+
           <label className="instruction-form-field">
-            <span>Consigne</span>
+            <span>
+              Consigne
+            </span>
 
             <textarea
-              value={content}
-              onChange={(event) =>
+              value={
+                content
+              }
+
+              onChange={(
+                event
+              ) =>
                 setContent(
                   event.target.value
                 )
               }
+
               placeholder="Ajoutez les informations utiles…"
-              rows={5}
+
+              rows={
+                5
+              }
             />
           </label>
 
+
+          <label className="instruction-form-field">
+            <span>
+              Service concerné
+            </span>
+
+            <select
+              value={
+                departmentId
+              }
+
+              onChange={(
+                event
+              ) =>
+                setDepartmentId(
+                  event.target.value
+                )
+              }
+            >
+              <option value="">
+                Tout l’hôtel
+              </option>
+
+              {departments.map(
+                (
+                  department
+                ) => (
+                  <option
+                    key={
+                      department.id
+                    }
+
+                    value={
+                      department.id
+                    }
+                  >
+                    {
+                      department.name
+                    }
+                  </option>
+                )
+              )}
+            </select>
+          </label>
+
+
           <div className="instruction-form-grid">
             <label className="instruction-form-field">
-              <span>Période</span>
+              <span>
+                Période
+              </span>
 
               <select
-                value={shift}
-                onChange={(event) =>
+                value={
+                  shift
+                }
+
+                onChange={(
+                  event
+                ) =>
                   setShift(
                     event.target
-                      .value as InstructionShift
+                      .value as
+                      InstructionShift
                   )
                 }
               >
@@ -197,15 +433,24 @@ export function InstructionModal({
               </select>
             </label>
 
+
             <label className="instruction-form-field">
-              <span>Priorité</span>
+              <span>
+                Priorité
+              </span>
 
               <select
-                value={priority}
-                onChange={(event) =>
+                value={
+                  priority
+                }
+
+                onChange={(
+                  event
+                ) =>
                   setPriority(
                     event.target
-                      .value as InstructionPriority
+                      .value as
+                      InstructionPriority
                   )
                 }
               >
@@ -224,19 +469,30 @@ export function InstructionModal({
             </label>
           </div>
 
+
           <button
             type="button"
-            className={`instruction-pin-toggle ${
-              pinned ? "active" : ""
-            }`}
+
+            className={
+              `instruction-pin-toggle ${
+                pinned
+                  ? "active"
+                  : ""
+              }`
+            }
+
             onClick={() =>
               setPinned(
-                (value) =>
+                (
+                  value
+                ) =>
                   !value
               )
             }
           >
-            <Pin size={14} />
+            <Pin
+              size={14}
+            />
 
             {pinned
               ? "Consigne épinglée"
@@ -244,31 +500,52 @@ export function InstructionModal({
           </button>
         </div>
 
+
         <footer className="instruction-modal-footer">
           <button
             type="button"
             className="secondary-button"
-            onClick={onClose}
+
+            onClick={
+              onClose
+            }
+
+            disabled={
+              saving
+            }
           >
             Annuler
           </button>
 
+
           <button
             type="button"
             className="primary-button"
+
             disabled={
               saving ||
               !title.trim() ||
               !content.trim()
             }
+
             onClick={
               handleSubmit
             }
           >
-            <Plus size={15} />
+            {isEditing ? (
+              <Save
+                size={15}
+              />
+            ) : (
+              <Plus
+                size={15}
+              />
+            )}
 
             {saving
-              ? "Création…"
+              ? "Enregistrement…"
+              : isEditing
+              ? "Enregistrer"
               : "Créer la consigne"}
           </button>
         </footer>

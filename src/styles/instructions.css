@@ -514,5 +514,23 @@
       calc(14px + env(safe-area-inset-bottom));
   }
 }
+.instruction-target {
+  display: inline-flex;
+  align-items: center;
 
+  min-height: 22px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  background: #e9eef3;
+  color: #586c7c;
+
+  font-size: 8px;
+  font-weight: 750;
+
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
 

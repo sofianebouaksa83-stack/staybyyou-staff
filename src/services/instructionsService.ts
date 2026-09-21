@@ -12,46 +12,172 @@ export type InstructionPriority =
   | "high"
   | "urgent";
 
+export type InstructionDepartment = {
+  id: string;
+  hotel_id: string;
+  name: string;
+};
+
 export type StaffInstruction = {
   id: string;
   hotel_id: string;
   department_id: string | null;
+
+  department: {
+    id: string;
+    name: string;
+  } | null;
+
   instruction_date: string;
   shift: InstructionShift;
+
   title: string;
   content: string;
+
   priority: InstructionPriority;
+
   pinned: boolean;
   active: boolean;
+
   created_by: string | null;
   updated_by: string | null;
+
   created_at: string;
   updated_at: string;
 };
 
-export async function getInstructions(
-  hotelId: string,
-  date: string
+
+/* =========================================================
+   DEPARTMENTS
+   ========================================================= */
+
+export async function getInstructionDepartments(
+  hotelId: string
 ) {
-  const { data, error } = await supabase
-    .from("staff_instructions")
-    .select("*")
-    .eq("hotel_id", hotelId)
-    .eq("instruction_date", date)
-    .eq("active", true)
-    .order("pinned", {
-      ascending: false,
-    })
-    .order("created_at", {
-      ascending: true,
-    });
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("staff_departments")
+      .select(
+        `
+          id,
+          hotel_id,
+          name
+        `
+      )
+      .eq(
+        "hotel_id",
+        hotelId
+      )
+      .eq(
+        "active",
+        true
+      )
+      .order(
+        "sort_order",
+        {
+          ascending: true,
+        }
+      )
+      .order(
+        "name",
+        {
+          ascending: true,
+        }
+      );
 
   if (error) {
     throw error;
   }
 
-  return (data ?? []) as StaffInstruction[];
+  return (
+    data ?? []
+  ) as InstructionDepartment[];
 }
+
+
+/* =========================================================
+   INSTRUCTIONS
+   ========================================================= */
+
+export async function getInstructions(
+  hotelId: string,
+  date: string
+) {
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("staff_instructions")
+      .select(
+        `
+          *,
+          department:staff_departments (
+            id,
+            name
+          )
+        `
+      )
+      .eq(
+        "hotel_id",
+        hotelId
+      )
+      .eq(
+        "instruction_date",
+        date
+      )
+      .eq(
+        "active",
+        true
+      )
+      .order(
+        "pinned",
+        {
+          ascending: false,
+        }
+      )
+      .order(
+        "created_at",
+        {
+          ascending: true,
+        }
+      );
+
+  if (error) {
+    throw error;
+  }
+
+  const normalized =
+    (data ?? []).map(
+      (
+        instruction
+      ) => {
+        const rawDepartment =
+          instruction.department;
+
+        const department =
+          Array.isArray(
+            rawDepartment
+          )
+            ? rawDepartment[0] ??
+              null
+            : rawDepartment ??
+              null;
+
+        return {
+          ...instruction,
+          department,
+        };
+      }
+    );
+
+  return normalized as
+    StaffInstruction[];
+}
+
 
 export async function createInstruction({
   hotelId,
@@ -65,11 +191,16 @@ export async function createInstruction({
 }: {
   hotelId: string;
   date: string;
+
   title: string;
   content: string;
+
   shift: InstructionShift;
   priority: InstructionPriority;
-  departmentId?: string | null;
+
+  departmentId?:
+    string | null;
+
   pinned?: boolean;
 }) {
   const {
@@ -82,54 +213,99 @@ export async function createInstruction({
     throw authError;
   }
 
-  if (!authData.user) {
+  if (
+    !authData.user
+  ) {
     throw new Error(
       "Utilisateur non connecté."
     );
   }
 
-  const { data, error } =
+  const {
+    data,
+    error,
+  } =
     await supabase
       .from("staff_instructions")
       .insert({
-        hotel_id: hotelId,
+        hotel_id:
+          hotelId,
+
         department_id:
           departmentId,
+
         instruction_date:
           date,
+
         shift,
+
         title:
           title.trim(),
+
         content:
           content.trim(),
+
         priority,
+
         pinned,
-        active: true,
+
+        active:
+          true,
+
         created_by:
           authData.user.id,
       })
-      .select()
+      .select(
+        `
+          *,
+          department:staff_departments (
+            id,
+            name
+          )
+        `
+      )
       .single();
 
   if (error) {
     throw error;
   }
 
-  return data as StaffInstruction;
+  const rawDepartment =
+    data.department;
+
+  const department =
+    Array.isArray(
+      rawDepartment
+    )
+      ? rawDepartment[0] ??
+        null
+      : rawDepartment ??
+        null;
+
+  return {
+    ...data,
+    department,
+  } as StaffInstruction;
 }
+
 
 export async function updateInstruction(
   id: string,
   updates: Partial<{
     title: string;
     content: string;
-    shift: InstructionShift;
-    priority: InstructionPriority;
+
+    shift:
+      InstructionShift;
+
+    priority:
+      InstructionPriority;
+
     pinned: boolean;
     active: boolean;
+
     department_id:
-      | string
-      | null;
+      string | null;
   }>
 ) {
   const {
@@ -137,41 +313,86 @@ export async function updateInstruction(
   } =
     await supabase.auth.getUser();
 
-  const { data, error } =
+  const {
+    data,
+    error,
+  } =
     await supabase
       .from("staff_instructions")
       .update({
         ...updates,
+
         updated_by:
           authData.user?.id ??
           null,
+
         updated_at:
-          new Date().toISOString(),
+          new Date()
+            .toISOString(),
       })
-      .eq("id", id)
-      .select()
+      .eq(
+        "id",
+        id
+      )
+      .select(
+        `
+          *,
+          department:staff_departments (
+            id,
+            name
+          )
+        `
+      )
       .single();
 
   if (error) {
     throw error;
   }
 
-  return data as StaffInstruction;
+  const rawDepartment =
+    data.department;
+
+  const department =
+    Array.isArray(
+      rawDepartment
+    )
+      ? rawDepartment[0] ??
+        null
+      : rawDepartment ??
+        null;
+
+  return {
+    ...data,
+    department,
+  } as StaffInstruction;
 }
+
 
 export async function deleteInstruction(
   id: string
 ) {
-  const { error } =
+  const {
+    error,
+  } =
     await supabase
-      .from("staff_instructions")
+      .from(
+        "staff_instructions"
+      )
       .delete()
-      .eq("id", id);
+      .eq(
+        "id",
+        id
+      );
 
   if (error) {
     throw error;
   }
 }
+
+
+/* =========================================================
+   READ STATE
+   ========================================================= */
 
 export async function markInstructionAsRead(
   instructionId: string
@@ -186,23 +407,32 @@ export async function markInstructionAsRead(
     throw authError;
   }
 
-  if (!authData.user) {
+  if (
+    !authData.user
+  ) {
     throw new Error(
       "Utilisateur non connecté."
     );
   }
 
-  const { error } =
+  const {
+    error,
+  } =
     await supabase
-      .from("staff_instruction_reads")
+      .from(
+        "staff_instruction_reads"
+      )
       .upsert(
         {
           instruction_id:
             instructionId,
+
           user_id:
             authData.user.id,
+
           read_at:
-            new Date().toISOString(),
+            new Date()
+              .toISOString(),
         },
         {
           onConflict:
@@ -215,11 +445,13 @@ export async function markInstructionAsRead(
   }
 }
 
+
 export async function getReadInstructionIds(
   instructionIds: string[]
 ) {
   if (
-    instructionIds.length === 0
+    instructionIds.length ===
+    0
   ) {
     return [];
   }
@@ -234,14 +466,23 @@ export async function getReadInstructionIds(
     throw authError;
   }
 
-  if (!authData.user) {
+  if (
+    !authData.user
+  ) {
     return [];
   }
 
-  const { data, error } =
+  const {
+    data,
+    error,
+  } =
     await supabase
-      .from("staff_instruction_reads")
-      .select("instruction_id")
+      .from(
+        "staff_instruction_reads"
+      )
+      .select(
+        "instruction_id"
+      )
       .eq(
         "user_id",
         authData.user.id
@@ -257,8 +498,11 @@ export async function getReadInstructionIds(
 
   return (
     data?.map(
-      (row) =>
+      (
+        row
+      ) =>
         row.instruction_id
-    ) ?? []
+    ) ??
+    []
   );
 }
