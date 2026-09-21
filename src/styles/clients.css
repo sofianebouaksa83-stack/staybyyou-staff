@@ -1,0 +1,459 @@
+.client-followup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(13, 39, 31, 0.28);
+  backdrop-filter: blur(6px);
+}
+
+.client-followup-modal {
+  width: min(560px, 100%);
+  padding: 24px;
+  border: 1px solid rgba(23, 62, 49, 0.12);
+  border-radius: 22px;
+  background: #fdfbf7;
+  box-shadow: 0 24px 70px rgba(23, 62, 49, 0.16);
+}
+
+.client-followup-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.client-followup-modal-header h2 {
+  margin: 5px 0 4px;
+}
+
+.client-followup-modal-header p {
+  margin: 0;
+  opacity: 0.65;
+}
+
+.client-followup-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.client-followup-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.client-followup-form select,
+.client-followup-form textarea {
+  width: 100%;
+  border: 1px solid rgba(23, 62, 49, 0.14);
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: white;
+  color: #173e31;
+  font: inherit;
+}
+
+.client-followup-content {
+  grid-column: 1 / -1;
+}
+
+.client-followup-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.client-followup-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+@media (max-width: 640px) {
+  .client-followup-form {
+    grid-template-columns: 1fr;
+  }
+
+  .client-followup-content {
+    grid-column: auto;
+  }
+
+  .client-followup-modal {
+    padding: 20px;
+  }
+}
+
+.client-hero-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+}
+
+.client-hero-main {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.client-hero-main > div:last-child {
+  min-width: 0;
+}
+
+.client-hero-main h1 {
+  margin: 0;
+  line-height: 1.1;
+}
+
+.client-hero-main p {
+  margin: 6px 0 0;
+}
+
+.client-hero-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  width: auto;
+  min-height: 0;
+  padding: 0;
+}
+
+.client-hero-action .primary-button {
+  justify-content: center;
+}
+
+@media (max-width: 720px) {
+  .client-hero-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .client-hero-action {
+    justify-content: flex-start;
+  }
+}
+
+.client-followup-modal-footer .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 38px;
+  padding: 0 16px;
+
+  border: 1px solid rgba(23, 62, 49, 0.16);
+  border-radius: 10px;
+
+  background: rgba(23, 62, 49, 0.04);
+  color: #173e31;
+
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.client-followup-modal-footer .secondary-button:hover {
+  background: rgba(23, 62, 49, 0.08);
+  border-color: rgba(23, 62, 49, 0.24);
+}
+
+.client-followup-modal-footer .secondary-button:active {
+  transform: translateY(1px);
+}
+
+.client-followup-modal-footer .secondary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.client-followup-label-mobile {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .client-hero-detail {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .client-hero-main {
+    align-items: center;
+    gap: 14px;
+  }
+
+  .client-hero-action {
+    align-self: center;
+    justify-self: end;
+
+    width: auto;
+    padding: 0;
+  }
+
+  .client-followup-label-desktop {
+    display: none;
+  }
+
+  .client-followup-label-mobile {
+    display: inline;
+  }
+
+  .client-followup-add-button {
+    min-height: 42px;
+    padding: 0 14px;
+    white-space: nowrap;
+  }
+}
+
+.client-followup-history-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.client-followup-history-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.client-followup-meta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.client-followup-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.client-followup-chip.status-open {
+  background: rgba(199, 164, 93, 0.13);
+  color: #8b6a29;
+}
+
+.client-followup-chip.status-in_progress {
+  background: rgba(23, 62, 49, 0.08);
+  color: #173e31;
+}
+
+.client-followup-chip.status-resolved {
+  background: rgba(47, 112, 78, 0.11);
+  color: #2f704e;
+}
+
+.client-followup-chip.priority-normal {
+  background: rgba(23, 62, 49, 0.05);
+  color: rgba(23, 62, 49, 0.65);
+}
+
+.client-followup-chip.priority-high {
+  background: rgba(199, 164, 93, 0.14);
+  color: #876420;
+}
+
+.client-followup-chip.priority-urgent {
+  background: rgba(168, 77, 70, 0.12);
+  color: #a84d46;
+}
+
+.client-followup-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.client-followup-icon-button {
+  display: inline-grid;
+  place-items: center;
+
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+
+  border: 1px solid rgba(23, 62, 49, 0.10);
+  border-radius: 9px;
+
+  background: rgba(23, 62, 49, 0.035);
+  color: #173e31;
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.client-followup-icon-button:hover {
+  background: rgba(23, 62, 49, 0.08);
+  border-color: rgba(23, 62, 49, 0.18);
+}
+
+.client-followup-icon-button.danger {
+  color: #a84d46;
+}
+
+.client-followup-icon-button.danger:hover {
+  background: rgba(168, 77, 70, 0.08);
+  border-color: rgba(168, 77, 70, 0.18);
+}
+
+.client-followup-icon-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.client-followup-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+
+  margin-top: 12px;
+}
+
+.client-followup-status-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.client-followup-simple-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid rgba(23, 62, 49, 0.07);
+}
+
+.client-followup-simple-row:last-child {
+  border-bottom: 0;
+}
+
+.client-followup-simple-main {
+  min-width: 0;
+}
+
+.client-followup-simple-main .simple-line {
+  margin: 0;
+}
+
+.client-followup-simple-main small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: rgba(23, 62, 49, 0.48);
+
+  font-size: 10px;
+}
+
+.client-followup-action-error {
+  margin: 14px 0;
+
+  padding: 11px 14px;
+
+  border: 1px solid rgba(168, 77, 70, 0.14);
+  border-radius: 11px;
+
+  background: rgba(168, 77, 70, 0.06);
+  color: #a84d46;
+
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .client-followup-history-head {
+    gap: 10px;
+  }
+
+  .client-followup-row-actions {
+    gap: 4px;
+  }
+
+  .client-followup-icon-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .client-followup-status-actions {
+    margin-top: 10px;
+  }
+
+  .client-followup-status-actions .small-button {
+    min-height: 36px;
+    padding-inline: 11px;
+  }
+
+  .client-followup-simple-row {
+    align-items: center;
+  }
+}
+
+.client-followup-status-actions .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+  padding: 0 14px;
+
+  border: 1px solid rgba(23, 62, 49, 0.14);
+  border-radius: 10px;
+
+  background: rgba(23, 62, 49, 0.06);
+  color: #173e31;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.client-followup-status-actions .secondary-button:hover {
+  background: rgba(23, 62, 49, 0.10);
+  border-color: rgba(23, 62, 49, 0.22);
+}
+
+.client-followup-status-actions .secondary-button:active {
+  transform: translateY(1px);
+}
+
+.client-followup-status-actions .secondary-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

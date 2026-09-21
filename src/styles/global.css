@@ -16,6 +16,7 @@
 @import "./permissions.css";
 @import "./hotel-settings.css";
 @import "./notifications-settings.css";
+@import "./clients.css";
 
 :root {
   --green: #153a33;
