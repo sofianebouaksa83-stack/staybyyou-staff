@@ -1,11 +1,35 @@
-import { useState } from "react";
+import {
+  useState,
+} from "react";
 
-import { ChannelList } from "./ChannelList";
-import { ChatHeader } from "./ChatHeader";
-import { CreateChannelModal } from "./CreateChannelModal";
-import { MessageComposer } from "./MessageComposer";
-import { MessageList } from "./MessageList";
-import { useMessages } from "./useMessages";
+import {
+  ChannelList,
+} from "./ChannelList";
+
+import {
+  ChatHeader,
+} from "./ChatHeader";
+
+import {
+  CreateChannelModal,
+} from "./CreateChannelModal";
+
+import {
+  EditChannelModal,
+} from "./EditChannelModal";
+
+import {
+  MessageComposer,
+} from "./MessageComposer";
+
+import {
+  MessageList,
+} from "./MessageList";
+
+import {
+  useMessages,
+} from "./useMessages";
+
 
 export function MessagesBoard() {
   const [
@@ -14,9 +38,15 @@ export function MessagesBoard() {
   ] = useState(false);
 
   const [
+    editModalOpen,
+    setEditModalOpen,
+  ] = useState(false);
+
+  const [
     mobileChatOpen,
     setMobileChatOpen,
   ] = useState(false);
+
 
   const {
     user,
@@ -35,6 +65,8 @@ export function MessagesBoard() {
     error,
 
     canManageChannels,
+    canSendMessages,
+    canCreateTasks,
 
     members,
     departments,
@@ -43,32 +75,45 @@ export function MessagesBoard() {
     creatingGroup,
 
     createGroup,
+    updateGroup,
+
+    managingChannelId,
+    archiveGroup,
+    deleteGroup,
 
     sendMessage,
     createTaskFromMessage,
   } = useMessages();
 
+
   function handleSelectChannel(
-    channelId: string
+    channelId:
+      string
   ) {
     setActiveChannelId(
       channelId
     );
 
-    /*
-     * Sur mobile :
-     * ouvre le chat.
-     *
-     * Sur desktop :
-     * le CSS garde les deux
-     * colonnes visibles.
-     */
-    setMobileChatOpen(true);
+    setMobileChatOpen(
+      true
+    );
   }
 
+
   function handleMobileBack() {
-    setMobileChatOpen(false);
+    setMobileChatOpen(
+      false
+    );
   }
+
+
+  const channelBusy =
+    Boolean(
+      activeChannel?.id &&
+      managingChannelId ===
+        activeChannel.id
+    );
+
 
   return (
     <div className="messages-page">
@@ -77,6 +122,7 @@ export function MessagesBoard() {
           {error}
         </div>
       )}
+
 
       <div
         className={
@@ -90,18 +136,23 @@ export function MessagesBoard() {
             channels={
               channels
             }
+
             activeChannelId={
               activeChannelId
             }
+
             loading={
               loadingChannels
             }
+
             canManageChannels={
               canManageChannels
             }
+
             onSelect={
               handleSelectChannel
             }
+
             onCreateGroup={() =>
               setCreateModalOpen(
                 true
@@ -110,38 +161,77 @@ export function MessagesBoard() {
           />
         </div>
 
+
         <section className="chat messages-chat-panel">
           <ChatHeader
             channel={
               activeChannel
             }
+
+            canManageChannels={
+              canManageChannels
+            }
+
+            busy={
+              channelBusy
+            }
+
             onMobileBack={
               handleMobileBack
             }
+
+            onEditGroup={() =>
+              setEditModalOpen(
+                true
+              )
+            }
+
+            onArchiveGroup={
+              archiveGroup
+            }
+
+            onDeleteGroup={
+              deleteGroup
+            }
           />
+
 
           <MessageList
             messages={
               messages
             }
+
             currentUserId={
               user.id
             }
+
             loading={
               loadingMessages
             }
+
+            canCreateTask={
+              canCreateTasks
+            }
+
             onCreateTask={
               createTaskFromMessage
             }
           />
 
+
           <MessageComposer
             disabled={
               !activeChannelId
             }
+
+            canSend={
+              canSendMessages
+            }
+
             sending={
               sending
             }
+
             onSend={
               sendMessage
             }
@@ -149,30 +239,71 @@ export function MessagesBoard() {
         </section>
       </div>
 
+
       {canManageChannels && (
-        <CreateChannelModal
-          open={
-            createModalOpen
-          }
-          members={
-            members
-          }
-          departments={
-            departments
-          }
-          creating={
-            creatingGroup ||
-            loadingDirectory
-          }
-          onClose={() =>
-            setCreateModalOpen(
-              false
-            )
-          }
-          onCreate={
-            createGroup
-          }
-        />
+        <>
+          <CreateChannelModal
+            open={
+              createModalOpen
+            }
+
+            members={
+              members
+            }
+
+            departments={
+              departments
+            }
+
+            creating={
+              creatingGroup ||
+              loadingDirectory
+            }
+
+            onClose={() =>
+              setCreateModalOpen(
+                false
+              )
+            }
+
+            onCreate={
+              createGroup
+            }
+          />
+
+
+          <EditChannelModal
+            open={
+              editModalOpen
+            }
+
+            channel={
+              activeChannel
+            }
+
+            members={
+              members
+            }
+
+            departments={
+              departments
+            }
+
+            saving={
+              channelBusy
+            }
+
+            onClose={() =>
+              setEditModalOpen(
+                false
+              )
+            }
+
+            onSave={
+              updateGroup
+            }
+          />
+        </>
       )}
     </div>
   );

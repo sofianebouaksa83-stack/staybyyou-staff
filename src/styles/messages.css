@@ -1858,3 +1858,125 @@
     height: 41px;
   }
 }
+
+.chat-channel-actions {
+  position: relative;
+
+  flex: 0 0 auto;
+}
+
+.chat-channel-menu-button {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border: 1px solid
+    rgba(20, 62, 43, 0.1);
+
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: var(--green);
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.chat-channel-menu-button:hover:not(:disabled) {
+  background: #f1f3ef;
+
+  border-color:
+    rgba(20, 62, 43, 0.18);
+}
+
+.chat-channel-menu-button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+.chat-channel-menu {
+  position: absolute;
+
+  top: calc(100% + 7px);
+  right: 0;
+
+  z-index: 50;
+
+  width: 170px;
+
+  padding: 6px;
+
+  border: 1px solid
+    rgba(20, 62, 43, 0.11);
+
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 14px 40px
+    rgba(17, 44, 32, 0.14);
+}
+
+.chat-channel-menu button {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 9px 10px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: var(--green);
+
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.chat-channel-menu button:hover {
+  background: #f1f3ef;
+}
+
+.chat-channel-menu button.danger {
+  color: #a84d46;
+}
+
+.chat-channel-menu button.danger:hover {
+  background:
+    rgba(168, 77, 70, 0.07);
+}
+
+.message-modal-error {
+  padding: 10px 12px;
+
+  border: 1px solid
+    rgba(168, 77, 70, 0.14);
+
+  border-radius: 10px;
+
+  background:
+    rgba(168, 77, 70, 0.06);
+
+  color: #a84d46;
+
+  font-size: 11px;
+}

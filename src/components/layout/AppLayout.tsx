@@ -315,7 +315,7 @@ export function AppLayout() {
           aria-label="Retour à Aujourd’hui"
         >
           <img
-            src="/logo_StayByYou/staybyyou_blanc_slogan_sansfond.png"
+            src="/logo_StayByYou/staybyyou_slogan_sansfond.png"
             alt="StayByYou Staff"
           />
         </button>

@@ -286,44 +286,110 @@ export async function createGroupChannel({
     );
   }
 
+  /*
+   * IMPORTANT :
+   * On ne fait PAS .select() directement
+   * après l'insert.
+   *
+   * La policy SELECT de staff_channels
+   * passe par can_access_staff_channel()
+   * et peut refuser le RETURNING
+   * pendant l'insertion.
+   */
   const {
-    data: channel,
     error: channelError,
   } =
     await supabase
       .from("staff_channels")
       .insert({
-        hotel_id: hotelId,
-        name: cleanName,
+        hotel_id:
+          hotelId,
+
+        name:
+          cleanName,
 
         description:
           description?.trim() ||
           null,
 
-        channel_type: "group",
+        channel_type:
+          "group",
 
         visibility_mode:
           visibilityMode,
 
-        active: true,
+        active:
+          true,
 
         created_by:
           authData.user.id,
-      })
-      .select()
-      .single();
+      });
 
   if (channelError) {
-    throw channelError;
+    console.error(
+      "Supabase create group error:",
+      channelError
+    );
+
+    if (
+      channelError.code ===
+      "23505"
+    ) {
+      throw new Error(
+        "Un groupe ou salon porte déjà ce nom."
+      );
+    }
+
+    throw new Error(
+      channelError.message ||
+        "Impossible de créer le groupe."
+    );
+  }
+
+  /*
+   * Nouvelle requête séparée :
+   * le groupe existe maintenant réellement
+   * et la policy SELECT peut le lire.
+   */
+  const {
+    data: channel,
+    error: channelReadError,
+  } =
+    await supabase
+      .from("staff_channels")
+      .select("*")
+      .eq(
+        "hotel_id",
+        hotelId
+      )
+      .eq(
+        "name",
+        cleanName
+      )
+      .single();
+
+  if (channelReadError) {
+    console.error(
+      "Supabase read created group error:",
+      channelReadError
+    );
+
+    throw new Error(
+      channelReadError.message ||
+        "Le groupe a été créé mais ne peut pas être chargé."
+    );
   }
 
   try {
     if (
       visibilityMode ===
         "members" &&
-      memberUserIds.length > 0
+      memberUserIds.length >
+        0
     ) {
-      const { error } =
+      const {
+        error,
+      } =
         await supabase
           .from(
             "staff_channel_members"
@@ -334,9 +400,12 @@ export async function createGroupChannel({
                 memberUserIds
               ),
             ].map(
-              (userId) => ({
+              (
+                userId
+              ) => ({
                 channel_id:
                   channel.id,
+
                 user_id:
                   userId,
               })
@@ -344,16 +413,27 @@ export async function createGroupChannel({
           );
 
       if (error) {
-        throw error;
+        console.error(
+          "Supabase group members error:",
+          error
+        );
+
+        throw new Error(
+          error.message ||
+            "Impossible d'ajouter les utilisateurs au groupe."
+        );
       }
     }
 
     if (
       visibilityMode ===
         "departments" &&
-      departmentIds.length > 0
+      departmentIds.length >
+        0
     ) {
-      const { error } =
+      const {
+        error,
+      } =
         await supabase
           .from(
             "staff_channel_departments"
@@ -364,7 +444,9 @@ export async function createGroupChannel({
                 departmentIds
               ),
             ].map(
-              (departmentId) => ({
+              (
+                departmentId
+              ) => ({
                 channel_id:
                   channel.id,
 
@@ -375,19 +457,29 @@ export async function createGroupChannel({
           );
 
       if (error) {
-        throw error;
+        console.error(
+          "Supabase group departments error:",
+          error
+        );
+
+        throw new Error(
+          error.message ||
+            "Impossible d'ajouter les départements au groupe."
+        );
       }
     }
   } catch (error) {
     /*
-     * Évite de conserver un groupe
-     * incomplet si l'ajout des accès
-     * échoue.
+     * Nettoyage si la création
+     * des accès échoue.
      */
     await supabase
       .from("staff_channels")
       .delete()
-      .eq("id", channel.id);
+      .eq(
+        "id",
+        channel.id
+      );
 
     throw error;
   }

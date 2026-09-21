@@ -1,36 +1,67 @@
-import { useEffect, useRef } from "react";
+import {
+  useEffect,
+  useRef,
+} from "react";
 
 import type {
   StaffMessageWithAuthor,
 } from "../../services/messagesService";
 
-import { MessageBubble } from "./MessageBubble";
+import {
+  MessageBubble,
+} from "./MessageBubble";
+
 
 type Props = {
-  messages: StaffMessageWithAuthor[];
-  currentUserId: string;
-  loading: boolean;
+  messages:
+    StaffMessageWithAuthor[];
+
+  currentUserId:
+    string;
+
+  loading:
+    boolean;
+
+  canCreateTask:
+    boolean;
+
   onCreateTask: (
-    message: StaffMessageWithAuthor
+    message:
+      StaffMessageWithAuthor
   ) => void;
 };
+
 
 export function MessageList({
   messages,
   currentUserId,
   loading,
+  canCreateTask,
   onCreateTask,
 }: Props) {
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const bottomRef =
+    useRef<
+      HTMLDivElement | null
+    >(null);
+
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "end",
-    });
-  }, [messages]);
+    bottomRef.current
+      ?.scrollIntoView({
+        behavior:
+          "smooth",
 
-  if (loading) {
+        block:
+          "end",
+      });
+  }, [
+    messages,
+  ]);
+
+
+  if (
+    loading
+  ) {
     return (
       <div className="chat-body">
         <div className="empty-chat">
@@ -40,7 +71,11 @@ export function MessageList({
     );
   }
 
-  if (messages.length === 0) {
+
+  if (
+    messages.length ===
+    0
+  ) {
     return (
       <div className="chat-body">
         <div className="empty-chat">
@@ -50,18 +85,43 @@ export function MessageList({
     );
   }
 
+
   return (
     <div className="chat-body">
-      {messages.map((message) => (
-        <MessageBubble
-          key={message.id}
-          message={message}
-          isMine={false}
-          onCreateTask={onCreateTask}
-        />
-      ))}
+      {messages.map(
+        (
+          message
+        ) => (
+          <MessageBubble
+            key={
+              message.id
+            }
 
-      <div ref={bottomRef} />
+            message={
+              message
+            }
+
+            isMine={
+              message.user_id ===
+              currentUserId
+            }
+
+            canCreateTask={
+              canCreateTask
+            }
+
+            onCreateTask={
+              onCreateTask
+            }
+          />
+        )
+      )}
+
+      <div
+        ref={
+          bottomRef
+        }
+      />
     </div>
   );
 }

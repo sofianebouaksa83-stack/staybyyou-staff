@@ -5,10 +5,15 @@ import {
   useState,
 } from "react";
 
-import { useApp } from "../../app/AppContext";
+import {
+  useApp,
+} from "../../app/AppContext";
 
 import {
+  archiveGroupChannel,
   createGroupChannel,
+  updateGroupChannel,
+  deleteGroupChannel,
   getChannels,
   getMessageDepartments,
   getMessageHotelMembers,
@@ -27,27 +32,36 @@ import {
   createTask,
 } from "../../services/tasksService";
 
-/* =========================================================
-   UTILS
-   ========================================================= */
+import {
+  useHotelPermission,
+} from "../permissions/hooks/useHotelPermission";
 
-function formatDateKey(date: Date) {
-  const year = date.getFullYear();
 
-  const month = String(
-    date.getMonth() + 1
-  ).padStart(2, "0");
+function formatDateKey(
+  date: Date
+) {
+  const year =
+    date.getFullYear();
 
-  const day = String(
-    date.getDate()
-  ).padStart(2, "0");
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
 
   return `${year}-${month}-${day}`;
 }
 
-/* =========================================================
-   HOOK
-   ========================================================= */
 
 export function useMessages() {
   const {
@@ -56,35 +70,36 @@ export function useMessages() {
     selectedDate,
   } = useApp();
 
-  /* =======================================================
-     CHANNELS
-     ======================================================= */
 
   const [
     channels,
     setChannels,
-  ] = useState<StaffChannel[]>([]);
+  ] =
+    useState<StaffChannel[]>(
+      []
+    );
 
   const [
     activeChannelId,
     setActiveChannelId,
-  ] = useState<string | null>(null);
+  ] =
+    useState<
+      string | null
+    >(null);
 
   const [
     loadingChannels,
     setLoadingChannels,
   ] = useState(true);
 
-  /* =======================================================
-     MESSAGES
-     ======================================================= */
 
   const [
     messages,
     setMessages,
-  ] = useState<
-    StaffMessageWithAuthor[]
-  >([]);
+  ] =
+    useState<
+      StaffMessageWithAuthor[]
+    >([]);
 
   const [
     loadingMessages,
@@ -96,23 +111,22 @@ export function useMessages() {
     setSending,
   ] = useState(false);
 
-  /* =======================================================
-     DIRECTORY
-     ======================================================= */
 
   const [
     members,
     setMembers,
-  ] = useState<
-    MessageHotelMember[]
-  >([]);
+  ] =
+    useState<
+      MessageHotelMember[]
+    >([]);
 
   const [
     departments,
     setDepartments,
-  ] = useState<
-    MessageDepartment[]
-  >([]);
+  ] =
+    useState<
+      MessageDepartment[]
+    >([]);
 
   const [
     loadingDirectory,
@@ -124,51 +138,65 @@ export function useMessages() {
     setCreatingGroup,
   ] = useState(false);
 
-  /* =======================================================
-     TASKS
-     ======================================================= */
+  const [
+    managingChannelId,
+    setManagingChannelId,
+  ] =
+    useState<
+      string | null
+    >(null);
+
 
   const [
     convertingMessageId,
     setConvertingMessageId,
-  ] = useState<string | null>(
-    null
-  );
+  ] =
+    useState<
+      string | null
+    >(null);
 
   const [
     convertedMessageIds,
     setConvertedMessageIds,
-  ] = useState<string[]>([]);
+  ] =
+    useState<string[]>(
+      []
+    );
 
-  /* =======================================================
-     ERROR
-     ======================================================= */
 
   const [
     error,
     setError,
-  ] = useState<string | null>(
-    null
+  ] =
+    useState<
+      string | null
+    >(null);
+
+
+  const {
+    allowed:
+      canManageChannels,
+  } = useHotelPermission(
+    hotelId,
+    "messages.manage_channels"
   );
 
-  /* =======================================================
-     PERMISSIONS
-     ======================================================= */
+  const {
+    allowed:
+      canSendMessages,
+  } = useHotelPermission(
+    hotelId,
+    "messages.send"
+  );
 
-  const normalizedRole =
-  String(user.role ?? "")
-    .trim()
-    .toLowerCase();
+  const {
+    allowed:
+      canCreateTasks,
+  } = useHotelPermission(
+    hotelId,
+    "tasks.create"
+  );
 
-    const canManageChannels = [
-    "owner",
-    "admin",
-    "manager",
-    ].includes(normalizedRole);
-
-  /* =======================================================
-     ACTIVE CHANNEL
-     ======================================================= */
 
   const activeChannel =
     useMemo(() => {
@@ -184,81 +212,116 @@ export function useMessages() {
       activeChannelId,
     ]);
 
-  /* =======================================================
-     LOAD CHANNELS
-     ======================================================= */
 
   const loadChannels =
-    useCallback(async () => {
-      if (!hotelId) {
-        setChannels([]);
-        setActiveChannelId(null);
-        setLoadingChannels(false);
-
-        return;
-      }
-
-      try {
-        setLoadingChannels(true);
-        setError(null);
-
-        const rows =
-          await getChannels(
-            hotelId
+    useCallback(
+      async () => {
+        if (!hotelId) {
+          setChannels(
+            []
           );
 
-        setChannels(rows);
+          setActiveChannelId(
+            null
+          );
 
-        setActiveChannelId(
-          (current) => {
-            if (
-              current &&
-              rows.some(
-                (channel) =>
-                  channel.id ===
-                  current
-              )
-            ) {
-              return current;
-            }
+          setLoadingChannels(
+            false
+          );
 
-            return (
-              rows[0]?.id ?? null
+          return;
+        }
+
+        try {
+          setLoadingChannels(
+            true
+          );
+
+          setError(
+            null
+          );
+
+          const rows =
+            await getChannels(
+              hotelId
             );
-          }
-        );
-      } catch (err) {
-        console.error(
-          "Erreur chargement salons :",
+
+          setChannels(
+            rows
+          );
+
+          setActiveChannelId(
+            (
+              current
+            ) => {
+              if (
+                current &&
+                rows.some(
+                  (
+                    channel
+                  ) =>
+                    channel.id ===
+                    current
+                )
+              ) {
+                return current;
+              }
+
+              return (
+                rows[0]?.id ??
+                null
+              );
+            }
+          );
+        } catch (
           err
-        );
+        ) {
+          console.error(
+            "Erreur chargement salons :",
+            err
+          );
 
-        setError(
-          "Impossible de charger les conversations."
-        );
-      } finally {
-        setLoadingChannels(
-          false
-        );
-      }
-    }, [hotelId]);
+          setError(
+            "Impossible de charger les conversations."
+          );
+        } finally {
+          setLoadingChannels(
+            false
+          );
+        }
+      },
+      [
+        hotelId,
+      ]
+    );
 
-  useEffect(() => {
-    void loadChannels();
-  }, [loadChannels]);
 
-  /* =======================================================
-     LOAD DIRECTORY
-     ======================================================= */
+  useEffect(
+    () => {
+      void loadChannels();
+    },
+    [
+      loadChannels,
+    ]
+  );
+
 
   useEffect(() => {
     if (
       !hotelId ||
       !canManageChannels
     ) {
-      setMembers([]);
-      setDepartments([]);
-      setLoadingDirectory(false);
+      setMembers(
+        []
+      );
+
+      setDepartments(
+        []
+      );
+
+      setLoadingDirectory(
+        false
+      );
 
       return;
     }
@@ -266,7 +329,9 @@ export function useMessages() {
     const currentHotelId =
       hotelId;
 
-    let cancelled = false;
+    let cancelled =
+      false;
+
 
     async function loadDirectory() {
       try {
@@ -277,17 +342,22 @@ export function useMessages() {
         const [
           membersData,
           departmentsData,
-        ] = await Promise.all([
-          getMessageHotelMembers(
-            currentHotelId
-          ),
+        ] =
+          await Promise.all(
+            [
+              getMessageHotelMembers(
+                currentHotelId
+              ),
 
-          getMessageDepartments(
-            currentHotelId
-          ),
-        ]);
+              getMessageDepartments(
+                currentHotelId
+              ),
+            ]
+          );
 
-        if (cancelled) {
+        if (
+          cancelled
+        ) {
           return;
         }
 
@@ -298,19 +368,25 @@ export function useMessages() {
         setDepartments(
           departmentsData
         );
-      } catch (err) {
+      } catch (
+        err
+      ) {
         console.error(
           "Erreur chargement annuaire messages :",
           err
         );
 
-        if (!cancelled) {
+        if (
+          !cancelled
+        ) {
           setError(
             "Impossible de charger les membres et départements."
           );
         }
       } finally {
-        if (!cancelled) {
+        if (
+          !cancelled
+        ) {
           setLoadingDirectory(
             false
           );
@@ -318,71 +394,85 @@ export function useMessages() {
       }
     }
 
+
     void loadDirectory();
 
+
     return () => {
-      cancelled = true;
+      cancelled =
+        true;
     };
   }, [
     hotelId,
     canManageChannels,
   ]);
 
-  /* =======================================================
-     LOAD MESSAGES
-     ======================================================= */
 
   const loadMessages =
-    useCallback(async () => {
-      if (
-        !hotelId ||
-        !activeChannelId
-      ) {
-        setMessages([]);
-
-        return;
-      }
-
-      try {
-        setLoadingMessages(
-          true
-        );
-
-        setError(null);
-
-        const rows =
-          await getMessages(
-            hotelId,
-            activeChannelId
+    useCallback(
+      async () => {
+        if (
+          !hotelId ||
+          !activeChannelId
+        ) {
+          setMessages(
+            []
           );
 
-        setMessages(rows);
-      } catch (err) {
-        console.error(
-          "Erreur chargement messages :",
+          return;
+        }
+
+        try {
+          setLoadingMessages(
+            true
+          );
+
+          setError(
+            null
+          );
+
+          const rows =
+            await getMessages(
+              hotelId,
+              activeChannelId
+            );
+
+          setMessages(
+            rows
+          );
+        } catch (
           err
-        );
+        ) {
+          console.error(
+            "Erreur chargement messages :",
+            err
+          );
 
-        setError(
-          "Impossible de charger les messages."
-        );
-      } finally {
-        setLoadingMessages(
-          false
-        );
-      }
-    }, [
-      hotelId,
-      activeChannelId,
-    ]);
+          setError(
+            "Impossible de charger les messages."
+          );
+        } finally {
+          setLoadingMessages(
+            false
+          );
+        }
+      },
+      [
+        hotelId,
+        activeChannelId,
+      ]
+    );
 
-  useEffect(() => {
-    void loadMessages();
-  }, [loadMessages]);
 
-  /* =======================================================
-     REALTIME
-     ======================================================= */
+  useEffect(
+    () => {
+      void loadMessages();
+    },
+    [
+      loadMessages,
+    ]
+  );
+
 
   useEffect(() => {
     if (
@@ -398,37 +488,50 @@ export function useMessages() {
     const currentChannelId =
       activeChannelId;
 
+
     const unsubscribe =
       subscribeToMessages(
         currentChannelId,
+
         async (
-          message: StaffMessage
+          message:
+            StaffMessage
         ) => {
           setMessages(
-            (previous) => {
+            (
+              previous
+            ) => {
               const exists =
                 previous.some(
-                  (item) =>
+                  (
+                    item
+                  ) =>
                     item.id ===
                     message.id
                 );
 
-              if (exists) {
+              if (
+                exists
+              ) {
                 return previous;
               }
 
               return [
                 ...previous,
+
                 {
                   ...message,
+
                   author_name:
                     "Membre",
+
                   author_department:
                     null,
                 },
               ];
             }
           );
+
 
           try {
             const rows =
@@ -437,8 +540,12 @@ export function useMessages() {
                 currentChannelId
               );
 
-            setMessages(rows);
-          } catch (err) {
+            setMessages(
+              rows
+            );
+          } catch (
+            err
+          ) {
             console.error(
               "Erreur refresh realtime messages :",
               err
@@ -447,20 +554,19 @@ export function useMessages() {
         }
       );
 
+
     return unsubscribe;
   }, [
     hotelId,
     activeChannelId,
   ]);
 
-  /* =======================================================
-     SEND MESSAGE
-     ======================================================= */
 
   const sendMessageToChannel =
     useCallback(
       async (
-        content: string
+        content:
+          string
       ) => {
         const text =
           content.trim();
@@ -468,24 +574,36 @@ export function useMessages() {
         if (
           !text ||
           !hotelId ||
-          !activeChannelId
+          !activeChannelId ||
+          !canSendMessages
         ) {
           return;
         }
 
+
         try {
-          setSending(true);
-          setError(null);
+          setSending(
+            true
+          );
+
+          setError(
+            null
+          );
+
 
           const created =
-            await sendMessage({
-              hotelId,
+            await sendMessage(
+              {
+                hotelId,
 
-              channelId:
-                activeChannelId,
+                channelId:
+                  activeChannelId,
 
-              content: text,
-            });
+                content:
+                  text,
+              }
+            );
+
 
           const optimistic:
             StaffMessageWithAuthor =
@@ -497,16 +615,23 @@ export function useMessages() {
                 "Membre",
 
               author_department:
-                user.departments?.[
-                  0
-                ] ?? null,
+                user
+                  .departments?.[
+                    0
+                  ] ??
+                null,
             };
 
+
           setMessages(
-            (previous) => {
+            (
+              previous
+            ) => {
               if (
                 previous.some(
-                  (item) =>
+                  (
+                    item
+                  ) =>
                     item.id ===
                     created.id
                 )
@@ -520,7 +645,9 @@ export function useMessages() {
               ];
             }
           );
-        } catch (err) {
+        } catch (
+          err
+        ) {
           console.error(
             "Erreur envoi message :",
             err
@@ -532,7 +659,9 @@ export function useMessages() {
 
           throw err;
         } finally {
-          setSending(false);
+          setSending(
+            false
+          );
         }
       },
       [
@@ -541,12 +670,10 @@ export function useMessages() {
         user.firstName,
         user.lastName,
         user.departments,
+        canSendMessages,
       ]
     );
 
-  /* =======================================================
-     CREATE GROUP
-     ======================================================= */
 
   const createGroup =
     useCallback(
@@ -557,9 +684,11 @@ export function useMessages() {
         memberUserIds,
         departmentIds,
       }: {
-        name: string;
+        name:
+          string;
 
-        description?: string;
+        description?:
+          string;
 
         visibilityMode:
           ChannelVisibility;
@@ -580,12 +709,16 @@ export function useMessages() {
         const currentHotelId =
           hotelId;
 
+
         try {
           setCreatingGroup(
             true
           );
 
-          setError(null);
+          setError(
+            null
+          );
+
 
           const channel =
             await createGroupChannel(
@@ -607,26 +740,32 @@ export function useMessages() {
               }
             );
 
+
           const rows =
             await getChannels(
               currentHotelId
             );
 
-          setChannels(rows);
+          setChannels(
+            rows
+          );
 
           setActiveChannelId(
             channel.id
           );
 
           return channel;
-        } catch (err) {
+        } catch (
+          err
+        ) {
           console.error(
             "Erreur création groupe :",
             err
           );
 
           setError(
-            err instanceof Error
+            err instanceof
+              Error
               ? err.message
               : "Impossible de créer le groupe."
           );
@@ -644,9 +783,253 @@ export function useMessages() {
       ]
     );
 
-  /* =======================================================
-     MESSAGE -> TASK
-     ======================================================= */
+  const updateGroup =
+  useCallback(
+    async ({
+      channelId,
+      name,
+      description,
+      visibilityMode,
+      memberUserIds,
+      departmentIds,
+    }: {
+      channelId:
+        string;
+
+      name:
+        string;
+
+      description?:
+        string;
+
+      visibilityMode:
+        ChannelVisibility;
+
+      memberUserIds:
+        string[];
+
+      departmentIds:
+        string[];
+    }) => {
+      if (
+        !hotelId ||
+        !canManageChannels
+      ) {
+        return;
+      }
+
+      try {
+        setManagingChannelId(
+          channelId
+        );
+
+        setError(
+          null
+        );
+
+        const updated =
+          await updateGroupChannel({
+            channelId,
+
+            name,
+
+            description:
+              description ||
+              null,
+
+            visibilityMode,
+
+            memberUserIds,
+
+            departmentIds,
+          });
+
+        const rows =
+          await getChannels(
+            hotelId
+          );
+
+        setChannels(
+          rows
+        );
+
+        return updated;
+      } catch (
+        err
+      ) {
+        console.error(
+          "Erreur modification groupe :",
+          err
+        );
+
+        setError(
+          err instanceof
+            Error
+            ? err.message
+            : "Impossible de modifier le groupe."
+        );
+
+        throw err;
+      } finally {
+        setManagingChannelId(
+          null
+        );
+      }
+    },
+    [
+      hotelId,
+      canManageChannels,
+    ]
+  ); 
+
+
+  const archiveGroup =
+    useCallback(
+      async (
+        channelId:
+          string
+      ) => {
+        if (
+          !hotelId ||
+          !canManageChannels
+        ) {
+          return;
+        }
+
+        try {
+          setManagingChannelId(
+            channelId
+          );
+
+          setError(
+            null
+          );
+
+
+          await archiveGroupChannel(
+            channelId
+          );
+
+
+          const rows =
+            await getChannels(
+              hotelId
+            );
+
+          setChannels(
+            rows
+          );
+
+
+          if (
+            activeChannelId ===
+            channelId
+          ) {
+            setActiveChannelId(
+              rows[0]?.id ??
+              null
+            );
+          }
+        } catch (
+          err
+        ) {
+          console.error(
+            "Erreur archivage groupe :",
+            err
+          );
+
+          setError(
+            "Impossible d'archiver le groupe."
+          );
+
+          throw err;
+        } finally {
+          setManagingChannelId(
+            null
+          );
+        }
+      },
+      [
+        hotelId,
+        canManageChannels,
+        activeChannelId,
+      ]
+    );
+
+
+  const deleteGroup =
+    useCallback(
+      async (
+        channelId:
+          string
+      ) => {
+        if (
+          !hotelId ||
+          !canManageChannels
+        ) {
+          return;
+        }
+
+        try {
+          setManagingChannelId(
+            channelId
+          );
+
+          setError(
+            null
+          );
+
+
+          await deleteGroupChannel(
+            channelId
+          );
+
+
+          const rows =
+            await getChannels(
+              hotelId
+            );
+
+          setChannels(
+            rows
+          );
+
+
+          if (
+            activeChannelId ===
+            channelId
+          ) {
+            setActiveChannelId(
+              rows[0]?.id ??
+              null
+            );
+          }
+        } catch (
+          err
+        ) {
+          console.error(
+            "Erreur suppression groupe :",
+            err
+          );
+
+          setError(
+            "Impossible de supprimer le groupe."
+          );
+
+          throw err;
+        } finally {
+          setManagingChannelId(
+            null
+          );
+        }
+      },
+      [
+        hotelId,
+        canManageChannels,
+        activeChannelId,
+      ]
+    );
+
 
   const createTaskFromMessage =
     useCallback(
@@ -654,16 +1037,23 @@ export function useMessages() {
         message:
           StaffMessageWithAuthor
       ) => {
-        if (!hotelId) {
+        if (
+          !hotelId ||
+          !canCreateTasks
+        ) {
           return;
         }
+
 
         try {
           setConvertingMessageId(
             message.id
           );
 
-          setError(null);
+          setError(
+            null
+          );
+
 
           const date =
             formatDateKey(
@@ -675,12 +1065,15 @@ export function useMessages() {
               `${date}T18:00:00`
             ).toISOString();
 
+
           await createTask({
             hotelId,
 
             title:
-              message.content
-                .length > 70
+              message
+                .content
+                .length >
+              70
                 ? `${message.content.slice(
                     0,
                     67
@@ -696,8 +1089,11 @@ export function useMessages() {
               "normal",
           });
 
+
           setConvertedMessageIds(
-            (previous) => {
+            (
+              previous
+            ) => {
               if (
                 previous.includes(
                   message.id
@@ -712,7 +1108,9 @@ export function useMessages() {
               ];
             }
           );
-        } catch (err) {
+        } catch (
+          err
+        ) {
           console.error(
             "Erreur conversion message en tâche :",
             err
@@ -732,12 +1130,10 @@ export function useMessages() {
       [
         hotelId,
         selectedDate,
+        canCreateTasks,
       ]
     );
 
-  /* =======================================================
-     RETURN
-     ======================================================= */
 
   return {
     user,
@@ -748,6 +1144,7 @@ export function useMessages() {
     setActiveChannelId,
 
     loadingChannels,
+
     reloadChannels:
       loadChannels,
 
@@ -762,6 +1159,8 @@ export function useMessages() {
       loadMessages,
 
     canManageChannels,
+    canSendMessages,
+    canCreateTasks,
 
     members,
     departments,
@@ -770,6 +1169,11 @@ export function useMessages() {
     creatingGroup,
 
     createGroup,
+    updateGroup,
+
+    managingChannelId,
+    archiveGroup,
+    deleteGroup,
 
     convertingMessageId,
     convertedMessageIds,

@@ -7,6 +7,7 @@ import type {
   StaffChannel,
 } from "../../services/messagesService";
 
+
 type Props = {
   channels:
     StaffChannel[];
@@ -14,18 +15,21 @@ type Props = {
   activeChannelId:
     string | null;
 
-  loading: boolean;
+  loading:
+    boolean;
 
   canManageChannels:
     boolean;
 
   onSelect: (
-    channelId: string
+    channelId:
+      string
   ) => void;
 
   onCreateGroup:
     () => void;
 };
+
 
 export function ChannelList({
   channels,
@@ -37,17 +41,22 @@ export function ChannelList({
 }: Props) {
   const standardChannels =
     channels.filter(
-      (channel) =>
+      (
+        channel
+      ) =>
         channel.channel_type !==
         "group"
     );
 
   const groupChannels =
     channels.filter(
-      (channel) =>
+      (
+        channel
+      ) =>
         channel.channel_type ===
         "group"
     );
+
 
   return (
     <aside className="channels">
@@ -60,9 +69,11 @@ export function ChannelList({
           <button
             type="button"
             className="channels-create-button"
+
             onClick={
               onCreateGroup
             }
+
             aria-label="Créer un groupe"
             title="Créer un groupe"
           >
@@ -72,6 +83,7 @@ export function ChannelList({
           </button>
         )}
       </div>
+
 
       <div className="channels-scroll">
         {loading ? (
@@ -94,18 +106,23 @@ export function ChannelList({
 
                 <div className="channels-list">
                   {standardChannels.map(
-                    (channel) => (
+                    (
+                      channel
+                    ) => (
                       <ChannelButton
                         key={
                           channel.id
                         }
+
                         channel={
                           channel
                         }
+
                         active={
                           activeChannelId ===
                           channel.id
                         }
+
                         onSelect={
                           onSelect
                         }
@@ -116,6 +133,7 @@ export function ChannelList({
               </div>
             )}
 
+
             {groupChannels.length >
               0 && (
               <div className="channels-section">
@@ -125,18 +143,23 @@ export function ChannelList({
 
                 <div className="channels-list">
                   {groupChannels.map(
-                    (channel) => (
+                    (
+                      channel
+                    ) => (
                       <ChannelButton
                         key={
                           channel.id
                         }
+
                         channel={
                           channel
                         }
+
                         active={
                           activeChannelId ===
                           channel.id
                         }
+
                         onSelect={
                           onSelect
                         }
@@ -153,6 +176,7 @@ export function ChannelList({
   );
 }
 
+
 function ChannelButton({
   channel,
   active,
@@ -161,20 +185,24 @@ function ChannelButton({
   channel:
     StaffChannel;
 
-  active: boolean;
+  active:
+    boolean;
 
   onSelect: (
-    channelId: string
+    channelId:
+      string
   ) => void;
 }) {
   return (
     <button
       type="button"
+
       className={
         active
           ? "channel-button active"
           : "channel-button"
       }
+
       onClick={() =>
         onSelect(
           channel.id
