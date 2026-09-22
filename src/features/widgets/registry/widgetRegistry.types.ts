@@ -34,6 +34,12 @@ export type DashboardWidgetData = {
   loadingTasks: boolean;
   hotelError: string | null;
   tasksError: string | null;
+  fnbSummary: {
+    reservations: number;
+    capacity: number;
+    loading: boolean;
+    error: string | null;
+  };
   roomService: {
     orders: Array<{
       id: string;
