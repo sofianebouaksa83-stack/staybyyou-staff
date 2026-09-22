@@ -76,7 +76,13 @@ function isSameDay(
   );
 }
 
-export function useDashboard() {
+export function useDashboard({
+  loadTasks = true,
+  loadHotel = true,
+}: {
+  loadTasks?: boolean;
+  loadHotel?: boolean;
+} = {}) {
   const {
     user,
     hotelId,
@@ -126,7 +132,7 @@ export function useDashboard() {
     let cancelled = false;
 
     async function loadTasks() {
-      if (!hotelId) {
+      if (!loadTasks || !hotelId) {
         setTasks([]);
         setLoadingTasks(false);
         return;
@@ -173,10 +179,11 @@ export function useDashboard() {
   }, [
     hotelId,
     selectedDate,
+    loadTasks,
   ]);
 
   useEffect(() => {
-    if (!hotelId) {
+    if (!loadTasks || !hotelId) {
       return;
     }
 
@@ -207,13 +214,14 @@ export function useDashboard() {
   }, [
     hotelId,
     selectedDate,
+    loadTasks,
   ]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadHotelData() {
-      if (!hotelId) {
+      if (!loadHotel || !hotelId) {
         setStays([]);
         setFollowups([]);
         setLoadingHotel(false);
@@ -289,6 +297,7 @@ export function useDashboard() {
   }, [
     hotelId,
     selectedDate,
+    loadHotel,
   ]);
 
   const openTasks =
