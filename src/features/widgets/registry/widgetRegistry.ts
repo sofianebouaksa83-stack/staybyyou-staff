@@ -44,7 +44,7 @@ import type {
   WidgetDefinition,
 } from "./widgetRegistry.types";
 
-export const widgetRegistry = {
+const widgetRegistryConfig = {
   hotel_arrivals: {
     widgetKey:
       "hotel_arrivals",
@@ -481,9 +481,17 @@ export const widgetRegistry = {
 >;
 
 export type WidgetKey =
-  keyof typeof widgetRegistry;
+  keyof typeof widgetRegistryConfig;
 
-export const widgetDefinitions =
-  Object.values(
-    widgetRegistry
-  );
+export const widgetRegistry:
+  Record<
+    WidgetKey,
+    WidgetDefinition
+  > =
+    widgetRegistryConfig;
+
+export const widgetDefinitions:
+  WidgetDefinition[] =
+    Object.values(
+      widgetRegistryConfig
+    );
