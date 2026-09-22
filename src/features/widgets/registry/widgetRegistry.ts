@@ -17,6 +17,10 @@ import {
   NotificationsWidget,
 } from "../../../components/dashboard/NotificationsWidget";
 import {
+  RoomServiceLateWidget,
+  RoomServiceWidget,
+} from "../../../components/dashboard/RoomServiceWidget";
+import {
   HotelArrivalsWidget,
 } from "../../../components/dashboard/HotelArrivalsWidget";
 import {
@@ -257,6 +261,70 @@ export const widgetRegistry = {
       mobile: {
         w: 4,
         h: 4,
+      },
+    },
+  },
+
+  room_service_active: {
+    widgetKey:
+      "room_service_active",
+    title:
+      "Commandes en cours",
+    description:
+      "Commandes StayByYou encore actives.",
+    category:
+      "room-service",
+    permission:
+      "orders.view",
+    sizes: [
+      "small",
+      "medium",
+      "large",
+    ],
+    defaultSize:
+      "medium",
+    component:
+      RoomServiceWidget,
+    defaultLayout: {
+      desktop: {
+        w: 4,
+        h: 4,
+      },
+      mobile: {
+        w: 4,
+        h: 4,
+      },
+    },
+  },
+
+  room_service_late: {
+    widgetKey:
+      "room_service_late",
+    title:
+      "Commandes en retard",
+    description:
+      "Commandes dont le délai estimé est dépassé.",
+    category:
+      "room-service",
+    permission:
+      "orders.view",
+    sizes: [
+      "small",
+      "medium",
+      "large",
+    ],
+    defaultSize:
+      "small",
+    component:
+      RoomServiceLateWidget,
+    defaultLayout: {
+      desktop: {
+        w: 3,
+        h: 3,
+      },
+      mobile: {
+        w: 2,
+        h: 3,
       },
     },
   },
