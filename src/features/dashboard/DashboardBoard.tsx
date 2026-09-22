@@ -19,6 +19,9 @@ import {
   WidgetGallery,
 } from "../../components/dashboard/WidgetGallery";
 import {
+  compactDashboardLayout,
+} from "../widgets/layout/dashboardLayout.compact";
+import {
   getDefaultDashboardLayout,
 } from "../widgets/layout/dashboardLayout.defaults";
 import {
@@ -154,7 +157,6 @@ export function DashboardBoard() {
     error: layoutError,
     updateLocalLayout,
     commitLayout,
-    hideWidget,
     showWidget,
     reset,
   } = useDashboardLayout({
@@ -355,6 +357,55 @@ export function DashboardBoard() {
     );
   }
 
+  async function handleRemoveWidget(
+    widgetKey: string
+  ) {
+    const nextVisible =
+      compactDashboardLayout(
+        visibleLayout.filter(
+          (widget) =>
+            widget.widgetKey !==
+            widgetKey
+        ),
+        viewport
+      );
+
+    const visibleByKey =
+      new Map(
+        nextVisible.map(
+          (widget) => [
+            widget.widgetKey,
+            widget,
+          ]
+        )
+      );
+
+    const nextFull =
+      layout.map(
+        (widget) => {
+          if (
+            widget.widgetKey ===
+            widgetKey
+          ) {
+            return {
+              ...widget,
+              visible: false,
+            };
+          }
+
+          return (
+            visibleByKey.get(
+              widget.widgetKey
+            ) ?? widget
+          );
+        }
+      );
+
+    return commitLayout(
+      nextFull
+    );
+  }
+
   async function handleAdd(
     definition:
       WidgetDefinition
@@ -498,7 +549,7 @@ export function DashboardBoard() {
             handleGridCommit
           }
           onRemove={
-            hideWidget
+            handleRemoveWidget
           }
         />
       )}
