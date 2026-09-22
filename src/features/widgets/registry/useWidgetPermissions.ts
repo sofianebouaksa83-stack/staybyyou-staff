@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -26,18 +27,13 @@ export function useWidgetPermissions(
     setLoading,
   ] = useState(true);
 
-  useEffect(() => {
-    let active = true;
-
-    async function load() {
+  const refresh =
+    useCallback(async () => {
       if (!hotelId) {
-        if (active) {
-          setPermissions(
-            new Set()
-          );
-          setLoading(false);
-        }
-
+        setPermissions(
+          new Set()
+        );
+        setLoading(false);
         return;
       }
 
@@ -53,10 +49,6 @@ export function useWidgetPermissions(
             hotelId,
         }
       );
-
-      if (!active) {
-        return;
-      }
 
       if (error) {
         console.error(
@@ -83,18 +75,34 @@ export function useWidgetPermissions(
       );
 
       setLoading(false);
+    }, [hotelId]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    function handleFocus() {
+      void refresh();
     }
 
-    void load();
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
 
     return () => {
-      active = false;
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
     };
-  }, [hotelId]);
+  }, [refresh]);
 
   return {
     permissions,
     loading,
+    refresh,
     can:
       (permission: string) =>
         permissions.has(
