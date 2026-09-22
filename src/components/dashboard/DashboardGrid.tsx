@@ -12,6 +12,7 @@ import {
   sortLayout,
 } from "../../features/widgets/layout/dashboardLayout.helpers";
 import {
+  compactDashboardLayout,
   moveWidgetBefore,
 } from "../../features/widgets/layout/dashboardLayout.compact";
 import type {
@@ -93,12 +94,15 @@ export function DashboardGrid({
       );
 
     const next =
-      sorted.map(
-        (item) =>
-          item.widgetKey ===
-          widget.widgetKey
-            ? resized
-            : item
+      compactDashboardLayout(
+        sorted.map(
+          (item) =>
+            item.widgetKey ===
+            widget.widgetKey
+              ? resized
+              : item
+        ),
+        viewport
       );
 
     onLocalChange(next);
