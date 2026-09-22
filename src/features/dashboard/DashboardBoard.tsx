@@ -38,6 +38,9 @@ import {
 import {
   useRoomServiceWidgetsData,
 } from "../widgets/room-service/useRoomServiceWidgetsData";
+import {
+  useFnbSummaryWidgetData,
+} from "../widgets/fnb/useFnbSummaryWidgetData";
 
 import {
   useDashboard,
@@ -120,6 +123,16 @@ export function DashboardBoard() {
       !loadingPermissions &&
         permissions.has(
           "orders.view"
+        )
+    );
+
+  const fnbSummary =
+    useFnbSummaryWidgetData(
+      hotelId,
+      selectedDate,
+      !loadingPermissions &&
+        permissions.has(
+          "fnb.view"
         )
     );
 
@@ -241,6 +254,7 @@ export function DashboardBoard() {
     loadingTasks,
     hotelError,
     tasksError,
+    fnbSummary,
     roomService,
   };
 
