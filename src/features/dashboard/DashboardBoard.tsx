@@ -254,6 +254,50 @@ export function DashboardBoard() {
     };
   }
 
+  function mergeVisibleLayout(
+    nextVisible:
+      typeof visibleLayout
+  ) {
+    const nextByKey =
+      new Map(
+        nextVisible.map(
+          (widget) => [
+            widget.widgetKey,
+            widget,
+          ]
+        )
+      );
+
+    return layout.map(
+      (widget) =>
+        nextByKey.get(
+          widget.widgetKey
+        ) ?? widget
+    );
+  }
+
+  function handleLocalGridChange(
+    nextVisible:
+      typeof visibleLayout
+  ) {
+    updateLocalLayout(
+      mergeVisibleLayout(
+        nextVisible
+      )
+    );
+  }
+
+  async function handleGridCommit(
+    nextVisible:
+      typeof visibleLayout
+  ) {
+    return commitLayout(
+      mergeVisibleLayout(
+        nextVisible
+      )
+    );
+  }
+
   async function handleAdd(
     definition:
       WidgetDefinition
@@ -391,10 +435,10 @@ export function DashboardBoard() {
             editMode
           }
           onLocalChange={
-            updateLocalLayout
+            handleLocalGridChange
           }
           onCommit={
-            commitLayout
+            handleGridCommit
           }
           onRemove={
             hideWidget
