@@ -1,0 +1,28 @@
+@media (max-width: 760px) {
+  .dashboard-custom__header {
+    display: grid;
+    gap: 12px;
+  }
+
+  .dashboard-custom__actions {
+    justify-content: flex-start;
+  }
+
+  .dashboard-custom__actions .dashboard-action {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .dashboard-widget-card--stat {
+    padding: 14px;
+  }
+
+  .dashboard-widget-card__body > strong {
+    font-size: 23px;
+  }
+
+  .dashboard-widget-grid {
+    margin-top: 18px;
+  }
+}
