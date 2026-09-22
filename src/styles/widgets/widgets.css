@@ -274,3 +274,13 @@
   border-radius: 999px;
   background: var(--gold);
 }
+
+
+.dashboard-widget-feed--late {
+  color: var(--danger);
+}
+
+.dashboard-widget-feed--late > small {
+  color: var(--danger);
+  font-weight: 700;
+}
