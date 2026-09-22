@@ -8,6 +8,10 @@ import {
   FnbWidget,
 } from "../../../components/dashboard/FnbWidget";
 import {
+  FnbCapacityWidget,
+  FnbReservationsWidget,
+} from "../../../components/dashboard/FnbReservationsWidget";
+import {
   InstructionsWidget,
 } from "../../../components/dashboard/InstructionsWidget";
 import {
@@ -29,6 +33,9 @@ import {
 import {
   HotelOccupancyWidget,
 } from "../../../components/dashboard/HotelOccupancyWidget";
+import {
+  HotelOccupancyRateWidget,
+} from "../../../components/dashboard/HotelOccupancyRateWidget";
 import {
   TasksWidget,
 } from "../../../components/dashboard/TasksWidget";
@@ -107,6 +114,33 @@ export const widgetRegistry = {
     defaultSize: "small",
     component:
       HotelOccupancyWidget,
+    defaultLayout: {
+      desktop: {
+        w: 3,
+        h: 2,
+      },
+      mobile: {
+        w: 2,
+        h: 2,
+      },
+    },
+  },
+
+  hotel_occupancy: {
+    widgetKey:
+      "hotel_occupancy",
+    title: "Occupation",
+    description:
+      "Taux d'occupation des chambres actives.",
+    category: "hotel",
+    permission: "hotel.view",
+    sizes: [
+      "small",
+      "medium",
+    ],
+    defaultSize: "small",
+    component:
+      HotelOccupancyRateWidget,
     defaultLayout: {
       desktop: {
         w: 3,
@@ -356,6 +390,61 @@ export const widgetRegistry = {
       mobile: {
         w: 2,
         h: 3,
+      },
+    },
+  },
+
+  fnb_reservations: {
+    widgetKey:
+      "fnb_reservations",
+    title:
+      "Réservations",
+    description:
+      "Total des réservations renseignées sur les services du jour.",
+    category: "fnb",
+    permission: "fnb.view",
+    sizes: [
+      "small",
+      "medium",
+    ],
+    defaultSize: "small",
+    component:
+      FnbReservationsWidget,
+    defaultLayout: {
+      desktop: {
+        w: 3,
+        h: 2,
+      },
+      mobile: {
+        w: 2,
+        h: 2,
+      },
+    },
+  },
+
+  fnb_capacity: {
+    widgetKey:
+      "fnb_capacity",
+    title: "Capacité",
+    description:
+      "Remplissage global des services F&B du jour.",
+    category: "fnb",
+    permission: "fnb.view",
+    sizes: [
+      "small",
+      "medium",
+    ],
+    defaultSize: "small",
+    component:
+      FnbCapacityWidget,
+    defaultLayout: {
+      desktop: {
+        w: 3,
+        h: 2,
+      },
+      mobile: {
+        w: 2,
+        h: 2,
       },
     },
   },
