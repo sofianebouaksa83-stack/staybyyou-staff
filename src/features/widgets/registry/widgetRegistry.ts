@@ -2,8 +2,20 @@ import {
   ClientFollowupsWidget,
 } from "../../../components/dashboard/ClientFollowupsWidget";
 import {
+  EventsWidget,
+} from "../../../components/dashboard/EventsWidget";
+import {
   FnbWidget,
 } from "../../../components/dashboard/FnbWidget";
+import {
+  InstructionsWidget,
+} from "../../../components/dashboard/InstructionsWidget";
+import {
+  MessagesWidget,
+} from "../../../components/dashboard/MessagesWidget";
+import {
+  NotificationsWidget,
+} from "../../../components/dashboard/NotificationsWidget";
 import {
   HotelArrivalsWidget,
 } from "../../../components/dashboard/HotelArrivalsWidget";
@@ -154,6 +166,128 @@ export const widgetRegistry = {
       mobile: {
         w: 4,
         h: 4,
+      },
+    },
+  },
+
+  messages_recent: {
+    widgetKey:
+      "messages_recent",
+    title:
+      "Messages récents",
+    description:
+      "Derniers messages des salons accessibles.",
+    category: "team",
+    permission:
+      "messages.view",
+    sizes: [
+      "small",
+      "medium",
+      "large",
+    ],
+    defaultSize:
+      "medium",
+    component:
+      MessagesWidget,
+    defaultLayout: {
+      desktop: {
+        w: 4,
+        h: 4,
+      },
+      mobile: {
+        w: 4,
+        h: 4,
+      },
+    },
+  },
+
+  instructions_today: {
+    widgetKey:
+      "instructions_today",
+    title: "Consignes",
+    description:
+      "Consignes actives pour la journée.",
+    category: "team",
+    permission:
+      "instructions.view",
+    sizes: [
+      "small",
+      "medium",
+      "large",
+    ],
+    defaultSize:
+      "medium",
+    component:
+      InstructionsWidget,
+    defaultLayout: {
+      desktop: {
+        w: 4,
+        h: 4,
+      },
+      mobile: {
+        w: 4,
+        h: 4,
+      },
+    },
+  },
+
+  events_today: {
+    widgetKey:
+      "events_today",
+    title: "Événements",
+    description:
+      "Événements qui impactent la journée.",
+    category: "team",
+    permission:
+      "events.view",
+    sizes: [
+      "small",
+      "medium",
+      "large",
+    ],
+    defaultSize:
+      "medium",
+    component:
+      EventsWidget,
+    defaultLayout: {
+      desktop: {
+        w: 4,
+        h: 4,
+      },
+      mobile: {
+        w: 4,
+        h: 4,
+      },
+    },
+  },
+
+  notifications: {
+    widgetKey:
+      "notifications",
+    title:
+      "Notifications",
+    description:
+      "Notifications récentes et éléments non lus.",
+    category: "other",
+    permission:
+      "notifications.view",
+    sizes: [
+      "small",
+      "medium",
+      "large",
+    ],
+    defaultSize:
+      "small",
+    component:
+      NotificationsWidget,
+    defaultLayout: {
+      desktop: {
+        w: 3,
+        h: 3,
+      },
+      mobile: {
+        w: 2,
+        h: 3,
       },
     },
   },
