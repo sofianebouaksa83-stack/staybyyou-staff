@@ -1,5 +1,5 @@
 @import "./layout.css";
-@import "./dashboard.css";
+@import "./dashboard.css";\n@import "./widgets/widgets.css";\n@import "./widgets/widget-grid.css";\n@import "./widgets/widget-gallery.css";\n@import "./widgets/widget-edit-mode.css";
 @import "./components.css";
 @import "./messages.css";
 @import "./tasks.css";
