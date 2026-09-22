@@ -13,8 +13,10 @@ import {
 } from "../../services/tasksService";
 
 import {
+  getHotelRooms,
   getHotelStays,
   getFollowups,
+  type HotelRoom,
   type HotelStay,
   type GuestFollowup,
 } from "../../services/hotelService";
@@ -93,6 +95,11 @@ export function useDashboard({
     tasks,
     setTasks,
   ] = useState<StaffTask[]>([]);
+
+  const [
+    rooms,
+    setRooms,
+  ] = useState<HotelRoom[]>([]);
 
   const [
     stays,
@@ -222,6 +229,7 @@ export function useDashboard({
 
     async function loadHotelData() {
       if (!loadHotel || !hotelId) {
+        setRooms([]);
         setStays([]);
         setFollowups([]);
         setLoadingHotel(false);
@@ -242,12 +250,19 @@ export function useDashboard({
             selectedDate
           );
 
-        const hotelStays =
-          await getHotelStays(
+        const [
+          hotelRooms,
+          hotelStays,
+        ] = await Promise.all([
+          getHotelRooms(
+            hotelId
+          ),
+          getHotelStays(
             hotelId,
             start.toISOString(),
             end.toISOString()
-          );
+          ),
+        ]);
 
         const followupLists =
           await Promise.all(
@@ -263,6 +278,10 @@ export function useDashboard({
         if (cancelled) {
           return;
         }
+
+        setRooms(
+          hotelRooms
+        );
 
         setStays(
           hotelStays
@@ -452,6 +471,7 @@ export function useDashboard({
     openTasks,
     dashboardTasks,
 
+    rooms,
     arrivals,
     departures,
     inHouse,
