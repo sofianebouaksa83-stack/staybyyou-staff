@@ -55,6 +55,8 @@
 
 .dashboard-widget-drag {
   cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
 .dashboard-widget-drag:active {
