@@ -18,6 +18,8 @@ export type DashboardWidgetData = {
   arrivalsCount: number;
   departuresCount: number;
   inHouseCount: number;
+  roomCount: number;
+  occupancyRate: number;
   followupsCount: number;
   urgentFollowupsCount: number;
   openTasksCount: number;
