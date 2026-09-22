@@ -138,7 +138,7 @@ export function useDashboard({
   useEffect(() => {
     let cancelled = false;
 
-    async function loadTasks() {
+    async function loadTaskData() {
       if (!loadTasks || !hotelId) {
         setTasks([]);
         setLoadingTasks(false);
@@ -178,7 +178,7 @@ export function useDashboard({
       }
     }
 
-    loadTasks();
+    void loadTaskData();
 
     return () => {
       cancelled = true;
