@@ -10,7 +10,6 @@ import {
 import {
   getChannels,
   getMessages,
-  subscribeToMessages,
   type StaffMessageWithAuthor,
 } from "../../../services/messagesService";
 
@@ -45,8 +44,6 @@ export function useRecentMessagesWidget() {
 
   useEffect(() => {
     let active = true;
-    let unsubscribers:
-      Array<() => void> = [];
 
     async function load() {
       if (!hotelId) {
@@ -109,16 +106,6 @@ export function useRecentMessagesWidget() {
             .slice(0, 8)
         );
 
-        unsubscribers =
-          selected.map(
-            (channel) =>
-              subscribeToMessages(
-                channel.id,
-                () => {
-                  void load();
-                }
-              )
-          );
       } catch (loadError) {
         console.error(
           "Erreur messages widget :",
@@ -141,10 +128,6 @@ export function useRecentMessagesWidget() {
 
     return () => {
       active = false;
-      unsubscribers.forEach(
-        (unsubscribe) =>
-          unsubscribe()
-      );
     };
   }, [hotelId]);
 
