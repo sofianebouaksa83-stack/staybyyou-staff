@@ -1,4 +1,7 @@
 import {
+  useState,
+} from "react";
+import {
   GripVertical,
   Minus,
 } from "lucide-react";
@@ -51,6 +54,13 @@ export function DashboardGrid({
   onCommit,
   onRemove,
 }: Props) {
+  const [
+    pointerSourceKey,
+    setPointerSourceKey,
+  ] = useState<string | null>(
+    null
+  );
+
   const sorted =
     sortLayout(layout);
 
@@ -127,6 +137,9 @@ export function DashboardGrid({
               key={
                 widget.widgetKey
               }
+              data-widget-key={
+                widget.widgetKey
+              }
               className="dashboard-widget-slot"
               style={{
                 gridColumn: `${widget.x + 1} / span ${widget.w}`,
@@ -187,6 +200,57 @@ export function DashboardGrid({
                     className="dashboard-widget-drag"
                     aria-label={`Déplacer ${definition.title}`}
                     title="Déplacer"
+                    onPointerDown={(
+                      event
+                    ) => {
+                      setPointerSourceKey(
+                        widget.widgetKey
+                      );
+
+                      event.currentTarget.setPointerCapture(
+                        event.pointerId
+                      );
+                    }}
+                    onPointerUp={(
+                      event
+                    ) => {
+                      const sourceKey =
+                        pointerSourceKey;
+
+                      setPointerSourceKey(
+                        null
+                      );
+
+                      if (
+                        !sourceKey
+                      ) {
+                        return;
+                      }
+
+                      const target =
+                        document
+                          .elementFromPoint(
+                            event.clientX,
+                            event.clientY
+                          )
+                          ?.closest<HTMLElement>(
+                            "[data-widget-key]"
+                          )
+                          ?.dataset
+                          .widgetKey;
+
+                      if (target) {
+                        handleDrop(
+                          sourceKey,
+                          target
+                        );
+                      }
+                    }}
+                    onPointerCancel={() =>
+                      setPointerSourceKey(
+                        null
+                      )
+                    }
                   >
                     <GripVertical
                       size={16}
