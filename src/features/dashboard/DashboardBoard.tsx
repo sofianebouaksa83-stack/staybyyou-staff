@@ -95,6 +95,7 @@ export function DashboardBoard() {
     selectedDate,
     openTasks,
     dashboardTasks,
+    rooms,
     arrivals,
     departures,
     inHouse,
@@ -219,6 +220,16 @@ export function DashboardBoard() {
       departures.length,
     inHouseCount:
       inHouse.length,
+    roomCount:
+      rooms.length,
+    occupancyRate:
+      rooms.length > 0
+        ? Math.round(
+            (inHouse.length /
+              rooms.length) *
+              100
+          )
+        : 0,
     followupsCount:
       activeFollowups.length,
     urgentFollowupsCount:
