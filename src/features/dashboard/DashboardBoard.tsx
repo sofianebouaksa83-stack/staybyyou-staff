@@ -86,6 +86,11 @@ export function DashboardBoard() {
       "tasks.view"
     );
 
+  const canManageDashboard =
+    permissions.has(
+      "dashboard.manage"
+    );
+
   const {
     selectedDate,
     openTasks,
@@ -395,7 +400,7 @@ export function DashboardBoard() {
                 Terminé
               </button>
             </>
-          ) : (
+          ) : canManageDashboard ? (
             <button
               type="button"
               className="dashboard-action dashboard-action--ghost"
@@ -410,7 +415,7 @@ export function DashboardBoard() {
               />
               Personnaliser
             </button>
-          )}
+          ) : null}
         </div>
       </div>
 
