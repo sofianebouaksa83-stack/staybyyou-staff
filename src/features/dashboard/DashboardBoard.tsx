@@ -35,6 +35,9 @@ import type {
 import {
   useWidgetPermissions,
 } from "../widgets/registry/useWidgetPermissions";
+import {
+  useRoomServiceWidgetsData,
+} from "../widgets/room-service/useRoomServiceWidgetsData";
 
 import {
   useDashboard,
@@ -104,6 +107,15 @@ export function DashboardBoard() {
       !loadingPermissions &&
       canViewTasks,
   });
+
+  const roomService =
+    useRoomServiceWidgetsData(
+      hotelId,
+      !loadingPermissions &&
+        permissions.has(
+          "orders.view"
+        )
+    );
 
   const defaultLayout =
     useMemo(
@@ -213,6 +225,7 @@ export function DashboardBoard() {
     loadingTasks,
     hotelError,
     tasksError,
+    roomService,
   };
 
   function buildWidgetLayout(
