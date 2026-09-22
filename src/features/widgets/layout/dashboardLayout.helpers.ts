@@ -46,7 +46,10 @@ export function resizeWidget(
 
   if (
     !definition ||
-    !definition.sizes.includes(
+    !(
+      definition.sizes as
+        readonly WidgetSize[]
+    ).includes(
       size
     )
   ) {
