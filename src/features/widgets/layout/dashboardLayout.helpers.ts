@@ -58,19 +58,26 @@ export function resizeWidget(
       viewport
     ];
 
+  const rank: Record<
+    WidgetSize,
+    number
+  > = {
+    small: 0,
+    medium: 1,
+    large: 2,
+  };
+
+  const delta =
+    rank[size] -
+    rank[
+      definition.defaultSize
+    ];
+
   const widthFactor =
-    size === "small"
-      ? 0.75
-      : size === "large"
-        ? 1.25
-        : 1;
+    1 + delta * 0.25;
 
   const heightFactor =
-    size === "small"
-      ? 0.75
-      : size === "large"
-        ? 1.25
-        : 1;
+    1 + delta * 0.25;
 
   const maxWidth =
     viewport === "desktop"
