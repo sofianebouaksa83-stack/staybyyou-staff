@@ -1,7 +1,6 @@
-import {
-  widgetRegistry,
-  type WidgetKey,
-} from "../registry/widgetRegistry";
+import type {
+  WidgetDefinition,
+} from "../registry/widgetRegistry.types";
 
 import type {
   DashboardViewport,
@@ -10,7 +9,9 @@ import type {
 } from "./dashboardLayout.types";
 
 export function getWidgetSize(
-  widget: DashboardWidgetLayout
+  widget: DashboardWidgetLayout,
+  definition:
+    WidgetDefinition
 ): WidgetSize {
   const value =
     widget.settings.size;
@@ -23,33 +24,18 @@ export function getWidgetSize(
     return value;
   }
 
-  const definition =
-    widgetRegistry[
-      widget.widgetKey as WidgetKey
-    ];
-
-  return (
-    definition?.defaultSize ??
-    "medium"
-  );
+  return definition.defaultSize;
 }
 
 export function resizeWidget(
   widget: DashboardWidgetLayout,
+  definition:
+    WidgetDefinition,
   size: WidgetSize,
   viewport: DashboardViewport
 ): DashboardWidgetLayout {
-  const definition =
-    widgetRegistry[
-      widget.widgetKey as WidgetKey
-    ];
-
   if (
-    !definition ||
-    !(
-      definition.sizes as
-        readonly WidgetSize[]
-    ).includes(
+    !definition.sizes.includes(
       size
     )
   ) {
@@ -76,10 +62,7 @@ export function resizeWidget(
       definition.defaultSize
     ];
 
-  const widthFactor =
-    1 + delta * 0.25;
-
-  const heightFactor =
+  const factor =
     1 + delta * 0.25;
 
   const maxWidth =
@@ -94,16 +77,14 @@ export function resizeWidget(
       Math.max(
         2,
         Math.round(
-          base.w *
-            widthFactor
+          base.w * factor
         )
       )
     ),
     h: Math.max(
       2,
       Math.round(
-        base.h *
-          heightFactor
+        base.h * factor
       )
     ),
     settings: {
