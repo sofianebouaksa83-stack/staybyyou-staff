@@ -55,6 +55,27 @@ const DESKTOP: DefaultPosition[] = [
     y: 2,
     size: "medium",
   },
+  {
+    widgetKey:
+      "messages_recent",
+    x: 0,
+    y: 6,
+    size: "medium",
+  },
+  {
+    widgetKey:
+      "instructions_today",
+    x: 4,
+    y: 6,
+    size: "medium",
+  },
+  {
+    widgetKey:
+      "events_today",
+    x: 8,
+    y: 6,
+    size: "medium",
+  },
 ];
 
 const MOBILE: DefaultPosition[] = [
@@ -95,6 +116,27 @@ const MOBILE: DefaultPosition[] = [
     x: 0,
     y: 8,
     size: "large",
+  },
+  {
+    widgetKey:
+      "messages_recent",
+    x: 0,
+    y: 13,
+    size: "medium",
+  },
+  {
+    widgetKey:
+      "instructions_today",
+    x: 0,
+    y: 17,
+    size: "medium",
+  },
+  {
+    widgetKey:
+      "events_today",
+    x: 0,
+    y: 21,
+    size: "medium",
   },
 ];
 
