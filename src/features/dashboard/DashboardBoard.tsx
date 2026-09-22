@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -173,6 +174,19 @@ export function DashboardBoard() {
     galleryOpen,
     setGalleryOpen,
   ] = useState(false);
+
+  useEffect(() => {
+    if (
+      !loadingPermissions &&
+      !canManageDashboard
+    ) {
+      setEditMode(false);
+      setGalleryOpen(false);
+    }
+  }, [
+    canManageDashboard,
+    loadingPermissions,
+  ]);
 
   const allowedDefinitions =
     useMemo(
