@@ -84,11 +84,14 @@ export function DashboardGrid({
   function handleResize(
     widget:
       DashboardWidgetLayout,
+    definition:
+      import("../../features/widgets/registry/widgetRegistry.types").WidgetDefinition,
     size: WidgetSize
   ) {
     const resized =
       resizeWidget(
         widget,
+        definition,
         size,
         viewport
       );
@@ -133,7 +136,8 @@ export function DashboardGrid({
 
           const size =
             getWidgetSize(
-              widget
+              widget,
+              definition
             );
 
           return (
@@ -280,6 +284,7 @@ export function DashboardGrid({
                           onClick={() =>
                             handleResize(
                               widget,
+                              definition,
                               allowedSize
                             )
                           }
