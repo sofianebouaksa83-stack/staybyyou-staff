@@ -32,6 +32,48 @@ export type DashboardWidgetData = {
   loadingTasks: boolean;
   hotelError: string | null;
   tasksError: string | null;
+  roomService: {
+    orders: Array<{
+      id: string;
+      display_id: string;
+      room_name: string;
+      guest_name: string;
+      status:
+        | "new"
+        | "accepted"
+        | "preparing"
+        | "ready"
+        | "delivering"
+        | "delivered"
+        | "cancelled";
+      estimated_minutes:
+        | number
+        | null;
+      created_at: string;
+      service_type: string;
+    }>;
+    lateOrders: Array<{
+      id: string;
+      display_id: string;
+      room_name: string;
+      guest_name: string;
+      status:
+        | "new"
+        | "accepted"
+        | "preparing"
+        | "ready"
+        | "delivering"
+        | "delivered"
+        | "cancelled";
+      estimated_minutes:
+        | number
+        | null;
+      created_at: string;
+      service_type: string;
+    }>;
+    loading: boolean;
+    error: string | null;
+  };
 };
 
 export type DashboardWidgetComponentProps = {
