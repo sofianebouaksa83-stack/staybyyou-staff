@@ -203,6 +203,25 @@
   padding: 38px;
 }
 
+.main-dashboard,
+.content-dashboard,
+.dashboard-page,
+.dashboard-custom {
+  min-width: 0;
+  overflow: visible;
+}
+
+.content-dashboard {
+  width: 100%;
+  max-width: 1520px;
+  padding-inline: clamp(20px, 3vw, 42px);
+}
+
+.dashboard-page,
+.dashboard-custom {
+  width: 100%;
+}
+
 .welcome h1,
 .page-header h1 {
   font-family: Georgia, "Times New Roman", serif;
@@ -274,5 +293,4 @@
   border-right: 0;
   border-bottom: 0;
 }
-
 

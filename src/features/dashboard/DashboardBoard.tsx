@@ -1,8 +1,8 @@
 import {
-  useEffect,
   useMemo,
   useState,
 } from "react";
+
 import {
   Plus,
   RotateCcw,
@@ -12,76 +12,185 @@ import {
 import {
   useApp,
 } from "../../app/AppContext";
+
 import {
-  DashboardGrid,
-} from "../../components/dashboard/DashboardGrid";
+  StructuredDashboardGrid,
+} from "../../components/dashboard/StructuredDashboardGrid";
+
 import {
   WidgetGallery,
 } from "../../components/dashboard/WidgetGallery";
+
 import {
-  compactDashboardLayout,
-} from "../widgets/layout/dashboardLayout.compact";
+  DashboardStats,
+} from "./DashboardStats";
+
 import {
   getDefaultDashboardLayout,
 } from "../widgets/layout/dashboardLayout.defaults";
+
+import type {
+  DashboardWidgetLayout,
+  WidgetSize,
+} from "../widgets/layout/dashboardLayout.types";
+
 import {
   useDashboardLayout,
 } from "../widgets/layout/useDashboardLayout";
+
 import {
   useDashboardViewport,
 } from "../widgets/layout/useDashboardViewport";
+
 import {
   widgetDefinitions,
 } from "../widgets/registry/widgetRegistry";
+
 import type {
+  DashboardWidgetData,
   WidgetDefinition,
 } from "../widgets/registry/widgetRegistry.types";
+
 import {
   useWidgetPermissions,
 } from "../widgets/registry/useWidgetPermissions";
+
 import {
   useRoomServiceWidgetsData,
 } from "../widgets/room-service/useRoomServiceWidgetsData";
-import {
-  useFnbSummaryWidgetData,
-} from "../widgets/fnb/useFnbSummaryWidgetData";
 
 import {
   useDashboard,
 } from "./useDashboard";
 
+import {
+  useFnbDashboardData,
+} from "../widgets/fnb/useFnbDashboardData";
+
+import type {
+  DashboardWidgetSettings,
+} from "../widgets/layout/dashboardLayout.types";
+
+
 function formatDayLabel(
-  date: Date
+  date:
+    Date
 ) {
   return date
     .toLocaleDateString(
       "fr-FR",
       {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
+        weekday:
+          "long",
+
+        day:
+          "numeric",
+
+        month:
+          "long",
       }
     )
     .toUpperCase();
+}
+
+const STRUCTURED_WIDGET_KEYS =
+  new Set<string>([
+    "fnb_services",
+
+    "tasks_today",
+
+    "messages_recent",
+
+    "instructions_today",
+
+    "events_today",
+
+    "hotel_occupancy",
+
+    "notifications",
+
+    "room_service_active",
+
+    "custom_board",
+  ]);
+
+function getNextOrder(
+  layout:
+    DashboardWidgetLayout[]
+) {
+  const structured =
+    layout.filter(
+      (
+        widget
+      ) =>
+        widget.visible &&
+        STRUCTURED_WIDGET_KEYS.has(
+          widget.widgetKey
+        )
+    );
+
+  if (
+    structured.length ===
+    0
+  ) {
+    return 0;
+  }
+
+  return (
+    Math.max(
+      ...structured.map(
+        (
+          widget
+        ) =>
+          widget.y
+      )
+    ) + 1
+  );
+}
+
+function getNewInstanceSize(
+  definition:
+    WidgetDefinition
+): WidgetSize {
+  /**
+   * Les nouveaux blocs F&B sont volontairement
+   * créés en medium afin de pouvoir en afficher
+   * plusieurs côte à côte.
+   */
+  if (
+    definition.widgetKey ===
+      "fnb_services" &&
+    definition.sizes.includes(
+      "medium"
+    )
+  ) {
+    return "medium";
+  }
+
+  return definition.defaultSize;
 }
 
 export function DashboardBoard() {
   const {
     hotelId,
     user,
-  } = useApp();
+  } =
+    useApp();
 
   const viewport =
     useDashboardViewport();
 
   const {
     permissions,
+
     loading:
       loadingPermissions,
+
     can,
-  } = useWidgetPermissions(
-    hotelId
-  );
+  } =
+    useWidgetPermissions(
+      hotelId
+    );
 
   const canViewHotel =
     permissions.has(
@@ -100,43 +209,52 @@ export function DashboardBoard() {
 
   const {
     selectedDate,
+
     openTasks,
     dashboardTasks,
+
     rooms,
+
     arrivals,
     departures,
     inHouse,
+
     activeFollowups,
     urgentFollowups,
+
     loadingTasks,
     loadingHotel,
+
     tasksError,
     hotelError,
-  } = useDashboard({
-    loadHotel:
-      !loadingPermissions &&
-      canViewHotel,
-    loadTasks:
-      !loadingPermissions &&
-      canViewTasks,
-  });
+  } =
+    useDashboard({
+      loadHotel:
+        !loadingPermissions &&
+        canViewHotel,
+
+      loadTasks:
+        !loadingPermissions &&
+        canViewTasks,
+    });
+
+    const fnb =
+      useFnbDashboardData(
+        hotelId,
+        selectedDate,
+        !loadingPermissions &&
+          permissions.has(
+            "fnb.view"
+          )
+      );
 
   const roomService =
     useRoomServiceWidgetsData(
       hotelId,
+
       !loadingPermissions &&
         permissions.has(
           "orders.view"
-        )
-    );
-
-  const fnbSummary =
-    useFnbSummaryWidgetData(
-      hotelId,
-      selectedDate,
-      !loadingPermissions &&
-        permissions.has(
-          "fnb.view"
         )
     );
 
@@ -146,87 +264,114 @@ export function DashboardBoard() {
         getDefaultDashboardLayout(
           viewport
         ),
-      [viewport]
+
+      [
+        viewport,
+      ]
     );
 
   const {
     layout,
+
     loading:
       loadingLayout,
+
     saving,
-    error: layoutError,
-    updateLocalLayout,
+
+    error:
+      layoutError,
+
     commitLayout,
-    showWidget,
+
     reset,
-  } = useDashboardLayout({
-    hotelId,
-    userId:
-      user.id || null,
-    viewport,
-    defaultLayout,
-  });
+  } =
+    useDashboardLayout({
+      hotelId,
+
+      userId:
+        user.id ||
+        null,
+
+      viewport,
+
+      defaultLayout,
+    });
 
   const [
     editMode,
     setEditMode,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
 
   const [
     galleryOpen,
     setGalleryOpen,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
 
-  useEffect(() => {
-    if (
-      !loadingPermissions &&
-      !canManageDashboard
-    ) {
-      setEditMode(false);
-      setGalleryOpen(false);
-    }
-  }, [
-    canManageDashboard,
-    loadingPermissions,
-  ]);
-
-  const allowedDefinitions =
+  const galleryWidgets =
     useMemo(
       () =>
         widgetDefinitions.filter(
-          (definition) =>
+          (
+            definition
+          ) =>
+            STRUCTURED_WIDGET_KEYS.has(
+              definition.widgetKey
+            ) &&
             can(
               definition.permission
             )
         ),
-      [permissions]
+
+      [
+        can,
+      ]
     );
 
-  const allowedKeys =
-    useMemo(
-      () =>
-        new Set(
-          allowedDefinitions.map(
-            (definition) =>
-              definition.widgetKey
-          )
-        ),
-      [allowedDefinitions]
-    );
-
-  const visibleLayout =
+  const allowedLayout =
     useMemo(
       () =>
         layout.filter(
-          (widget) =>
-            widget.visible &&
-            allowedKeys.has(
-              widget.widgetKey
-            )
+          (
+            widget
+          ) => {
+            if (
+              !STRUCTURED_WIDGET_KEYS.has(
+                widget.widgetKey
+              )
+            ) {
+              return false;
+            }
+
+            const definition =
+              widgetDefinitions.find(
+                (
+                  item
+                ) =>
+                  item.widgetKey ===
+                  widget.widgetKey
+              );
+
+            if (
+              !definition
+            ) {
+              return false;
+            }
+
+            return can(
+              definition.permission
+            );
+          }
         ),
+
       [
         layout,
-        allowedKeys,
+        can,
       ]
     );
 
@@ -234,175 +379,199 @@ export function DashboardBoard() {
     useMemo(
       () =>
         new Set(
-          visibleLayout.map(
-            (widget) =>
-              widget.widgetKey
-          )
+          allowedLayout
+            .filter(
+              (
+                widget
+              ) =>
+                widget.visible
+            )
+            .map(
+              (
+                widget
+              ) =>
+                widget.widgetKey
+            )
         ),
-      [visibleLayout]
+
+      [
+        allowedLayout,
+      ]
     );
 
-  const widgetData = {
-    arrivalsCount:
-      arrivals.length,
-    departuresCount:
-      departures.length,
-    inHouseCount:
-      inHouse.length,
-    roomCount:
-      rooms.length,
-    occupancyRate:
-      rooms.length > 0
-        ? Math.round(
-            (inHouse.length /
-              rooms.length) *
-              100
-          )
-        : 0,
-    followupsCount:
-      activeFollowups.length,
-    urgentFollowupsCount:
-      urgentFollowups.length,
-    openTasksCount:
-      openTasks.length,
-    dashboardTasks,
-    loadingHotel,
-    loadingTasks,
-    hotelError,
-    tasksError,
-    fnbSummary,
-    roomService,
-  };
+  const repeatableKeys =
+    useMemo(
+      () =>
+        new Set(
+          galleryWidgets
+            .filter(
+              (
+                widget
+              ) =>
+                widget.allowMultiple
+            )
+            .map(
+              (
+                widget
+              ) =>
+                widget.widgetKey
+            )
+        ),
 
-  function buildWidgetLayout(
-    definition:
-      WidgetDefinition
+      [
+        galleryWidgets,
+      ]
+    );
+
+  const roomCount =
+    rooms.filter(
+      (
+        room
+      ) =>
+        room.active
+    ).length;
+
+  const occupancyRate =
+    roomCount >
+    0
+      ? Math.round(
+          (
+            inHouse.length /
+            roomCount
+          ) *
+            100
+        )
+      : 0;
+
+  const widgetData:
+    DashboardWidgetData =
+    {
+      arrivalsCount:
+        arrivals.length,
+
+      departuresCount:
+        departures.length,
+
+      inHouseCount:
+        inHouse.length,
+
+      roomCount,
+
+      occupancyRate,
+
+      followupsCount:
+        activeFollowups.length,
+
+      urgentFollowupsCount:
+        urgentFollowups.length,
+
+      openTasksCount:
+        openTasks.length,
+
+      dashboardTasks,
+
+      loadingHotel,
+
+      loadingTasks,
+
+      hotelError,
+
+      tasksError,
+
+      fnbSummary: {
+        reservations:
+          fnb.reservations,
+
+        capacity:
+          fnb.capacity,
+
+        loading:
+          fnb.loading,
+
+        error:
+          fnb.error,
+      },
+
+      fnb: {
+        services:
+          fnb.services,
+
+        loading:
+          fnb.loading,
+
+        error:
+          fnb.error,
+
+        updateReservations:
+          fnb.updateReservations,
+      },
+
+      roomService,
+    };
+
+  async function handleUpdateSettings(
+    widgetKey:
+      string,
+
+    instanceKey:
+      string,
+
+    nextSettings:
+      DashboardWidgetSettings
   ) {
-    const dimensions =
-      definition
-        .defaultLayout[
-        viewport
-      ];
-
-    const nextY =
-      layout.reduce(
+    const next =
+      layout.map(
         (
-          max,
           widget
         ) =>
-          Math.max(
-            max,
-            widget.y +
-              widget.h
-          ),
-        0
+          widget.widgetKey ===
+            widgetKey &&
+          widget.instanceKey ===
+            instanceKey
+            ? {
+                ...widget,
+
+                settings: {
+                  ...widget.settings,
+
+                  ...nextSettings,
+                },
+              }
+            : widget
       );
 
-    return {
-      widgetKey:
-        definition.widgetKey,
-      x: 0,
-      y: nextY,
-      w: dimensions.w,
-      h: dimensions.h,
-      visible: true,
-      settings: {
-        size:
-          definition.defaultSize,
-      },
-    };
-  }
-
-  function mergeVisibleLayout(
-    nextVisible:
-      typeof visibleLayout
-  ) {
-    const nextByKey =
-      new Map(
-        nextVisible.map(
-          (widget) => [
-            widget.widgetKey,
-            widget,
-          ]
-        )
-      );
-
-    return layout.map(
-      (widget) =>
-        nextByKey.get(
-          widget.widgetKey
-        ) ?? widget
-    );
-  }
-
-  function handleLocalGridChange(
-    nextVisible:
-      typeof visibleLayout
-  ) {
-    updateLocalLayout(
-      mergeVisibleLayout(
-        nextVisible
-      )
-    );
-  }
-
-  async function handleGridCommit(
-    nextVisible:
-      typeof visibleLayout
-  ) {
     return commitLayout(
-      mergeVisibleLayout(
-        nextVisible
-      )
+      next
     );
   }
 
-  async function handleRemoveWidget(
-    widgetKey: string
+  async function handleHide(
+    widgetKey:
+      string,
+
+    instanceKey:
+      string
   ) {
-    const nextVisible =
-      compactDashboardLayout(
-        visibleLayout.filter(
-          (widget) =>
-            widget.widgetKey !==
-            widgetKey
-        ),
-        viewport
-      );
-
-    const visibleByKey =
-      new Map(
-        nextVisible.map(
-          (widget) => [
-            widget.widgetKey,
-            widget,
-          ]
-        )
-      );
-
-    const nextFull =
+    const next =
       layout.map(
-        (widget) => {
-          if (
-            widget.widgetKey ===
-            widgetKey
-          ) {
-            return {
-              ...widget,
-              visible: false,
-            };
-          }
+        (
+          widget
+        ) =>
+          widget.widgetKey ===
+            widgetKey &&
+          widget.instanceKey ===
+            instanceKey
+            ? {
+                ...widget,
 
-          return (
-            visibleByKey.get(
-              widget.widgetKey
-            ) ?? widget
-          );
-        }
+                visible:
+                  false,
+              }
+            : widget
       );
 
     return commitLayout(
-      nextFull
+      next
     );
   }
 
@@ -410,13 +579,223 @@ export function DashboardBoard() {
     definition:
       WidgetDefinition
   ) {
-    await showWidget(
-      buildWidgetLayout(
-        definition
-      )
-    );
+    const nextOrder =
+      getNextOrder(
+        layout
+      );
 
-    setGalleryOpen(false);
+    /**
+     * =====================================================
+     * MULTI-INSTANCE
+     * =====================================================
+     */
+    if (
+      definition.allowMultiple
+    ) {
+      const dimensions =
+        definition
+          .defaultLayout[
+          viewport
+        ];
+
+      const instanceKey =
+        crypto.randomUUID();
+
+      const initialSize =
+        getNewInstanceSize(
+          definition
+        );
+
+      const nextWidget:
+        DashboardWidgetLayout =
+        {
+          widgetKey:
+            definition.widgetKey,
+
+          instanceKey,
+
+          x:
+            0,
+
+          y:
+            nextOrder,
+
+          w:
+            dimensions.w,
+
+          h:
+            dimensions.h,
+
+          visible:
+            true,
+
+          settings:
+            definition.widgetKey ===
+            "custom_board"
+              ? {
+                  size:
+                    "medium",
+
+                  title:
+                    "Nouveau bloc",
+
+                  eyebrow:
+                    "PERSONNALISÉ",
+
+                  density:
+                    "compact",
+
+                  showSubtitle:
+                    true,
+
+                  showValue:
+                    true,
+
+                  showCapacity:
+                    true,
+
+                  items:
+                    [],
+                }
+              : {
+                  size:
+                    initialSize,
+
+                  title:
+                    definition.title,
+
+                  serviceIds:
+                    [],
+                },
+        };
+
+      const success =
+        await commitLayout([
+          ...layout,
+
+          nextWidget,
+        ]);
+
+      if (
+        success
+      ) {
+        setGalleryOpen(
+          false
+        );
+      }
+
+      return;
+    }
+
+    /**
+     * =====================================================
+     * WIDGET CLASSIQUE
+     * =====================================================
+     */
+    const existing =
+      layout.find(
+        (
+          widget
+        ) =>
+          widget.widgetKey ===
+            definition.widgetKey &&
+          widget.instanceKey ===
+            "default"
+      );
+
+    if (
+      existing
+    ) {
+      const next =
+        layout.map(
+          (
+            widget
+          ) =>
+            widget.widgetKey ===
+                definition.widgetKey &&
+              widget.instanceKey ===
+                "default"
+              ? {
+                  ...widget,
+
+                  visible:
+                    true,
+
+                  x:
+                    0,
+
+                  y:
+                    nextOrder,
+                }
+              : widget
+        );
+
+      const success =
+        await commitLayout(
+          next
+        );
+
+      if (
+        success
+      ) {
+        setGalleryOpen(
+          false
+        );
+      }
+
+      return;
+    }
+
+    const dimensions =
+      definition
+        .defaultLayout[
+        viewport
+      ];
+
+    const nextWidget:
+      DashboardWidgetLayout =
+      {
+        widgetKey:
+          definition.widgetKey,
+
+        instanceKey:
+          "default",
+
+        x:
+          0,
+
+        y:
+          nextOrder,
+
+        w:
+          dimensions.w,
+
+        h:
+          dimensions.h,
+
+        visible:
+          true,
+
+        settings: {
+          size:
+            definition.defaultSize,
+        },
+      };
+
+    const success =
+      await commitLayout([
+        ...layout,
+
+        nextWidget,
+      ]);
+
+    if (
+      success
+    ) {
+      setGalleryOpen(
+        false
+      );
+    }
   }
 
   const loading =
@@ -424,7 +803,7 @@ export function DashboardBoard() {
     loadingLayout;
 
   return (
-    <div className="dashboard-custom">
+    <div className="dashboard-board">
       <div className="dashboard-custom__header">
         <div className="welcome">
           <span className="eyebrow">
@@ -435,7 +814,9 @@ export function DashboardBoard() {
 
           <h1>
             Bonjour{" "}
-            {user.firstName}
+            {
+              user.firstName
+            }
           </h1>
 
           <p>
@@ -444,78 +825,125 @@ export function DashboardBoard() {
           </p>
         </div>
 
-        <div className="dashboard-custom__actions">
-          {editMode ? (
-            <>
-              <button
-                type="button"
-                className="dashboard-action dashboard-action--ghost"
-                disabled={
-                  saving
-                }
-                onClick={() =>
-                  void reset()
-                }
-              >
-                <RotateCcw
-                  size={16}
-                />
-                Réinitialiser
-              </button>
+        {canManageDashboard && (
+          <div className="dashboard-custom__actions">
+            {editMode ? (
+              <>
+                <button
+                  type="button"
+                  className="dashboard-action dashboard-action--ghost"
+                  disabled={
+                    saving
+                  }
+                  onClick={() =>
+                    void reset()
+                  }
+                >
+                  <RotateCcw
+                    size={
+                      16
+                    }
+                  />
 
+                  Réinitialiser
+                </button>
+
+                <button
+                  type="button"
+                  className="dashboard-action dashboard-action--ghost"
+                  onClick={() =>
+                    setGalleryOpen(
+                      true
+                    )
+                  }
+                >
+                  <Plus
+                    size={
+                      16
+                    }
+                  />
+
+                  Ajouter un bloc
+                </button>
+
+                <button
+                  type="button"
+                  className="dashboard-action dashboard-action--primary"
+                  onClick={() => {
+                    setGalleryOpen(
+                      false
+                    );
+
+                    setEditMode(
+                      false
+                    );
+                  }}
+                >
+                  Terminé
+                </button>
+              </>
+            ) : (
               <button
                 type="button"
                 className="dashboard-action dashboard-action--ghost"
                 onClick={() =>
-                  setGalleryOpen(
+                  setEditMode(
                     true
                   )
                 }
               >
-                <Plus
-                  size={16}
+                <Settings2
+                  size={
+                    16
+                  }
                 />
-                Ajouter un widget
-              </button>
 
-              <button
-                type="button"
-                className="dashboard-action dashboard-action--primary"
-                onClick={() =>
-                  setEditMode(
-                    false
-                  )
-                }
-              >
-                Terminé
+                Personnaliser
               </button>
-            </>
-          ) : canManageDashboard ? (
-            <button
-              type="button"
-              className="dashboard-action dashboard-action--ghost"
-              onClick={() =>
-                setEditMode(
-                  true
-                )
-              }
-            >
-              <Settings2
-                size={16}
-              />
-              Personnaliser
-            </button>
-          ) : null}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {(layoutError ||
-        hotelError ||
-        tasksError) && (
+      <DashboardStats
+        arrivalsCount={
+          arrivals.length
+        }
+
+        inHouseCount={
+          inHouse.length
+        }
+
+        departuresCount={
+          departures.length
+        }
+
+        followupsCount={
+          activeFollowups.length
+        }
+
+        urgentFollowupsCount={
+          urgentFollowups.length
+        }
+
+        openTasksCount={
+          openTasks.length
+        }
+
+        loadingHotel={
+          loadingHotel
+        }
+
+        loadingTasks={
+          loadingTasks
+        }
+      />
+
+      {(hotelError ||
+        layoutError) && (
         <div className="dashboard-custom__feedback">
-          {layoutError ||
-            hotelError ||
-            tasksError}
+          {hotelError ||
+            layoutError}
         </div>
       )}
 
@@ -525,31 +953,28 @@ export function DashboardBoard() {
         </div>
       )}
 
-      {loading ? (
-        <div className="dashboard-custom__loading">
-          Chargement du tableau
-          de bord…
-        </div>
-      ) : (
-        <DashboardGrid
+      {!loading && (
+        <StructuredDashboardGrid
           layout={
-            visibleLayout
+            allowedLayout
           }
-          data={widgetData}
-          viewport={
-            viewport
+          data={
+            widgetData
           }
           editMode={
             editMode
           }
-          onLocalChange={
-            handleLocalGridChange
+          canConfigure={
+            canManageDashboard
           }
           onCommit={
-            handleGridCommit
+            commitLayout
           }
-          onRemove={
-            handleRemoveWidget
+          onHide={
+            handleHide
+          }
+          onUpdateSettings={
+            handleUpdateSettings
           }
         />
       )}
@@ -558,15 +983,27 @@ export function DashboardBoard() {
         open={
           galleryOpen
         }
+
         widgets={
-          allowedDefinitions
+          galleryWidgets
         }
+
         activeKeys={
           activeKeys
         }
-        onAdd={
-          handleAdd
+
+        repeatableKeys={
+          repeatableKeys
         }
+
+        onAdd={(
+          definition
+        ) =>
+          void handleAdd(
+            definition
+          )
+        }
+
         onClose={() =>
           setGalleryOpen(
             false

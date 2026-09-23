@@ -1,4 +1,6 @@
-import { supabase } from "../../../services/supabase";
+import {
+  supabase,
+} from "../../../services/supabase";
 
 import type {
   DashboardLayoutIdentity,
@@ -14,13 +16,25 @@ function toLayout(
 ): DashboardWidgetLayout {
   return {
     id: row.id,
-    widgetKey: row.widget_key,
+
+    widgetKey:
+      row.widget_key,
+
+    instanceKey:
+      row.instance_key ||
+      "default",
+
     x: row.x,
     y: row.y,
+
     w: row.w,
     h: row.h,
-    visible: row.visible,
-    settings: row.settings ?? {},
+
+    visible:
+      row.visible,
+
+    settings:
+      row.settings ?? {},
   };
 }
 
@@ -29,19 +43,39 @@ export async function getDashboardLayout({
   userId,
   viewport,
 }: DashboardLayoutIdentity) {
-  const { data, error } =
+  const {
+    data,
+    error,
+  } =
     await supabase
       .from(TABLE)
       .select("*")
-      .eq("hotel_id", hotelId)
-      .eq("user_id", userId)
-      .eq("viewport", viewport)
-      .order("y", {
-        ascending: true,
-      })
-      .order("x", {
-        ascending: true,
-      });
+      .eq(
+        "hotel_id",
+        hotelId
+      )
+      .eq(
+        "user_id",
+        userId
+      )
+      .eq(
+        "viewport",
+        viewport
+      )
+      .order(
+        "y",
+        {
+          ascending:
+            true,
+        }
+      )
+      .order(
+        "x",
+        {
+          ascending:
+            true,
+        }
+      );
 
   if (error) {
     throw error;
@@ -49,43 +83,80 @@ export async function getDashboardLayout({
 
   return (
     (data ?? []) as DashboardWidgetRow[]
-  ).map(toLayout);
+  ).map(
+    toLayout
+  );
 }
 
 export async function saveDashboardLayout(
-  identity: DashboardLayoutIdentity,
-  layout: DashboardWidgetLayout[]
+  identity:
+    DashboardLayoutIdentity,
+
+  layout:
+    DashboardWidgetLayout[]
 ) {
-  if (layout.length === 0) {
+  if (
+    layout.length === 0
+  ) {
     return;
   }
 
   const now =
     new Date().toISOString();
 
-  const rows = layout.map(
-    (widget) => ({
-      hotel_id: identity.hotelId,
-      user_id: identity.userId,
-      viewport: identity.viewport,
-      widget_key: widget.widgetKey,
-      x: widget.x,
-      y: widget.y,
-      w: widget.w,
-      h: widget.h,
-      visible: widget.visible,
-      settings: widget.settings,
-      updated_at: now,
-    })
-  );
+  const rows =
+    layout.map(
+      (widget) => ({
+        hotel_id:
+          identity.hotelId,
 
-  const { error } =
+        user_id:
+          identity.userId,
+
+        viewport:
+          identity.viewport,
+
+        widget_key:
+          widget.widgetKey,
+
+        instance_key:
+          widget.instanceKey,
+
+        x:
+          widget.x,
+
+        y:
+          widget.y,
+
+        w:
+          widget.w,
+
+        h:
+          widget.h,
+
+        visible:
+          widget.visible,
+
+        settings:
+          widget.settings,
+
+        updated_at:
+          now,
+      })
+    );
+
+  const {
+    error,
+  } =
     await supabase
       .from(TABLE)
-      .upsert(rows, {
-        onConflict:
-          "hotel_id,user_id,viewport,widget_key",
-      });
+      .upsert(
+        rows,
+        {
+          onConflict:
+            "hotel_id,user_id,viewport,widget_key,instance_key",
+        }
+      );
 
   if (error) {
     throw error;
@@ -97,13 +168,24 @@ export async function resetDashboardLayout({
   userId,
   viewport,
 }: DashboardLayoutIdentity) {
-  const { error } =
+  const {
+    error,
+  } =
     await supabase
       .from(TABLE)
       .delete()
-      .eq("hotel_id", hotelId)
-      .eq("user_id", userId)
-      .eq("viewport", viewport);
+      .eq(
+        "hotel_id",
+        hotelId
+      )
+      .eq(
+        "user_id",
+        userId
+      )
+      .eq(
+        "viewport",
+        viewport
+      );
 
   if (error) {
     throw error;

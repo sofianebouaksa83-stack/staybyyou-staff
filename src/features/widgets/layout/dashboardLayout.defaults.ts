@@ -168,6 +168,7 @@ export function getDefaultDashboardLayout(
 
       return {
         widgetKey,
+        instanceKey: "default",
         x,
         y,
         w: dimensions.w,

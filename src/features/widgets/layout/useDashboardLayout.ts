@@ -18,22 +18,51 @@ import type {
 } from "./dashboardLayout.types";
 
 type UseDashboardLayoutOptions = {
-  hotelId: string | null;
-  userId: string | null;
-  viewport: DashboardViewport;
-  defaultLayout: DashboardWidgetLayout[];
+  hotelId:
+    string | null;
+
+  userId:
+    string | null;
+
+  viewport:
+    DashboardViewport;
+
+  defaultLayout:
+    DashboardWidgetLayout[];
 };
 
 function cloneLayout(
-  layout: DashboardWidgetLayout[]
+  layout:
+    DashboardWidgetLayout[]
 ) {
   return layout.map(
-    (widget) => ({
+    (
+      widget
+    ) => ({
       ...widget,
+
       settings: {
         ...widget.settings,
       },
     })
+  );
+}
+
+function isSameWidget(
+  widget:
+    DashboardWidgetLayout,
+
+  widgetKey:
+    string,
+
+  instanceKey:
+    string
+) {
+  return (
+    widget.widgetKey ===
+      widgetKey &&
+    widget.instanceKey ===
+      instanceKey
   );
 }
 
@@ -46,39 +75,53 @@ export function useDashboardLayout({
   const [
     layout,
     setLayout,
-  ] = useState<
-    DashboardWidgetLayout[]
-  >([]);
+  ] =
+    useState<
+      DashboardWidgetLayout[]
+    >([]);
 
   const [
     loading,
     setLoading,
-  ] = useState(true);
+  ] =
+    useState(
+      true
+    );
 
   const [
     saving,
     setSaving,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
 
   const [
     error,
     setError,
-  ] = useState<string | null>(
-    null
-  );
+  ] =
+    useState<
+      string | null
+    >(
+      null
+    );
 
   const identity =
     useMemo<
       DashboardLayoutIdentity | null
     >(
       () =>
-        hotelId && userId
+        hotelId &&
+        userId
           ? {
               hotelId,
+
               userId,
+
               viewport,
             }
           : null,
+
       [
         hotelId,
         userId,
@@ -86,75 +129,105 @@ export function useDashboardLayout({
       ]
     );
 
-  useEffect(() => {
-    let active = true;
+  useEffect(
+    () => {
+      let active =
+        true;
 
-    async function load() {
-      if (!identity) {
-        if (active) {
-          setLayout(
-            cloneLayout(
-              defaultLayout
-            )
-          );
-          setLoading(false);
-        }
+      async function load() {
+        if (
+          !identity
+        ) {
+          if (
+            active
+          ) {
+            setLayout(
+              cloneLayout(
+                defaultLayout
+              )
+            );
 
-        return;
-      }
+            setLoading(
+              false
+            );
+          }
 
-      setLoading(true);
-      setError(null);
-
-      try {
-        const saved =
-          await getDashboardLayout(
-            identity
-          );
-
-        if (!active) {
           return;
         }
 
-        setLayout(
-          saved.length > 0
-            ? saved
-            : cloneLayout(
+        setLoading(
+          true
+        );
+
+        setError(
+          null
+        );
+
+        try {
+          const saved =
+            await getDashboardLayout(
+              identity
+            );
+
+          if (
+            !active
+          ) {
+            return;
+          }
+
+          setLayout(
+            saved.length >
+              0
+              ? saved
+              : cloneLayout(
+                  defaultLayout
+                )
+          );
+        } catch (
+          loadError
+        ) {
+          console.error(
+            "Erreur chargement layout dashboard :",
+            loadError
+          );
+
+          if (
+            active
+          ) {
+            setLayout(
+              cloneLayout(
                 defaultLayout
               )
-        );
-      } catch (loadError) {
-        console.error(
-          "Erreur chargement layout dashboard :",
-          loadError
-        );
+            );
 
-        if (active) {
-          setLayout(
-            cloneLayout(
-              defaultLayout
-            )
-          );
-          setError(
-            "Impossible de charger votre disposition personnalisée."
-          );
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
+            setError(
+              "Impossible de charger votre disposition personnalisée."
+            );
+          }
+        } finally {
+          if (
+            active
+          ) {
+            setLoading(
+              false
+            );
+          }
         }
       }
-    }
 
-    void load();
+      void load();
 
-    return () => {
-      active = false;
-    };
-  }, [
-    identity,
-    defaultLayout,
-  ]);
+      return () => {
+        active =
+          false;
+      };
+    },
+
+    [
+      identity,
+      defaultLayout,
+    ]
+  );
 
   const commitLayout =
     useCallback(
@@ -163,21 +236,32 @@ export function useDashboardLayout({
           DashboardWidgetLayout[]
       ) => {
         const previousLayout =
-          cloneLayout(layout);
+          cloneLayout(
+            layout
+          );
 
         const optimisticLayout =
-          cloneLayout(nextLayout);
+          cloneLayout(
+            nextLayout
+          );
 
         setLayout(
           optimisticLayout
         );
-        setError(null);
 
-        if (!identity) {
+        setError(
+          null
+        );
+
+        if (
+          !identity
+        ) {
           return true;
         }
 
-        setSaving(true);
+        setSaving(
+          true
+        );
 
         try {
           await saveDashboardLayout(
@@ -186,7 +270,9 @@ export function useDashboardLayout({
           );
 
           return true;
-        } catch (saveError) {
+        } catch (
+          saveError
+        ) {
           console.error(
             "Erreur sauvegarde layout dashboard :",
             saveError
@@ -202,9 +288,12 @@ export function useDashboardLayout({
 
           return false;
         } finally {
-          setSaving(false);
+          setSaving(
+            false
+          );
         }
       },
+
       [
         identity,
         layout,
@@ -218,31 +307,48 @@ export function useDashboardLayout({
           DashboardWidgetLayout[]
       ) => {
         setLayout(
-          cloneLayout(nextLayout)
+          cloneLayout(
+            nextLayout
+          )
         );
       },
+
       []
     );
 
   const hideWidget =
     useCallback(
       async (
-        widgetKey: string
+        widgetKey:
+          string,
+
+        instanceKey =
+          "default"
       ) => {
         const next =
           layout.map(
-            (widget) =>
-              widget.widgetKey ===
-              widgetKey
+            (
+              widget
+            ) =>
+              isSameWidget(
+                widget,
+                widgetKey,
+                instanceKey
+              )
                 ? {
                     ...widget,
-                    visible: false,
+
+                    visible:
+                      false,
                   }
                 : widget
           );
 
-        return commitLayout(next);
+        return commitLayout(
+          next
+        );
       },
+
       [
         commitLayout,
         layout,
@@ -257,32 +363,51 @@ export function useDashboardLayout({
       ) => {
         const existing =
           layout.find(
-            (item) =>
-              item.widgetKey ===
-              widget.widgetKey
+            (
+              item
+            ) =>
+              isSameWidget(
+                item,
+                widget.widgetKey,
+                widget.instanceKey
+              )
           );
 
-        const next = existing
-          ? layout.map(
-              (item) =>
-                item.widgetKey ===
-                widget.widgetKey
-                  ? {
-                      ...item,
-                      visible: true,
-                    }
-                  : item
-            )
-          : [
-              ...layout,
-              {
-                ...widget,
-                visible: true,
-              },
-            ];
+        const next =
+          existing
+            ? layout.map(
+                (
+                  item
+                ) =>
+                  isSameWidget(
+                    item,
+                    widget.widgetKey,
+                    widget.instanceKey
+                  )
+                    ? {
+                        ...item,
 
-        return commitLayout(next);
+                        visible:
+                          true,
+                      }
+                    : item
+              )
+            : [
+                ...layout,
+
+                {
+                  ...widget,
+
+                  visible:
+                    true,
+                },
+              ];
+
+        return commitLayout(
+          next
+        );
       },
+
       [
         commitLayout,
         layout,
@@ -290,72 +415,97 @@ export function useDashboardLayout({
     );
 
   const reset =
-    useCallback(async () => {
-      if (!identity) {
-        setLayout(
+    useCallback(
+      async () => {
+        if (
+          !identity
+        ) {
+          setLayout(
+            cloneLayout(
+              defaultLayout
+            )
+          );
+
+          return true;
+        }
+
+        const previousLayout =
           cloneLayout(
-            defaultLayout
-          )
-        );
-        return true;
-      }
+            layout
+          );
 
-      const previousLayout =
-        cloneLayout(layout);
-
-      setSaving(true);
-      setError(null);
-
-      try {
-        await resetDashboardLayout(
-          identity
-        );
-
-        setLayout(
-          cloneLayout(
-            defaultLayout
-          )
-        );
-
-        return true;
-      } catch (resetError) {
-        console.error(
-          "Erreur réinitialisation dashboard :",
-          resetError
-        );
-
-        setLayout(
-          previousLayout
+        setSaving(
+          true
         );
 
         setError(
-          "Impossible de réinitialiser l'accueil."
+          null
         );
 
-        return false;
-      } finally {
-        setSaving(false);
-      }
-    }, [
-      defaultLayout,
-      identity,
-      layout,
-    ]);
+        try {
+          await resetDashboardLayout(
+            identity
+          );
+
+          setLayout(
+            cloneLayout(
+              defaultLayout
+            )
+          );
+
+          return true;
+        } catch (
+          resetError
+        ) {
+          console.error(
+            "Erreur réinitialisation dashboard :",
+            resetError
+          );
+
+          setLayout(
+            previousLayout
+          );
+
+          setError(
+            "Impossible de réinitialiser l'accueil."
+          );
+
+          return false;
+        } finally {
+          setSaving(
+            false
+          );
+        }
+      },
+
+      [
+        defaultLayout,
+        identity,
+        layout,
+      ]
+    );
 
   return {
     layout,
+
     visibleLayout:
       layout.filter(
-        (widget) =>
+        (
+          widget
+        ) =>
           widget.visible
       ),
+
     loading,
     saving,
     error,
+
     updateLocalLayout,
     commitLayout,
+
     hideWidget,
     showWidget,
+
     reset,
   };
 }

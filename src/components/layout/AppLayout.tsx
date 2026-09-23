@@ -55,6 +55,23 @@ export function AppLayout() {
     location.pathname === "/messages" ||
     location.pathname.startsWith("/messages/");
 
+  const isDashboardPage =
+    location.pathname === "/";
+
+  const mainClassName =
+    isMessagesPage
+      ? "main main-messages"
+      : isDashboardPage
+        ? "main main-dashboard"
+        : "main";
+
+  const contentClassName =
+    isMessagesPage
+      ? "content content-messages"
+      : isDashboardPage
+        ? "content content-dashboard"
+        : "content";
+
   async function handleSignOut() {
     setIsSigningOut(true);
 
@@ -415,7 +432,7 @@ export function AppLayout() {
         </div>
       </aside>
 
-      <main className={isMessagesPage ? "main main-messages" : "main"}>
+      <main className={mainClassName}>
         <header className="topbar">
           <div>
             <span className="eyebrow">{user.hotelName}</span>
@@ -470,7 +487,7 @@ export function AppLayout() {
           </div>
         )}
 
-        <div className={isMessagesPage ? "content content-messages" : "content"}>
+        <div className={contentClassName}>
           <Outlet />
         </div>
       </main>

@@ -1,41 +1,53 @@
 import {
   ClientFollowupsWidget,
 } from "../../../components/dashboard/ClientFollowupsWidget";
+
 import {
   EventsWidget,
 } from "../../../components/dashboard/EventsWidget";
+
 import {
   FnbWidget,
 } from "../../../components/dashboard/FnbWidget";
+
 import {
   FnbCapacityWidget,
   FnbReservationsWidget,
 } from "../../../components/dashboard/FnbReservationsWidget";
+
 import {
   InstructionsWidget,
 } from "../../../components/dashboard/InstructionsWidget";
+
 import {
   MessagesWidget,
 } from "../../../components/dashboard/MessagesWidget";
+
 import {
   NotificationsWidget,
 } from "../../../components/dashboard/NotificationsWidget";
+
 import {
   RoomServiceLateWidget,
   RoomServiceWidget,
 } from "../../../components/dashboard/RoomServiceWidget";
+
 import {
   HotelArrivalsWidget,
 } from "../../../components/dashboard/HotelArrivalsWidget";
+
 import {
   HotelDeparturesWidget,
 } from "../../../components/dashboard/HotelDeparturesWidget";
+
 import {
   HotelOccupancyWidget,
 } from "../../../components/dashboard/HotelOccupancyWidget";
+
 import {
   HotelOccupancyRateWidget,
 } from "../../../components/dashboard/HotelOccupancyRateWidget";
+
 import {
   TasksWidget,
 } from "../../../components/dashboard/TasksWidget";
@@ -44,27 +56,44 @@ import type {
   WidgetDefinition,
 } from "./widgetRegistry.types";
 
+import {
+  CustomBoardWidget,
+} from "../../../components/dashboard/CustomBoardWidget";
+
 const widgetRegistryConfig = {
   hotel_arrivals: {
     widgetKey:
       "hotel_arrivals",
-    title: "Arrivées",
+
+    title:
+      "Arrivées",
+
     description:
       "Arrivées prévues pour la journée.",
-    category: "hotel",
-    permission: "hotel.view",
+
+    category:
+      "hotel",
+
+    permission:
+      "hotel.view",
+
     sizes: [
       "small",
       "medium",
     ],
-    defaultSize: "small",
+
+    defaultSize:
+      "small",
+
     component:
       HotelArrivalsWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 2,
       },
+
       mobile: {
         w: 2,
         h: 2,
@@ -75,23 +104,36 @@ const widgetRegistryConfig = {
   hotel_departures: {
     widgetKey:
       "hotel_departures",
-    title: "Départs",
+
+    title:
+      "Départs",
+
     description:
       "Départs prévus pour la journée.",
-    category: "hotel",
-    permission: "hotel.view",
+
+    category:
+      "hotel",
+
+    permission:
+      "hotel.view",
+
     sizes: [
       "small",
       "medium",
     ],
-    defaultSize: "small",
+
+    defaultSize:
+      "small",
+
     component:
       HotelDeparturesWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 2,
       },
+
       mobile: {
         w: 2,
         h: 2,
@@ -102,23 +144,36 @@ const widgetRegistryConfig = {
   hotel_in_house: {
     widgetKey:
       "hotel_in_house",
-    title: "En séjour",
+
+    title:
+      "En séjour",
+
     description:
       "Clients actuellement présents à l'hôtel.",
-    category: "hotel",
-    permission: "hotel.view",
+
+    category:
+      "hotel",
+
+    permission:
+      "hotel.view",
+
     sizes: [
       "small",
       "medium",
     ],
-    defaultSize: "small",
+
+    defaultSize:
+      "small",
+
     component:
       HotelOccupancyWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 2,
       },
+
       mobile: {
         w: 2,
         h: 2,
@@ -129,23 +184,36 @@ const widgetRegistryConfig = {
   hotel_occupancy: {
     widgetKey:
       "hotel_occupancy",
-    title: "Occupation",
+
+    title:
+      "Occupation",
+
     description:
       "Taux d'occupation des chambres actives.",
-    category: "hotel",
-    permission: "hotel.view",
+
+    category:
+      "hotel",
+
+    permission:
+      "hotel.view",
+
     sizes: [
       "small",
       "medium",
     ],
-    defaultSize: "small",
+
+    defaultSize:
+      "small",
+
     component:
       HotelOccupancyRateWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 2,
       },
+
       mobile: {
         w: 2,
         h: 2,
@@ -156,23 +224,36 @@ const widgetRegistryConfig = {
   client_followups: {
     widgetKey:
       "client_followups",
-    title: "Suivis clients",
+
+    title:
+      "Suivis clients",
+
     description:
       "Demandes, incidents et suivis actifs.",
-    category: "hotel",
-    permission: "hotel.view",
+
+    category:
+      "hotel",
+
+    permission:
+      "hotel.view",
+
     sizes: [
       "small",
       "medium",
     ],
-    defaultSize: "small",
+
+    defaultSize:
+      "small",
+
     component:
       ClientFollowupsWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 2,
       },
+
       mobile: {
         w: 2,
         h: 2,
@@ -183,24 +264,37 @@ const widgetRegistryConfig = {
   tasks_today: {
     widgetKey:
       "tasks_today",
-    title: "Tâches",
+
+    title:
+      "Tâches",
+
     description:
       "Tâches ouvertes pour la journée.",
-    category: "team",
-    permission: "tasks.view",
+
+    category:
+      "team",
+
+    permission:
+      "tasks.view",
+
     sizes: [
       "small",
       "medium",
       "large",
     ],
-    defaultSize: "medium",
+
+    defaultSize:
+      "medium",
+
     component:
       TasksWidget,
+
     defaultLayout: {
       desktop: {
         w: 4,
         h: 4,
       },
+
       mobile: {
         w: 4,
         h: 4,
@@ -211,27 +305,37 @@ const widgetRegistryConfig = {
   messages_recent: {
     widgetKey:
       "messages_recent",
+
     title:
       "Messages récents",
+
     description:
       "Derniers messages des salons accessibles.",
-    category: "team",
+
+    category:
+      "team",
+
     permission:
       "messages.view",
+
     sizes: [
       "small",
       "medium",
       "large",
     ],
+
     defaultSize:
       "medium",
+
     component:
       MessagesWidget,
+
     defaultLayout: {
       desktop: {
         w: 4,
         h: 4,
       },
+
       mobile: {
         w: 4,
         h: 4,
@@ -242,26 +346,37 @@ const widgetRegistryConfig = {
   instructions_today: {
     widgetKey:
       "instructions_today",
-    title: "Consignes",
+
+    title:
+      "Consignes",
+
     description:
       "Consignes actives pour la journée.",
-    category: "team",
+
+    category:
+      "team",
+
     permission:
       "instructions.view",
+
     sizes: [
       "small",
       "medium",
       "large",
     ],
+
     defaultSize:
       "medium",
+
     component:
       InstructionsWidget,
+
     defaultLayout: {
       desktop: {
         w: 4,
         h: 4,
       },
+
       mobile: {
         w: 4,
         h: 4,
@@ -272,26 +387,37 @@ const widgetRegistryConfig = {
   events_today: {
     widgetKey:
       "events_today",
-    title: "Événements",
+
+    title:
+      "Événements",
+
     description:
       "Événements qui impactent la journée.",
-    category: "team",
+
+    category:
+      "team",
+
     permission:
       "events.view",
+
     sizes: [
       "small",
       "medium",
       "large",
     ],
+
     defaultSize:
       "medium",
+
     component:
       EventsWidget,
+
     defaultLayout: {
       desktop: {
         w: 4,
         h: 4,
       },
+
       mobile: {
         w: 4,
         h: 4,
@@ -302,28 +428,37 @@ const widgetRegistryConfig = {
   room_service_active: {
     widgetKey:
       "room_service_active",
+
     title:
       "Commandes en cours",
+
     description:
       "Commandes StayByYou encore actives.",
+
     category:
       "room-service",
+
     permission:
       "orders.view",
+
     sizes: [
       "small",
       "medium",
       "large",
     ],
+
     defaultSize:
       "medium",
+
     component:
       RoomServiceWidget,
+
     defaultLayout: {
       desktop: {
         w: 4,
         h: 4,
       },
+
       mobile: {
         w: 4,
         h: 4,
@@ -334,28 +469,37 @@ const widgetRegistryConfig = {
   room_service_late: {
     widgetKey:
       "room_service_late",
+
     title:
       "Commandes en retard",
+
     description:
       "Commandes dont le délai estimé est dépassé.",
+
     category:
       "room-service",
+
     permission:
       "orders.view",
+
     sizes: [
       "small",
       "medium",
       "large",
     ],
+
     defaultSize:
       "small",
+
     component:
       RoomServiceLateWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 3,
       },
+
       mobile: {
         w: 2,
         h: 3,
@@ -366,27 +510,37 @@ const widgetRegistryConfig = {
   notifications: {
     widgetKey:
       "notifications",
+
     title:
       "Notifications",
+
     description:
       "Notifications récentes et éléments non lus.",
-    category: "other",
+
+    category:
+      "other",
+
     permission:
       "notifications.view",
+
     sizes: [
       "small",
       "medium",
       "large",
     ],
+
     defaultSize:
       "small",
+
     component:
       NotificationsWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 3,
       },
+
       mobile: {
         w: 2,
         h: 3,
@@ -397,24 +551,36 @@ const widgetRegistryConfig = {
   fnb_reservations: {
     widgetKey:
       "fnb_reservations",
+
     title:
       "Réservations",
+
     description:
       "Total des réservations renseignées sur les services du jour.",
-    category: "fnb",
-    permission: "fnb.view",
+
+    category:
+      "fnb",
+
+    permission:
+      "fnb.view",
+
     sizes: [
       "small",
       "medium",
     ],
-    defaultSize: "small",
+
+    defaultSize:
+      "small",
+
     component:
       FnbReservationsWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 2,
       },
+
       mobile: {
         w: 2,
         h: 2,
@@ -425,23 +591,36 @@ const widgetRegistryConfig = {
   fnb_capacity: {
     widgetKey:
       "fnb_capacity",
-    title: "Capacité",
+
+    title:
+      "Capacité",
+
     description:
       "Remplissage global des services F&B du jour.",
-    category: "fnb",
-    permission: "fnb.view",
+
+    category:
+      "fnb",
+
+    permission:
+      "fnb.view",
+
     sizes: [
       "small",
       "medium",
     ],
-    defaultSize: "small",
+
+    defaultSize:
+      "small",
+
     component:
       FnbCapacityWidget,
+
     defaultLayout: {
       desktop: {
         w: 3,
         h: 2,
       },
+
       mobile: {
         w: 2,
         h: 2,
@@ -449,26 +628,88 @@ const widgetRegistryConfig = {
     },
   },
 
+  custom_board: {
+  widgetKey:
+    "custom_board",
+
+  title:
+    "Bloc personnalisé",
+
+  description:
+    "Créez votre propre bloc de dashboard.",
+
+  category:
+    "other",
+
+  permission:
+    "dashboard.view",
+
+  allowMultiple:
+    true,
+
+  sizes: [
+    "medium",
+    "large",
+  ],
+
+  defaultSize:
+    "medium",
+
+  component:
+    CustomBoardWidget,
+
+  defaultLayout: {
+    desktop: {
+      w: 4,
+      h: 4,
+    },
+
+    mobile: {
+      w: 4,
+      h: 4,
+    },
+  },
+},
+
   fnb_services: {
     widgetKey:
       "fnb_services",
+
     title:
       "F&B & Services",
+
     description:
       "Réservations, capacité et services du jour.",
-    category: "fnb",
-    permission: "fnb.view",
+
+    category:
+      "fnb",
+
+    permission:
+      "fnb.view",
+
+    /**
+     * Plusieurs cartes F&B peuvent être ajoutées.
+     */
+    allowMultiple:
+      true,
+
     sizes: [
       "medium",
       "large",
     ],
-    defaultSize: "large",
-    component: FnbWidget,
+
+    defaultSize:
+      "large",
+
+    component:
+      FnbWidget,
+
     defaultLayout: {
       desktop: {
         w: 8,
         h: 4,
       },
+
       mobile: {
         w: 4,
         h: 5,

@@ -1,0 +1,411 @@
+.structured-dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      12,
+      minmax(0, 1fr)
+    );
+
+  gap: 16px;
+
+  margin-top: 16px;
+
+  align-items: stretch;
+}
+
+.structured-dashboard-block {
+  position: relative;
+
+  min-width: 0;
+
+  min-height: 160px;
+}
+
+.structured-dashboard-block > * {
+  width: 100%;
+  height: 100%;
+}
+
+
+/* =========================================================
+   F&B
+   ========================================================= */
+
+/*
+  Grand bloc F&B historique.
+*/
+.structured-dashboard-block--fnb_services.structured-dashboard-block--size-large {
+  grid-column:
+    span 8;
+}
+
+/*
+  F&B medium :
+  trois blocs peuvent tenir sur une ligne.
+*/
+.structured-dashboard-block--fnb_services.structured-dashboard-block--size-medium {
+  grid-column:
+    span 4;
+}
+
+
+/* =========================================================
+   ÉQUIPE
+   ========================================================= */
+
+.structured-dashboard-block--tasks_today,
+.structured-dashboard-block--messages_recent,
+.structured-dashboard-block--instructions_today,
+.structured-dashboard-block--events_today {
+  grid-column:
+    span 4;
+}
+
+.structured-dashboard-block--tasks_today.structured-dashboard-block--size-large,
+.structured-dashboard-block--messages_recent.structured-dashboard-block--size-large,
+.structured-dashboard-block--instructions_today.structured-dashboard-block--size-large,
+.structured-dashboard-block--events_today.structured-dashboard-block--size-large {
+  grid-column:
+    span 8;
+}
+
+
+/* =========================================================
+   AUTRES
+   ========================================================= */
+
+.structured-dashboard-block--hotel_occupancy,
+.structured-dashboard-block--notifications {
+  grid-column:
+    span 4;
+}
+
+
+/* =========================================================
+   ROOM SERVICE
+   ========================================================= */
+
+.structured-dashboard-block--room_service_active {
+  grid-column:
+    span 8;
+}
+
+.structured-dashboard-block--room_service_active.structured-dashboard-block--size-small {
+  grid-column:
+    span 4;
+}
+
+
+/* =========================================================
+   PERSONNALISATION
+   ========================================================= */
+
+.structured-dashboard-grid--editing
+.structured-dashboard-block {
+  padding-top:
+    40px;
+
+  border-radius:
+    18px;
+
+  outline:
+    1px dashed
+    rgba(
+      184,
+      154,
+      98,
+      0.48
+    );
+
+  outline-offset:
+    3px;
+
+  transition:
+    outline-color
+      160ms ease,
+    box-shadow
+      160ms ease;
+}
+
+.structured-dashboard-grid--editing
+.structured-dashboard-block:hover {
+  outline-color:
+    rgba(
+      184,
+      154,
+      98,
+      0.88
+    );
+
+  box-shadow:
+    0 8px 24px
+    rgba(
+      21,
+      58,
+      51,
+      0.05
+    );
+}
+
+
+/* =========================================================
+   BARRE D'ÉDITION
+   ========================================================= */
+
+.structured-dashboard-editbar {
+  position: absolute;
+
+  z-index: 10;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.structured-dashboard-drag {
+  height: 28px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap: 4px;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius:
+    9px;
+
+  padding:
+    0 8px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.96
+    );
+
+  color:
+    var(--green);
+
+  font-size:
+    10px;
+
+  font-weight:
+    700;
+
+  cursor:
+    grab;
+
+  user-select:
+    none;
+}
+
+.structured-dashboard-drag:active {
+  cursor:
+    grabbing;
+}
+
+.structured-dashboard-edit-title {
+  overflow:
+    hidden;
+
+  color:
+    var(--muted);
+
+  font-size:
+    10px;
+
+  white-space:
+    nowrap;
+
+  text-overflow:
+    ellipsis;
+}
+
+.structured-dashboard-editbar
+button {
+  width: 28px;
+  height: 28px;
+
+  flex:
+    0 0 auto;
+
+  margin-left:
+    auto;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius:
+    9px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.96
+    );
+
+  color:
+    var(--danger);
+
+  cursor:
+    pointer;
+
+  transition:
+    border-color
+      150ms ease,
+    background
+      150ms ease;
+}
+
+.structured-dashboard-editbar
+button:hover {
+  border-color:
+    rgba(
+      159,
+      74,
+      66,
+      0.28
+    );
+
+  background:
+    rgba(
+      159,
+      74,
+      66,
+      0.06
+    );
+}
+
+
+/* =========================================================
+   DASHBOARD VIDE
+   ========================================================= */
+
+.structured-dashboard-empty {
+  margin-top:
+    16px;
+
+  padding:
+    28px;
+
+  border:
+    1px dashed
+    var(--line);
+
+  border-radius:
+    16px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.4
+    );
+
+  color:
+    var(--muted);
+
+  font-size:
+    12px;
+
+  text-align:
+    center;
+}
+
+
+/* =========================================================
+   TABLETTE
+   ========================================================= */
+
+@media (
+  max-width: 1050px
+) {
+  .structured-dashboard-block--fnb_services.structured-dashboard-block--size-large,
+  .structured-dashboard-block--room_service_active {
+    grid-column:
+      span 12;
+  }
+
+  .structured-dashboard-block--fnb_services.structured-dashboard-block--size-medium,
+  .structured-dashboard-block--tasks_today,
+  .structured-dashboard-block--messages_recent,
+  .structured-dashboard-block--instructions_today,
+  .structured-dashboard-block--events_today,
+  .structured-dashboard-block--hotel_occupancy,
+  .structured-dashboard-block--notifications {
+    grid-column:
+      span 6;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (
+  max-width: 700px
+) {
+  .structured-dashboard-grid {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      12px;
+  }
+
+  .structured-dashboard-block {
+    grid-column:
+      1 / -1
+      !important;
+
+    min-height:
+      140px;
+  }
+
+  .structured-dashboard-grid--editing
+  .structured-dashboard-block {
+    padding-top:
+      38px;
+  }
+}
+
+.structured-dashboard-block--custom_board.structured-dashboard-block--size-medium {
+  grid-column: span 4;
+}
+
+.structured-dashboard-block--custom_board.structured-dashboard-block--size-large {
+  grid-column: span 8;
+}
+
+@media (max-width: 1050px) {
+  .structured-dashboard-block--custom_board {
+    grid-column: span 6;
+  }
+}

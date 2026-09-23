@@ -15,7 +15,7 @@
 }
 
 @media (max-width: 680px) {
-  body { padding-bottom: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
 
   .sidebar { display: none; }
   .main { margin-left: 0; }
@@ -28,6 +28,12 @@
   .demo-role { display: none; }
 
   .content { padding: 24px 16px; }
+
+  .content-dashboard {
+    width: 100%;
+    max-width: none;
+    padding: 20px 14px 24px;
+  }
 
   .mobile-nav {
     display: grid;
@@ -156,4 +162,3 @@
     z-index: 2;
   }
 }
-

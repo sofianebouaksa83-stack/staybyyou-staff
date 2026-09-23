@@ -1,0 +1,437 @@
+.fnb-dashboard-block {
+  width: 100%;
+  min-height: 100%;
+
+  border-radius: 16px;
+
+  padding: 20px;
+
+  background: var(--green);
+
+  color: var(--cream);
+}
+
+.fnb-dashboard-block__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 14px;
+}
+
+.fnb-dashboard-block__eyebrow {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: var(--gold);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: .14em;
+}
+
+.fnb-dashboard-block__header h2 {
+  margin: 0;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.fnb-dashboard-block__actions {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.fnb-dashboard-block__actions > span {
+  border: 1px solid rgba(255, 255, 255, .16);
+
+  border-radius: 999px;
+
+  padding: 5px 8px;
+
+  font-size: 9px;
+}
+
+.fnb-dashboard-block__actions button {
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(255, 255, 255, .18);
+
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: var(--cream);
+}
+
+.fnb-dashboard-block__list {
+  display: grid;
+}
+
+.fnb-dashboard-block__row {
+  min-height: 43px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 14px;
+
+  border-top: 1px solid rgba(255, 255, 255, .11);
+}
+
+.fnb-dashboard-block__row strong {
+  overflow: hidden;
+
+  font-size: 12px;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.fnb-dashboard-block__time {
+  opacity: .8;
+
+  font-size: 10px;
+}
+
+.fnb-dashboard-block__capacity {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+}
+
+.fnb-dashboard-block__capacity b {
+  font-size: 11px;
+}
+
+.fnb-dashboard-block__reservations {
+  min-width: 42px;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  padding: 5px 8px;
+
+  color: white;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+input.fnb-dashboard-block__reservations {
+  width: 48px;
+
+  outline: none;
+}
+
+.fnb-dashboard-block__reservations--low {
+  background: #3f7965;
+}
+
+.fnb-dashboard-block__reservations--medium {
+  background: #8b7a2a;
+}
+
+.fnb-dashboard-block__reservations--high {
+  background: #a84d46;
+}
+
+.fnb-dashboard-block__empty,
+.fnb-dashboard-block__error {
+  margin: 20px 0 0;
+
+  font-size: 12px;
+}
+
+.fnb-dashboard-block__empty {
+  opacity: .72;
+}
+
+.fnb-dashboard-block__error {
+  color: #f1b8b1;
+}
+
+
+/* CONFIGURATION */
+
+.fnb-block-config-backdrop {
+  position: fixed;
+
+  z-index: 1000;
+
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  padding: 24px;
+
+  background: rgba(14, 35, 31, .34);
+
+  backdrop-filter: blur(5px);
+}
+
+.fnb-block-config {
+  width: min(560px, 100%);
+
+  max-height: min(720px, 90vh);
+
+  overflow: auto;
+
+  border: 1px solid var(--line);
+
+  border-radius: 20px;
+
+  padding: 22px;
+
+  background: var(--cream);
+
+  box-shadow: 0 30px 80px rgba(21, 58, 51, .18);
+}
+
+.fnb-block-config__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 22px;
+}
+
+.fnb-block-config__header > div > span {
+  color: var(--gold);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: .14em;
+}
+
+.fnb-block-config__header h2 {
+  margin: 5px 0 4px;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.fnb-block-config__header p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 11px;
+}
+
+.fnb-block-config__header > button {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--line);
+
+  border-radius: 10px;
+
+  background: white;
+
+  color: var(--green);
+}
+
+.fnb-block-config__field {
+  display: grid;
+
+  gap: 7px;
+
+  margin-bottom: 20px;
+
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.fnb-block-config__field input {
+  height: 42px;
+
+  border: 1px solid var(--line);
+
+  border-radius: 11px;
+
+  padding: 0 12px;
+
+  background: white;
+
+  color: var(--ink);
+}
+
+.fnb-block-config__services {
+  display: grid;
+
+  gap: 7px;
+}
+
+.fnb-block-config__services-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 5px;
+}
+
+.fnb-block-config__services-title strong {
+  font-size: 12px;
+}
+
+.fnb-block-config__services-title button {
+  border: 0;
+
+  background: transparent;
+
+  color: var(--gold);
+
+  font-size: 10px;
+}
+
+.fnb-block-config__service {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  border: 1px solid var(--line);
+
+  border-radius: 12px;
+
+  padding: 10px 12px;
+
+  background: white;
+
+  color: var(--ink);
+
+  text-align: left;
+}
+
+.fnb-block-config__service.active {
+  border-color: rgba(184, 154, 98, .55);
+
+  background: rgba(184, 154, 98, .07);
+}
+
+.fnb-block-config__check {
+  width: 22px;
+  height: 22px;
+
+  flex: 0 0 auto;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--line);
+
+  border-radius: 7px;
+
+  color: var(--green);
+}
+
+.fnb-block-config__service.active
+.fnb-block-config__check {
+  border-color: var(--gold);
+
+  background: var(--gold-soft);
+}
+
+.fnb-block-config__service > div {
+  display: grid;
+
+  gap: 2px;
+}
+
+.fnb-block-config__service strong {
+  font-size: 11px;
+}
+
+.fnb-block-config__service small {
+  color: var(--muted);
+
+  font-size: 9px;
+}
+
+.fnb-block-config__footer {
+  position: sticky;
+
+  bottom: -22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin: 20px -22px -22px;
+
+  border-top: 1px solid var(--line);
+
+  padding: 15px 22px;
+
+  background: var(--cream);
+}
+
+.fnb-block-config__footer > span {
+  color: var(--muted);
+
+  font-size: 10px;
+}
+
+
+@media (max-width: 700px) {
+  .fnb-dashboard-block__row {
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+  }
+
+  .fnb-dashboard-block__time {
+    display: none;
+  }
+
+  .fnb-block-config-backdrop {
+    align-items: end;
+
+    padding: 0;
+  }
+
+  .fnb-block-config {
+    width: 100%;
+
+    max-height: 88vh;
+
+    border-radius: 20px 20px 0 0;
+  }
+}

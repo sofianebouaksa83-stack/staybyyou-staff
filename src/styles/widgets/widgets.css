@@ -127,7 +127,12 @@
 
 .dashboard-widget-card--list {
   padding: 18px;
-  overflow: auto;
+  overflow: hidden;
+}
+
+.dashboard-widget-card--list .dashboard-widget-list {
+  min-height: 0;
+  overflow: visible;
 }
 
 .dashboard-widget-card__header {
@@ -253,6 +258,7 @@
   font-size: 11px;
   line-height: 1.35;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
 }
 
@@ -284,3 +290,4 @@
   color: var(--danger);
   font-weight: 700;
 }
+

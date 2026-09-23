@@ -23,27 +23,53 @@ export type DashboardWidgetSettings = {
 
 export type DashboardWidgetLayout = {
   id?: string;
+
   widgetKey: string;
+
+  /**
+   * Identifie une instance précise.
+   *
+   * Les widgets classiques utilisent "default".
+   * Les widgets duplicables utilisent une clé unique.
+   */
+  instanceKey: string;
+
   x: number;
   y: number;
+
   w: number;
   h: number;
+
   visible: boolean;
-  settings: DashboardWidgetSettings;
+
+  settings:
+    DashboardWidgetSettings;
 };
 
 export type DashboardWidgetRow = {
   id: string;
+
   hotel_id: string;
   user_id: string;
-  viewport: DashboardViewport;
+
+  viewport:
+    DashboardViewport;
+
   widget_key: string;
+
+  instance_key: string;
+
   x: number;
   y: number;
+
   w: number;
   h: number;
+
   visible: boolean;
-  settings: DashboardWidgetSettings | null;
+
+  settings:
+    DashboardWidgetSettings | null;
+
   created_at: string;
   updated_at: string;
 };
@@ -51,5 +77,7 @@ export type DashboardWidgetRow = {
 export type DashboardLayoutIdentity = {
   hotelId: string;
   userId: string;
-  viewport: DashboardViewport;
+
+  viewport:
+    DashboardViewport;
 };

@@ -9,27 +9,51 @@ import type {
 
 type Props = {
   open: boolean;
-  widgets: WidgetDefinition[];
-  activeKeys: Set<string>;
+
+  widgets:
+    WidgetDefinition[];
+
+  activeKeys:
+    Set<string>;
+
+  /**
+   * Les widgets présents ici peuvent
+   * être ajoutés plusieurs fois.
+   */
+  repeatableKeys:
+    Set<string>;
+
   onAdd: (
-    widget: WidgetDefinition
+    widget:
+      WidgetDefinition
   ) => void;
-  onClose: () => void;
+
+  onClose:
+    () => void;
 };
 
 const categoryLabels = {
-  hotel: "HÔTEL",
-  team: "ÉQUIPE",
-  fnb: "F&B",
+  hotel:
+    "HÔTEL",
+
+  team:
+    "ÉQUIPE",
+
+  fnb:
+    "F&B",
+
   "room-service":
     "ROOM SERVICE",
-  other: "AUTRES",
+
+  other:
+    "AUTRES",
 } as const;
 
 export function WidgetGallery({
   open,
   widgets,
   activeKeys,
+  repeatableKeys,
   onAdd,
   onClose,
 }: Props) {
@@ -40,7 +64,9 @@ export function WidgetGallery({
   return (
     <div
       className="widget-gallery-backdrop"
-      onClick={onClose}
+      onClick={
+        onClose
+      }
     >
       <aside
         className="widget-gallery"
@@ -55,9 +81,11 @@ export function WidgetGallery({
             <span>
               PERSONNALISATION
             </span>
+
             <h2>
-              Ajouter un widget
+              Ajouter un bloc
             </h2>
+
             <p>
               Choisissez les
               informations utiles
@@ -67,10 +95,14 @@ export function WidgetGallery({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={
+              onClose
+            }
             aria-label="Fermer"
           >
-            <X size={18} />
+            <X
+              size={18}
+            />
           </button>
         </div>
 
@@ -84,7 +116,9 @@ export function WidgetGallery({
             ]) => {
               const items =
                 widgets.filter(
-                  (widget) =>
+                  (
+                    widget
+                  ) =>
                     widget.category ===
                     category
                 );
@@ -98,7 +132,9 @@ export function WidgetGallery({
 
               return (
                 <section
-                  key={category}
+                  key={
+                    category
+                  }
                   className="widget-gallery__section"
                 >
                   <h3>
@@ -107,8 +143,16 @@ export function WidgetGallery({
 
                   <div className="widget-gallery__list">
                     {items.map(
-                      (widget) => {
+                      (
+                        widget
+                      ) => {
+                        const repeatable =
+                          repeatableKeys.has(
+                            widget.widgetKey
+                          );
+
                         const active =
+                          !repeatable &&
                           activeKeys.has(
                             widget.widgetKey
                           );
@@ -135,23 +179,30 @@ export function WidgetGallery({
                                   widget.title
                                 }
                               </strong>
+
                               <small>
                                 {
                                   widget.description
                                 }
                               </small>
+
+                              {repeatable && (
+                                <small className="widget-gallery__repeatable">
+                                  Plusieurs blocs possibles
+                                </small>
+                              )}
                             </span>
 
                             <i>
-                              {active
-                                ? "Ajouté"
-                                : (
-                                  <Plus
-                                    size={
-                                      16
-                                    }
-                                  />
-                                )}
+                              {active ? (
+                                "Ajouté"
+                              ) : (
+                                <Plus
+                                  size={
+                                    16
+                                  }
+                                />
+                              )}
                             </i>
                           </button>
                         );
