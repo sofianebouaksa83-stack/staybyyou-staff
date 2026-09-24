@@ -7,10 +7,6 @@ import {
 } from "../../../components/dashboard/EventsWidget";
 
 import {
-  FnbWidget,
-} from "../../../components/dashboard/FnbWidget";
-
-import {
   FnbCapacityWidget,
   FnbReservationsWidget,
 } from "../../../components/dashboard/FnbReservationsWidget";
@@ -671,51 +667,7 @@ const widgetRegistryConfig = {
   },
 },
 
-  fnb_services: {
-    widgetKey:
-      "fnb_services",
-
-    title:
-      "F&B & Services",
-
-    description:
-      "Réservations, capacité et services du jour.",
-
-    category:
-      "fnb",
-
-    permission:
-      "fnb.view",
-
-    /**
-     * Plusieurs cartes F&B peuvent être ajoutées.
-     */
-    allowMultiple:
-      true,
-
-    sizes: [
-      "medium",
-      "large",
-    ],
-
-    defaultSize:
-      "large",
-
-    component:
-      FnbWidget,
-
-    defaultLayout: {
-      desktop: {
-        w: 8,
-        h: 4,
-      },
-
-      mobile: {
-        w: 4,
-        h: 5,
-      },
-    },
-  },
+  
 } satisfies Record<
   string,
   WidgetDefinition

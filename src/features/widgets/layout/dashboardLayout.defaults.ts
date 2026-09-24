@@ -43,36 +43,29 @@ const DESKTOP: DefaultPosition[] = [
   },
   {
     widgetKey:
-      "fnb_services",
-    x: 0,
-    y: 2,
-    size: "large",
-  },
-  {
-    widgetKey:
       "tasks_today",
-    x: 8,
+    x: 0,
     y: 2,
     size: "medium",
   },
   {
     widgetKey:
       "messages_recent",
-    x: 0,
-    y: 6,
+    x: 4,
+    y: 2,
     size: "medium",
   },
   {
     widgetKey:
       "instructions_today",
-    x: 4,
-    y: 6,
+    x: 8,
+    y: 2,
     size: "medium",
   },
   {
     widgetKey:
       "events_today",
-    x: 8,
+    x: 0,
     y: 6,
     size: "medium",
   },
@@ -112,30 +105,23 @@ const MOBILE: DefaultPosition[] = [
   },
   {
     widgetKey:
-      "fnb_services",
-    x: 0,
-    y: 8,
-    size: "large",
-  },
-  {
-    widgetKey:
       "messages_recent",
     x: 0,
-    y: 13,
+    y: 8,
     size: "medium",
   },
   {
     widgetKey:
       "instructions_today",
     x: 0,
-    y: 17,
+    y: 12,
     size: "medium",
   },
   {
     widgetKey:
       "events_today",
     x: 0,
-    y: 21,
+    y: 16,
     size: "medium",
   },
 ];
@@ -174,6 +160,9 @@ export function getDefaultDashboardLayout(
         w: dimensions.w,
         h: dimensions.h,
         visible: true,
+        stackId:null,
+        stackOrder:
+          0,
         settings: {
           size:
             size ??

@@ -1,5 +1,7 @@
 import {
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -30,7 +32,9 @@ import {
 } from "../widgets/layout/dashboardLayout.defaults";
 
 import type {
+  DashboardViewport,
   DashboardWidgetLayout,
+  DashboardWidgetSettings,
   WidgetSize,
 } from "../widgets/layout/dashboardLayout.types";
 
@@ -67,14 +71,14 @@ import {
   useFnbDashboardData,
 } from "../widgets/fnb/useFnbDashboardData";
 
-import type {
-  DashboardWidgetSettings,
-} from "../widgets/layout/dashboardLayout.types";
-
+import {
+  createCustomBoardPresetSettings,
+  customBoardPresets,
+  type CustomBoardPreset,
+} from "../widgets/custom-board/customBoard.presets";
 
 function formatDayLabel(
-  date:
-    Date
+  date: Date
 ) {
   return date
     .toLocaleDateString(
@@ -95,24 +99,22 @@ function formatDayLabel(
 
 const STRUCTURED_WIDGET_KEYS =
   new Set<string>([
-    "fnb_services",
-
     "tasks_today",
-
     "messages_recent",
-
     "instructions_today",
-
     "events_today",
-
     "hotel_occupancy",
-
     "notifications",
-
     "room_service_active",
-
     "custom_board",
   ]);
+
+function getWidgetIdentity(
+  widget:
+    DashboardWidgetLayout
+) {
+  return `${widget.widgetKey}:${widget.instanceKey}`;
+}
 
 function getNextOrder(
   layout:
@@ -152,22 +154,520 @@ function getNewInstanceSize(
   definition:
     WidgetDefinition
 ): WidgetSize {
-  /**
-   * Les nouveaux blocs F&B sont volontairement
-   * créés en medium afin de pouvoir en afficher
-   * plusieurs côte à côte.
-   */
+  return definition.defaultSize;
+}
+
+function getWidgetDefinition(
+  widgetKey:
+    string
+) {
+  return widgetDefinitions.find(
+    (
+      definition
+    ) =>
+      definition.widgetKey ===
+      widgetKey
+  );
+}
+
+function isSupportedWidget(
+  widget:
+    DashboardWidgetLayout
+) {
+  return (
+    STRUCTURED_WIDGET_KEYS.has(
+      widget.widgetKey
+    ) &&
+    Boolean(
+      getWidgetDefinition(
+        widget.widgetKey
+      )
+    )
+  );
+}
+
+function cloneWidgetForViewport(
+  widget:
+    DashboardWidgetLayout,
+
+  viewport:
+    DashboardViewport,
+
+  targetLayout:
+    DashboardWidgetLayout[]
+): DashboardWidgetLayout | null {
+  const definition =
+    getWidgetDefinition(
+      widget.widgetKey
+    );
+
   if (
-    definition.widgetKey ===
-      "fnb_services" &&
-    definition.sizes.includes(
-      "medium"
+    !definition ||
+    !STRUCTURED_WIDGET_KEYS.has(
+      widget.widgetKey
     )
   ) {
-    return "medium";
+    return null;
   }
 
-  return definition.defaultSize;
+  const dimensions =
+    definition
+      .defaultLayout[
+        viewport
+      ];
+
+  return {
+    ...widget,
+
+    id:
+      undefined,
+
+    x:
+      0,
+
+    y:
+      getNextOrder(
+        targetLayout
+      ),
+
+    w:
+      dimensions.w,
+
+    h:
+      dimensions.h,
+    
+    stackId:
+      null,
+
+    stackOrder:
+      0,  
+
+    settings: {
+      ...widget.settings,
+    },
+  };
+}
+
+function sameSettings(
+  a:
+    DashboardWidgetSettings,
+
+  b:
+    DashboardWidgetSettings
+) {
+  return (
+    JSON.stringify(a) ===
+    JSON.stringify(b)
+  );
+}
+
+function reconcileLayouts(
+  desktopLayout:
+    DashboardWidgetLayout[],
+
+  mobileLayout:
+    DashboardWidgetLayout[]
+) {
+  const desktopNext = [
+    ...desktopLayout,
+  ];
+
+  const mobileNext = [
+    ...mobileLayout,
+  ];
+
+  const desktopMap =
+    new Map(
+      desktopNext.map(
+        (
+          widget
+        ) => [
+          getWidgetIdentity(
+            widget
+          ),
+          widget,
+        ]
+      )
+    );
+
+  const mobileMap =
+    new Map(
+      mobileNext.map(
+        (
+          widget
+        ) => [
+          getWidgetIdentity(
+            widget
+          ),
+          widget,
+        ]
+      )
+    );
+
+  const identities =
+    new Set([
+      ...desktopMap.keys(),
+      ...mobileMap.keys(),
+    ]);
+
+  let desktopChanged =
+    false;
+
+  let mobileChanged =
+    false;
+
+  for (
+    const identity
+    of identities
+  ) {
+    const desktopWidget =
+      desktopMap.get(
+        identity
+      );
+
+    const mobileWidget =
+      mobileMap.get(
+        identity
+      );
+
+    const sourceWidget =
+      desktopWidget ??
+      mobileWidget;
+
+    if (
+      !sourceWidget ||
+      !isSupportedWidget(
+        sourceWidget
+      )
+    ) {
+      continue;
+    }
+
+    /**
+     * -----------------------------------------
+     * BLOC ABSENT SUR DESKTOP
+     * -----------------------------------------
+     */
+    if (
+      !desktopWidget &&
+      mobileWidget
+    ) {
+      const cloned =
+        cloneWidgetForViewport(
+          mobileWidget,
+          "desktop",
+          desktopNext
+        );
+
+      if (
+        cloned
+      ) {
+        desktopNext.push(
+          cloned
+        );
+
+        desktopMap.set(
+          identity,
+          cloned
+        );
+
+        desktopChanged =
+          true;
+      }
+
+      continue;
+    }
+
+    /**
+     * -----------------------------------------
+     * BLOC ABSENT SUR MOBILE
+     * -----------------------------------------
+     */
+    if (
+      desktopWidget &&
+      !mobileWidget
+    ) {
+      const cloned =
+        cloneWidgetForViewport(
+          desktopWidget,
+          "mobile",
+          mobileNext
+        );
+
+      if (
+        cloned
+      ) {
+        mobileNext.push(
+          cloned
+        );
+
+        mobileMap.set(
+          identity,
+          cloned
+        );
+
+        mobileChanged =
+          true;
+      }
+
+      continue;
+    }
+
+    if (
+      !desktopWidget ||
+      !mobileWidget
+    ) {
+      continue;
+    }
+
+    /**
+     * -----------------------------------------
+     * VISIBILITÉ COMMUNE
+     *
+     * Pour la migration initiale :
+     * si le bloc est visible sur au moins
+     * un viewport, on le garde visible partout.
+     * -----------------------------------------
+     */
+    const sharedVisible =
+      desktopWidget.visible ||
+      mobileWidget.visible;
+
+    /**
+     * -----------------------------------------
+     * SETTINGS COMMUNS
+     *
+     * On privilégie le settings le plus riche.
+     * Cela évite de remplacer un CustomBoard
+     * configuré par un simple settings vide.
+     * -----------------------------------------
+     */
+    const desktopSettingsSize =
+      JSON.stringify(
+        desktopWidget.settings
+      ).length;
+
+    const mobileSettingsSize =
+      JSON.stringify(
+        mobileWidget.settings
+      ).length;
+
+    const sharedSettings =
+      desktopSettingsSize >=
+      mobileSettingsSize
+        ? desktopWidget.settings
+        : mobileWidget.settings;
+
+    const desktopIndex =
+      desktopNext.findIndex(
+        (
+          widget
+        ) =>
+          getWidgetIdentity(
+            widget
+          ) ===
+          identity
+      );
+
+    const mobileIndex =
+      mobileNext.findIndex(
+        (
+          widget
+        ) =>
+          getWidgetIdentity(
+            widget
+          ) ===
+          identity
+      );
+
+    if (
+      desktopWidget.visible !==
+        sharedVisible ||
+      !sameSettings(
+        desktopWidget.settings,
+        sharedSettings
+      )
+    ) {
+      desktopNext[
+        desktopIndex
+      ] = {
+        ...desktopWidget,
+
+        visible:
+          sharedVisible,
+
+        settings: {
+          ...sharedSettings,
+        },
+      };
+
+      desktopChanged =
+        true;
+    }
+
+    if (
+      mobileWidget.visible !==
+        sharedVisible ||
+      !sameSettings(
+        mobileWidget.settings,
+        sharedSettings
+      )
+    ) {
+      mobileNext[
+        mobileIndex
+      ] = {
+        ...mobileWidget,
+
+        visible:
+          sharedVisible,
+
+        settings: {
+          ...sharedSettings,
+        },
+      };
+
+      mobileChanged =
+        true;
+    }
+  }
+
+  return {
+    desktopChanged,
+
+    mobileChanged,
+
+    desktopLayout:
+      desktopNext,
+
+    mobileLayout:
+      mobileNext,
+  };
+}
+
+function updateWidgetSettings(
+  sourceLayout:
+    DashboardWidgetLayout[],
+
+  widgetKey:
+    string,
+
+  instanceKey:
+    string,
+
+  nextSettings:
+    DashboardWidgetSettings
+) {
+  return sourceLayout.map(
+    (
+      widget
+    ) =>
+      widget.widgetKey ===
+        widgetKey &&
+      widget.instanceKey ===
+        instanceKey
+        ? {
+            ...widget,
+
+            settings: {
+              ...widget.settings,
+              ...nextSettings,
+            },
+          }
+        : widget
+  );
+}
+
+function updateWidgetVisibility(
+  sourceLayout:
+    DashboardWidgetLayout[],
+
+  widgetKey:
+    string,
+
+  instanceKey:
+    string,
+
+  visible:
+    boolean
+) {
+  return sourceLayout.map(
+    (
+      widget
+    ) =>
+      widget.widgetKey ===
+        widgetKey &&
+      widget.instanceKey ===
+        instanceKey
+        ? {
+            ...widget,
+
+            visible,
+          }
+        : widget
+  );
+}
+
+function createWidgetForViewport({
+  definition,
+  viewport,
+  layout,
+  instanceKey,
+  settings,
+}: {
+  definition:
+    WidgetDefinition;
+
+  viewport:
+    DashboardViewport;
+
+  layout:
+    DashboardWidgetLayout[];
+
+  instanceKey:
+    string;
+
+  settings:
+    DashboardWidgetSettings;
+}): DashboardWidgetLayout {
+  const dimensions =
+    definition
+      .defaultLayout[
+        viewport
+      ];
+
+  return {
+    widgetKey:
+      definition.widgetKey,
+
+    instanceKey,
+
+    x:
+      0,
+
+    y:
+      getNextOrder(
+        layout
+      ),
+
+    w:
+      dimensions.w,
+
+    h:
+      dimensions.h,
+
+    visible:
+      true,
+
+    stackId:
+      null,
+
+    stackOrder:
+      0,  
+
+    settings: {
+      ...settings,
+    },
+  };
 }
 
 export function DashboardBoard() {
@@ -238,53 +738,44 @@ export function DashboardBoard() {
         canViewTasks,
     });
 
-    const fnb =
-      useFnbDashboardData(
-        hotelId,
-        selectedDate,
-        !loadingPermissions &&
-          permissions.has(
-            "fnb.view"
-          )
-      );
+  const fnb =
+    useFnbDashboardData(
+      hotelId,
+      selectedDate,
+      !loadingPermissions &&
+        permissions.has(
+          "fnb.view"
+        )
+    );
 
   const roomService =
     useRoomServiceWidgetsData(
       hotelId,
-
       !loadingPermissions &&
         permissions.has(
           "orders.view"
         )
     );
 
-  const defaultLayout =
+  const desktopDefaultLayout =
     useMemo(
       () =>
         getDefaultDashboardLayout(
-          viewport
+          "desktop"
         ),
-
-      [
-        viewport,
-      ]
+      []
     );
 
-  const {
-    layout,
+  const mobileDefaultLayout =
+    useMemo(
+      () =>
+        getDefaultDashboardLayout(
+          "mobile"
+        ),
+      []
+    );
 
-    loading:
-      loadingLayout,
-
-    saving,
-
-    error:
-      layoutError,
-
-    commitLayout,
-
-    reset,
-  } =
+  const desktopDashboard =
     useDashboardLayout({
       hotelId,
 
@@ -292,11 +783,121 @@ export function DashboardBoard() {
         user.id ||
         null,
 
-      viewport,
+      viewport:
+        "desktop",
 
-      defaultLayout,
+      defaultLayout:
+        desktopDefaultLayout,
     });
 
+  const mobileDashboard =
+    useDashboardLayout({
+      hotelId,
+
+      userId:
+        user.id ||
+        null,
+
+      viewport:
+        "mobile",
+
+      defaultLayout:
+        mobileDefaultLayout,
+    });
+
+  const currentDashboard =
+    viewport ===
+      "desktop"
+      ? desktopDashboard
+      : mobileDashboard;
+
+  const {
+    layout,
+
+    loading:
+      loadingLayout,
+
+    commitLayout,
+  } =
+    currentDashboard;
+
+  const saving =
+    desktopDashboard.saving ||
+    mobileDashboard.saving;
+
+  const layoutError =
+    desktopDashboard.error ||
+    mobileDashboard.error;
+
+  const migrationRunning =
+    useRef(
+      false
+    );
+
+  useEffect(
+  () => {
+    if (
+      loadingPermissions ||
+      desktopDashboard.loading ||
+      mobileDashboard.loading ||
+      desktopDashboard.saving ||
+      mobileDashboard.saving ||
+      migrationRunning.current
+    ) {
+      return;
+    }
+
+    const result =
+      reconcileLayouts(
+        desktopDashboard.layout,
+        mobileDashboard.layout
+      );
+
+    if (
+      !result.desktopChanged &&
+      !result.mobileChanged
+    ) {
+      return;
+    }
+
+    migrationRunning.current =
+      true;
+
+    void Promise.all([
+      result.desktopChanged
+        ? desktopDashboard.commitLayout(
+            result.desktopLayout
+          )
+        : Promise.resolve(
+            true
+          ),
+
+      result.mobileChanged
+        ? mobileDashboard.commitLayout(
+            result.mobileLayout
+          )
+        : Promise.resolve(
+            true
+          ),
+    ]).finally(
+      () => {
+        migrationRunning.current =
+          false;
+      }
+    );
+  },
+  [
+    loadingPermissions,
+
+    desktopDashboard.loading,
+    desktopDashboard.saving,
+    desktopDashboard.layout,
+
+    mobileDashboard.loading,
+    mobileDashboard.saving,
+    mobileDashboard.layout,
+  ]
+);
   const [
     editMode,
     setEditMode,
@@ -323,11 +924,12 @@ export function DashboardBoard() {
             STRUCTURED_WIDGET_KEYS.has(
               definition.widgetKey
             ) &&
+            definition.widgetKey !==
+              "custom_board" &&
             can(
               definition.permission
             )
         ),
-
       [
         can,
       ]
@@ -349,12 +951,8 @@ export function DashboardBoard() {
             }
 
             const definition =
-              widgetDefinitions.find(
-                (
-                  item
-                ) =>
-                  item.widgetKey ===
-                  widget.widgetKey
+              getWidgetDefinition(
+                widget.widgetKey
               );
 
             if (
@@ -368,7 +966,6 @@ export function DashboardBoard() {
             );
           }
         ),
-
       [
         layout,
         can,
@@ -393,7 +990,6 @@ export function DashboardBoard() {
                 widget.widgetKey
             )
         ),
-
       [
         allowedLayout,
       ]
@@ -417,7 +1013,6 @@ export function DashboardBoard() {
                 widget.widgetKey
             )
         ),
-
       [
         galleryWidgets,
       ]
@@ -519,29 +1114,39 @@ export function DashboardBoard() {
     nextSettings:
       DashboardWidgetSettings
   ) {
-    const next =
-      layout.map(
-        (
-          widget
-        ) =>
-          widget.widgetKey ===
-            widgetKey &&
-          widget.instanceKey ===
-            instanceKey
-            ? {
-                ...widget,
-
-                settings: {
-                  ...widget.settings,
-
-                  ...nextSettings,
-                },
-              }
-            : widget
+    const desktopNext =
+      updateWidgetSettings(
+        desktopDashboard.layout,
+        widgetKey,
+        instanceKey,
+        nextSettings
       );
 
-    return commitLayout(
-      next
+    const mobileNext =
+      updateWidgetSettings(
+        mobileDashboard.layout,
+        widgetKey,
+        instanceKey,
+        nextSettings
+      );
+
+    const [
+      desktopSuccess,
+      mobileSuccess,
+    ] =
+      await Promise.all([
+        desktopDashboard.commitLayout(
+          desktopNext
+        ),
+
+        mobileDashboard.commitLayout(
+          mobileNext
+        ),
+      ]);
+
+    return (
+      desktopSuccess &&
+      mobileSuccess
     );
   }
 
@@ -552,26 +1157,39 @@ export function DashboardBoard() {
     instanceKey:
       string
   ) {
-    const next =
-      layout.map(
-        (
-          widget
-        ) =>
-          widget.widgetKey ===
-            widgetKey &&
-          widget.instanceKey ===
-            instanceKey
-            ? {
-                ...widget,
-
-                visible:
-                  false,
-              }
-            : widget
+    const desktopNext =
+      updateWidgetVisibility(
+        desktopDashboard.layout,
+        widgetKey,
+        instanceKey,
+        false
       );
 
-    return commitLayout(
-      next
+    const mobileNext =
+      updateWidgetVisibility(
+        mobileDashboard.layout,
+        widgetKey,
+        instanceKey,
+        false
+      );
+
+    const [
+      desktopSuccess,
+      mobileSuccess,
+    ] =
+      await Promise.all([
+        desktopDashboard.commitLayout(
+          desktopNext
+        ),
+
+        mobileDashboard.commitLayout(
+          mobileNext
+        ),
+      ]);
+
+    return (
+      desktopSuccess &&
+      mobileSuccess
     );
   }
 
@@ -579,11 +1197,6 @@ export function DashboardBoard() {
     definition:
       WidgetDefinition
   ) {
-    const nextOrder =
-      getNextOrder(
-        layout
-      );
-
     /**
      * =====================================================
      * MULTI-INSTANCE
@@ -592,12 +1205,6 @@ export function DashboardBoard() {
     if (
       definition.allowMultiple
     ) {
-      const dimensions =
-        definition
-          .defaultLayout[
-          viewport
-        ];
-
       const instanceKey =
         crypto.randomUUID();
 
@@ -606,78 +1213,65 @@ export function DashboardBoard() {
           definition
         );
 
-      const nextWidget:
-        DashboardWidgetLayout =
-        {
-          widgetKey:
-            definition.widgetKey,
+      const settings:
+        DashboardWidgetSettings =
+        definition.widgetKey ===
+        "custom_board"
+          ? createCustomBoardPresetSettings(
+              "blank"
+            )
+          : {
+              size:
+                initialSize,
 
+              title:
+                definition.title,
+
+              serviceIds:
+                [],
+            };
+
+      const desktopWidget =
+        createWidgetForViewport({
+          definition,
+          viewport:
+            "desktop",
+          layout:
+            desktopDashboard.layout,
           instanceKey,
+          settings,
+        });
 
-          x:
-            0,
+      const mobileWidget =
+        createWidgetForViewport({
+          definition,
+          viewport:
+            "mobile",
+          layout:
+            mobileDashboard.layout,
+          instanceKey,
+          settings,
+        });
 
-          y:
-            nextOrder,
+      const [
+        desktopSuccess,
+        mobileSuccess,
+      ] =
+        await Promise.all([
+          desktopDashboard.commitLayout([
+            ...desktopDashboard.layout,
+            desktopWidget,
+          ]),
 
-          w:
-            dimensions.w,
-
-          h:
-            dimensions.h,
-
-          visible:
-            true,
-
-          settings:
-            definition.widgetKey ===
-            "custom_board"
-              ? {
-                  size:
-                    "medium",
-
-                  title:
-                    "Nouveau bloc",
-
-                  eyebrow:
-                    "PERSONNALISÉ",
-
-                  density:
-                    "compact",
-
-                  showSubtitle:
-                    true,
-
-                  showValue:
-                    true,
-
-                  showCapacity:
-                    true,
-
-                  items:
-                    [],
-                }
-              : {
-                  size:
-                    initialSize,
-
-                  title:
-                    definition.title,
-
-                  serviceIds:
-                    [],
-                },
-        };
-
-      const success =
-        await commitLayout([
-          ...layout,
-
-          nextWidget,
+          mobileDashboard.commitLayout([
+            ...mobileDashboard.layout,
+            mobileWidget,
+          ]),
         ]);
 
       if (
-        success
+        desktopSuccess &&
+        mobileSuccess
       ) {
         setGalleryOpen(
           false
@@ -692,8 +1286,8 @@ export function DashboardBoard() {
      * WIDGET CLASSIQUE
      * =====================================================
      */
-    const existing =
-      layout.find(
+    const desktopExisting =
+      desktopDashboard.layout.find(
         (
           widget
         ) =>
@@ -703,94 +1297,137 @@ export function DashboardBoard() {
             "default"
       );
 
-    if (
-      existing
-    ) {
-      const next =
-        layout.map(
-          (
-            widget
-          ) =>
-            widget.widgetKey ===
-                definition.widgetKey &&
-              widget.instanceKey ===
-                "default"
-              ? {
-                  ...widget,
+    const mobileExisting =
+      mobileDashboard.layout.find(
+        (
+          widget
+        ) =>
+          widget.widgetKey ===
+            definition.widgetKey &&
+          widget.instanceKey ===
+            "default"
+      );
 
-                  visible:
-                    true,
-
-                  x:
-                    0,
-
-                  y:
-                    nextOrder,
-                }
-              : widget
-        );
-
-      const success =
-        await commitLayout(
-          next
-        );
-
-      if (
-        success
-      ) {
-        setGalleryOpen(
-          false
-        );
-      }
-
-      return;
-    }
-
-    const dimensions =
-      definition
-        .defaultLayout[
-        viewport
-      ];
-
-    const nextWidget:
-      DashboardWidgetLayout =
+    const baseSettings:
+      DashboardWidgetSettings =
+      desktopExisting?.settings ??
+      mobileExisting?.settings ??
       {
-        widgetKey:
-          definition.widgetKey,
-
-        instanceKey:
-          "default",
-
-        x:
-          0,
-
-        y:
-          nextOrder,
-
-        w:
-          dimensions.w,
-
-        h:
-          dimensions.h,
-
-        visible:
-          true,
-
-        settings: {
-          size:
-            definition.defaultSize,
-        },
+        size:
+          definition.defaultSize,
       };
 
-    const success =
-      await commitLayout([
-        ...layout,
+    const desktopNext =
+      desktopExisting
+        ? desktopDashboard.layout.map(
+            (
+              widget
+            ) =>
+              widget.widgetKey ===
+                  definition.widgetKey &&
+                widget.instanceKey ===
+                  "default"
+                ? {
+                    ...widget,
 
-        nextWidget,
+                    visible:
+                      true,
+
+                    x:
+                      0,
+
+                    y:
+                      getNextOrder(
+                        desktopDashboard.layout
+                      ),
+
+                    settings: {
+                      ...widget.settings,
+                      ...baseSettings,
+                    },
+                  }
+                : widget
+          )
+        : [
+            ...desktopDashboard.layout,
+
+            createWidgetForViewport({
+              definition,
+              viewport:
+                "desktop",
+              layout:
+                desktopDashboard.layout,
+              instanceKey:
+                "default",
+              settings:
+                baseSettings,
+            }),
+          ];
+
+    const mobileNext =
+      mobileExisting
+        ? mobileDashboard.layout.map(
+            (
+              widget
+            ) =>
+              widget.widgetKey ===
+                  definition.widgetKey &&
+                widget.instanceKey ===
+                  "default"
+                ? {
+                    ...widget,
+
+                    visible:
+                      true,
+
+                    x:
+                      0,
+
+                    y:
+                      getNextOrder(
+                        mobileDashboard.layout
+                      ),
+
+                    settings: {
+                      ...widget.settings,
+                      ...baseSettings,
+                    },
+                  }
+                : widget
+          )
+        : [
+            ...mobileDashboard.layout,
+
+            createWidgetForViewport({
+              definition,
+              viewport:
+                "mobile",
+              layout:
+                mobileDashboard.layout,
+              instanceKey:
+                "default",
+              settings:
+                baseSettings,
+            }),
+          ];
+
+    const [
+      desktopSuccess,
+      mobileSuccess,
+    ] =
+      await Promise.all([
+        desktopDashboard.commitLayout(
+          desktopNext
+        ),
+
+        mobileDashboard.commitLayout(
+          mobileNext
+        ),
       ]);
 
     if (
-      success
+      desktopSuccess &&
+      mobileSuccess
     ) {
       setGalleryOpen(
         false
@@ -798,9 +1435,107 @@ export function DashboardBoard() {
     }
   }
 
+  async function handleAddCustomBoardPreset(
+    preset:
+      CustomBoardPreset
+  ) {
+    const definition =
+      getWidgetDefinition(
+        "custom_board"
+      );
+
+    if (
+      !definition
+    ) {
+      return;
+    }
+
+    const settings =
+      createCustomBoardPresetSettings(
+        preset.key
+      );
+
+    const instanceKey =
+      crypto.randomUUID();
+
+    const desktopWidget =
+      createWidgetForViewport({
+        definition,
+        viewport:
+          "desktop",
+        layout:
+          desktopDashboard.layout,
+        instanceKey,
+        settings,
+      });
+
+    const mobileWidget =
+      createWidgetForViewport({
+        definition,
+        viewport:
+          "mobile",
+        layout:
+          mobileDashboard.layout,
+        instanceKey,
+        settings,
+      });
+
+    const [
+      desktopSuccess,
+      mobileSuccess,
+    ] =
+      await Promise.all([
+        desktopDashboard.commitLayout([
+          ...desktopDashboard.layout,
+          desktopWidget,
+        ]),
+
+        mobileDashboard.commitLayout([
+          ...mobileDashboard.layout,
+          mobileWidget,
+        ]),
+      ]);
+
+    if (
+      desktopSuccess &&
+      mobileSuccess
+    ) {
+      setGalleryOpen(
+        false
+      );
+    }
+  }
+
+  async function handleReset() {
+    const [
+      desktopSuccess,
+      mobileSuccess,
+    ] =
+      await Promise.all([
+        desktopDashboard.reset(),
+        mobileDashboard.reset(),
+      ]);
+
+    if (
+      desktopSuccess &&
+      mobileSuccess
+    ) {
+      setGalleryOpen(
+        false
+      );
+    }
+
+    return (
+      desktopSuccess &&
+      mobileSuccess
+    );
+  }
+
   const loading =
     loadingPermissions ||
-    loadingLayout;
+    loadingLayout ||
+    desktopDashboard.loading ||
+    mobileDashboard.loading;
 
   return (
     <div className="dashboard-board">
@@ -836,7 +1571,7 @@ export function DashboardBoard() {
                     saving
                   }
                   onClick={() =>
-                    void reset()
+                    void handleReset()
                   }
                 >
                   <RotateCcw
@@ -996,11 +1731,23 @@ export function DashboardBoard() {
           repeatableKeys
         }
 
+        customBoardPresets={
+          customBoardPresets
+        }
+
         onAdd={(
           definition
         ) =>
           void handleAdd(
             definition
+          )
+        }
+
+        onAddCustomBoardPreset={(
+          preset
+        ) =>
+          void handleAddCustomBoardPreset(
+            preset
           )
         }
 

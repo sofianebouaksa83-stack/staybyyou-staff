@@ -42,6 +42,12 @@ export type DashboardWidgetLayout = {
 
   visible: boolean;
 
+  stackId:
+    string | null;
+
+  stackOrder:
+    number;
+
   settings:
     DashboardWidgetSettings;
 };
@@ -66,6 +72,12 @@ export type DashboardWidgetRow = {
   h: number;
 
   visible: boolean;
+
+  stack_id:
+    string | null;
+
+  stack_order:
+    number;
 
   settings:
     DashboardWidgetSettings | null;

@@ -33,6 +33,14 @@ function toLayout(
     visible:
       row.visible,
 
+    stackId:
+      row.stack_id ??
+      null,
+
+    stackOrder:
+      row.stack_order ??
+      0,  
+
     settings:
       row.settings ?? {},
   };
@@ -136,6 +144,12 @@ export async function saveDashboardLayout(
 
         visible:
           widget.visible,
+
+        stack_id:
+          widget.stackId,
+
+        stack_order:
+          widget.stackOrder,  
 
         settings:
           widget.settings,

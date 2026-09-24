@@ -11,6 +11,14 @@ import {
   readCustomBoardSettings,
 } from "../../features/widgets/custom-board/customBoard.helpers";
 
+import {
+  updateCustomBoardItemValue,
+} from "../../features/widgets/custom-board/customBoard.mutations";
+
+import {
+  resolveCustomBoardItems,
+} from "../../features/widgets/custom-board/customBoard.resolver";
+
 import type {
   CustomBoardSettings,
 } from "../../features/widgets/custom-board/customBoard.types";
@@ -28,6 +36,7 @@ import {
 } from "./CustomBoardSettingsModal";
 
 export function CustomBoardWidget({
+  data,
   settings,
   canConfigure = false,
   onSettingsChange,
@@ -35,6 +44,35 @@ export function CustomBoardWidget({
   const parsed =
     readCustomBoardSettings(
       settings
+    );
+
+  const resolvedRows =
+    resolveCustomBoardItems(
+      parsed.items,
+      {
+        staybyyouFnbServices:
+          data.fnb.services,
+
+        staybyyouHotel: {
+          arrivalsCount:
+            data.arrivalsCount,
+
+          departuresCount:
+            data.departuresCount,
+
+          inHouseCount:
+            data.inHouseCount,
+
+          roomCount:
+            data.roomCount,
+
+          occupancyRate:
+            data.occupancyRate,
+
+          loading:
+            data.loadingHotel,
+        },
+      }
     );
 
   const [
@@ -93,6 +131,52 @@ export function CustomBoardWidget({
     }
   }
 
+  async function handleValueChange(
+    rowId: string,
+    value: number
+  ) {
+    if (
+      !onSettingsChange
+    ) {
+      return false;
+    }
+
+    const result =
+      await updateCustomBoardItemValue(
+        parsed.items,
+        rowId,
+        value,
+        {
+          updateStayByYouFnbReservations:
+            data.fnb.updateReservations,
+        }
+      );
+
+    if (
+      !result.success
+    ) {
+      return false;
+    }
+
+    /**
+     * Une mutation externe comme F&B
+     * n'a rien à enregistrer dans les
+     * settings du CustomBoard.
+     */
+    if (
+      !result.items
+    ) {
+      return true;
+    }
+
+    return onSettingsChange({
+      ...settings,
+
+      items:
+        result.items,
+    });
+  }
+
   return (
     <>
       <section
@@ -129,23 +213,23 @@ export function CustomBoardWidget({
             )}
         </header>
 
-        {parsed.items.length ===
+        {resolvedRows.length ===
         0 ? (
           <p className="custom-board__empty">
             Aucun élément.
           </p>
         ) : (
           <div className="custom-board__rows">
-            {parsed.items.map(
+            {resolvedRows.map(
               (
-                item
+                row
               ) => (
                 <CustomBoardRow
                   key={
-                    item.id
+                    row.id
                   }
-                  item={
-                    item
+                  row={
+                    row
                   }
                   showSubtitle={
                     parsed.showSubtitle
@@ -155,6 +239,19 @@ export function CustomBoardWidget({
                   }
                   showCapacity={
                     parsed.showCapacity
+                  }
+                  onValueChange={
+                    canConfigure &&
+                    onSettingsChange &&
+                    row.editable
+                      ? (
+                          value
+                        ) =>
+                          handleValueChange(
+                            row.id,
+                            value
+                          )
+                      : undefined
                   }
                 />
               )
@@ -167,6 +264,9 @@ export function CustomBoardWidget({
         <CustomBoardSettingsModal
           value={
             draft
+          }
+          fnbServices={
+            data.fnb.services
           }
           onChange={
             setDraft

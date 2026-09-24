@@ -7,6 +7,10 @@ import type {
   WidgetDefinition,
 } from "../../features/widgets/registry/widgetRegistry.types";
 
+import type {
+  CustomBoardPreset,
+} from "../../features/widgets/custom-board/customBoard.presets";
+
 type Props = {
   open: boolean;
 
@@ -15,6 +19,14 @@ type Props = {
 
   activeKeys:
     Set<string>;
+
+  customBoardPresets:
+    CustomBoardPreset[];
+
+  onAddCustomBoardPreset: (
+    preset:
+      CustomBoardPreset
+  ) => void;
 
   /**
    * Les widgets présents ici peuvent
@@ -54,7 +66,9 @@ export function WidgetGallery({
   widgets,
   activeKeys,
   repeatableKeys,
+  customBoardPresets,
   onAdd,
+  onAddCustomBoardPreset,
   onClose,
 }: Props) {
   if (!open) {
@@ -107,6 +121,59 @@ export function WidgetGallery({
         </div>
 
         <div className="widget-gallery__content">
+          {customBoardPresets.length >
+            0 && (
+            <section className="widget-gallery__section">
+              <h3>
+                BLOCS DYNAMIQUES
+              </h3>
+
+              <div className="widget-gallery__list">
+                {customBoardPresets.map(
+                  (
+                    preset
+                  ) => (
+                    <button
+                      type="button"
+                      key={
+                        preset.key
+                      }
+                      className="widget-gallery__item"
+                      onClick={() =>
+                        onAddCustomBoardPreset(
+                          preset
+                        )
+                      }
+                    >
+                      <span>
+                        <strong>
+                          {
+                            preset.title
+                          }
+                        </strong>
+
+                        <small>
+                          {
+                            preset.description
+                          }
+                        </small>
+
+                        <small className="widget-gallery__repeatable">
+                          Plusieurs blocs possibles
+                        </small>
+                      </span>
+
+                      <i>
+                        <Plus
+                          size={16}
+                        />
+                      </i>
+                    </button>
+                  )
+                )}
+              </div>
+            </section>
+          )}
           {Object.entries(
             categoryLabels
           ).map(
